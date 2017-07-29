@@ -21,38 +21,37 @@
 
 namespace util {
 
-struct Item;
-struct Items;
-
-/*
- * Type of the item's data
- */
-enum var_type {
-	uint8, int8, uint16, int16, uint32, int32, flp, boolean, menu, func
-};
-
-/*
- * Item structure that stores all the necessary information
- */
-struct Item {
-	char *name = nullptr;
-	var_type type = menu;
-	uint8_t value_index = 0;
-	float interval = 0;
-	char* true_text = nullptr;
-	char* false_text = nullptr;
-	Items *sub_menu = nullptr;
-};
-
-/*
- * Items structure that stores more item, act like a sub menu
- */
-struct Items {
-	std::vector<Item> menu_items;
-	char *menu_name = nullptr;
-};
-
 class Menu {
+private:
+	/*
+	 * Type of the item's data
+	 */
+	enum var_type {
+		uint8, int8, uint16, int16, uint32, int32, flp, boolean, menu, func
+	};
+
+	struct Items;
+
+	/*
+	 * Item structure that stores all the necessary information
+	 */
+	struct Item {
+		char *name = nullptr;
+		var_type type = menu;
+		uint8_t value_index = 0;
+		float interval = 0;
+		char* true_text = nullptr;
+		char* false_text = nullptr;
+		Items *sub_menu = nullptr;
+	};
+
+	/*
+	 * Items structure that stores more item, act like a sub menu
+	 */
+	struct Items {
+		std::vector<Item> menu_items;
+		char *menu_name = nullptr;
+	};
 public:
 	/*
 	 * Default contructor

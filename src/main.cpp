@@ -87,8 +87,11 @@ int main() {
 	servo = &servo_;
 
 	//Bluetooth Init
-	BTComm bt_;
-	bt = &bt_;
+//	libsc::k60::JyMcuBt106::Config bt_config;
+//	bt_config.baud_rate = libbase::k60::Uart::Config::BaudRate::k115200;
+//	bt_config.id = 0;
+//	util::BTComm bt_(bt_config);
+//	bt = &bt_;
 
 	//Flash Init
 	Flash::Config flash_config;
@@ -96,12 +99,16 @@ int main() {
 	flash = &flash_;
 
 	//Pit Init
-	Pit::Config pit_config;
-	pit_config.channel = 0;
-	pit_config.count = 37500 * 5;
-	pit_config.is_enable = true;
-	Pit pit_(pit_config);
-	pit = &pit_;
+//	Pit::Config pit_config;
+//	pit_config.channel = 0;
+//	pit_config.count = 37500 * 10; //5ms
+//	pit_config.is_enable = false;
+//	Pit pit_(pit_config);
+//	pit = &pit_;
+
+	//Control Init
+	util::Control car_(servo, left_encoder, right_encoder, left_motor, right_motor, 0, 0, 0);
+	car = &car_;
 
 	util::battery_test();
 

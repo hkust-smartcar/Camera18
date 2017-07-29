@@ -45,7 +45,7 @@
 
 //Bluetooth Header File
 #include <libsc/k60/jy_mcu_bt_106.h>
-#include <../inc/util/bluetooth.h>
+//#include <../inc/util/bluetooth.h>
 
 //Battery Meter Header File
 #include <libsc/battery_meter.h>
@@ -55,6 +55,9 @@
 
 //Pit Header File
 #include <libbase/k60/pit.h>
+
+//Speed Control Header File
+#include <../inc/util/control.h>
 
 //Menu Header File
 #include <../inc/util/menu.h>
@@ -91,14 +94,15 @@ extern BatteryMeter *battery_meter;
 extern PassiveBuzzer *buzzer;
 extern Ov7725 *cam;
 extern FutabaS3010 *servo;
-extern DirMotor *motor1;
-extern DirMotor *motor1;
-extern DirEncoder *encoder1;
-extern DirEncoder *encoder2;
+extern DirMotor *left_motor;
+extern DirMotor *right_motor;
+extern DirEncoder *left_encoder;
+extern DirEncoder *right_encoder;
 extern JyMcuBt106 *original_bt;
-extern BTComm *bt;
+//extern util::BTComm *bt;
 extern Flash *flash;
 extern Pit *pit;
+extern util::Control *car;
 
 //Global variable
 extern uint8_t contrast;

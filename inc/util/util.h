@@ -21,20 +21,6 @@ void servo_tune();
 void camera_tune();
 void PrintLogo();
 
-#if __cplusplus > 201103L
-using std::make_unique;
-#else
-
-/**
- * Backport of std::make_unique from C++14
- */
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&& ... args) {
-	return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-#endif  // __cplusplus > 201103L (check for C++14 support)
-
 }
 
 
