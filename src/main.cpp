@@ -87,27 +87,37 @@ int main() {
 	servo = &servo_;
 
 	//Bluetooth Init
-//	libsc::k60::JyMcuBt106::Config bt_config;
-//	bt_config.baud_rate = libbase::k60::Uart::Config::BaudRate::k115200;
-//	bt_config.id = 0;
-//	util::BTComm bt_(bt_config);
-//	bt = &bt_;
+	libsc::k60::JyMcuBt106::Config bt_config;
+	bt_config.baud_rate = libbase::k60::Uart::Config::BaudRate::k115200;
+	bt_config.id = 0;
+	libsc::k60::JyMcuBt106 bt_(bt_config);
+	bt = &bt_;
 
 	//Flash Init
 	Flash::Config flash_config;
 	Flash flash_(flash_config);
 	flash = &flash_;
 
-	//Pit Init
-//	Pit::Config pit_config;
-//	pit_config.channel = 0;
-//	pit_config.count = 37500 * 10; //5ms
-//	pit_config.is_enable = false;
-//	Pit pit_(pit_config);
-//	pit = &pit_;
+	//Motor Init
+	libsc::DirMotor::Config motor_config;
+	motor_config.id = 0;
+	libsc::DirMotor left_motor_(motor_config);
+	left_motor = &left_motor_;
+	motor_config.id = 1;
+	libsc::DirMotor right_motor_(motor_config);
+	right_motor = &right_motor_;
+
+	//Encoder Init
+	libsc::DirEncoder::Config encoder_config;
+	encoder_config.id = 0;
+	libsc::DirEncoder left_encoder_(encoder_config);
+	left_encoder = &left_encoder_;
+	encoder_config.id = 1;
+	libsc::DirEncoder right_encoder_(encoder_config);
+	right_encoder = &right_encoder_;
 
 	//Control Init
-	util::Control car_(servo, left_encoder, right_encoder, left_motor, right_motor, 0, 0, 0);
+	util::Control car_(servo, left_encoder, right_encoder, left_motor, right_motor, 0, 0, 0, servo_left_bound, servo_right_bound);
 	car = &car_;
 
 	util::battery_test();
@@ -135,21 +145,21 @@ int main() {
 	console->WriteString("(Leslie)");
 	System::DelayMs(1500);
 
-	util::Menu menu(lcd, console, joystick, flash);
-	menu.AddItem("contrast", &contrast, 1, &menu.main_menu);
-	menu.AddItem("battery level", std::bind(&util::battery_test), &menu.main_menu);
-	menu.AddItem("servo tune", std::bind(&util::servo_tune), &menu.main_menu);
-//	menu.AddItem("snake game", std::bind(&snake_game, joystick, lcd, console), &menu.main_menu);
-	menu.EnterMenu(&menu.main_menu);
-
 	Ov7725::Config config_cam;
 	config_cam.contrast = contrast;
 	config_cam.fps = Ov7725::Config::Fps::kHigh;
 	config_cam.id = 0;
-	config_cam.h = cam_height;
-	config_cam.w = cam_width;
+	config_cam.h = 480;
+	config_cam.w = 128;
 	Ov7725 cam_(config_cam);
 	cam = &cam_;
+
+	util::Menu menu(lcd, console, joystick, flash);
+	menu.AddItem("contrast", &contrast, 1, &menu.main_menu);
+	menu.AddItem("battery level", std::bind(&util::battery_test), &menu.main_menu);
+	menu.AddItem("servo tune", std::bind(&util::servo_tune), &menu.main_menu);
+	menu.AddItem("snake game", std::bind(&snake_game, joystick, lcd, console), &menu.main_menu);
+	menu.EnterMenu(&menu.main_menu);
 
 	//Program ended action
 	while (true) {

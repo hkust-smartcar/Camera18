@@ -58,6 +58,10 @@ public:
 	 * Pass lcd, lcd console, joystick and flash(keep the data memory even the device shut down) into menu class
 	 */
 	Menu(libsc::St7735r *lcd, libsc::LcdConsole *console, libsc::Joystick *joystick, libbase::k60::Flash *flash);
+	/*
+	 * This is menu with encoder to control
+	 */
+	Menu(libsc::St7735r *lcd, libsc::LcdConsole *console, libsc::Joystick *joystick, util::Control *car, libbase::k60::Flash *flash);
 
 	Items main_menu;
 
@@ -89,6 +93,7 @@ private:
 	uint8_t max_string_width = 15; //first char count as one
 	uint8_t max_row = 9; //first row count as one
 	libsc::Joystick *joystick;
+	util::Control *car = nullptr;
 	libbase::k60::Flash *flash;
 	uint16_t flash_sum = 0;
 	std::vector<uint8_t*> uint8_data;

@@ -22,6 +22,15 @@ Menu::Menu(St7735r *lcd, LcdConsole *console, Joystick *joystick, Flash *flash) 
 	main_menu.menu_name = "main menu";
 }
 
+Menu::Menu(libsc::St7735r *lcd, libsc::LcdConsole *console, libsc::Joystick *joystick, util::Control *car, libbase::k60::Flash *flash) {
+	this->lcd = lcd;
+	this->console = console;
+	this->joystick = joystick;
+	this->car = car;
+	this->flash = flash;
+	main_menu.menu_name = "main menu";
+}
+
 void Menu::AddItem(char *name, uint8_t *value, uint8_t interval, Items *menu) {
 	Item item;
 	item.name = name;

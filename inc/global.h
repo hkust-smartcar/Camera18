@@ -66,7 +66,7 @@
 #include <../inc/util/util.h>
 
 //Snake Game Header File
-//#include <../inc/game/snake_game.h>
+#include <../inc/game/snake_game.h>
 
 //namespace
 using namespace libsc;
@@ -98,10 +98,10 @@ extern DirMotor *left_motor;
 extern DirMotor *right_motor;
 extern DirEncoder *left_encoder;
 extern DirEncoder *right_encoder;
-extern JyMcuBt106 *original_bt;
+extern JyMcuBt106 *bt;
 //extern util::BTComm *bt;
 extern Flash *flash;
-extern Pit *pit;
+//extern Pit *pit;
 extern util::Control *car;
 
 //Global variable

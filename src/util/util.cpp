@@ -103,12 +103,19 @@ void servo_tune() {
 				last_trigger_time = System::Time();
 				System::DelayMs(200);
 			}
+		} else if (joystick->GetState() == Joystick::State::kSelect) {
+			return;
 		}
 	}
 }
 
 void camera_tune() {
+	cam->Start();
+	while (true) {
+		if (!System::Time() % 500) {
 
+		}
+	}
 }
 
 void PrintLogo() {

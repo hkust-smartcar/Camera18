@@ -24,10 +24,10 @@ DirMotor *left_motor = nullptr;
 DirMotor *right_motor = nullptr;
 DirEncoder *left_encoder = nullptr;
 DirEncoder *right_encoder = nullptr;
-JyMcuBt106 *original_bt = nullptr;
+JyMcuBt106 *bt = nullptr;
 //util::BTComm *bt = nullptr;
 Flash *flash = nullptr;
-Pit *pit = nullptr;
+//Pit *pit = nullptr;
 util::Control *car = nullptr;
 
 //Global variable
