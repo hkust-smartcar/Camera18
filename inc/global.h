@@ -23,6 +23,8 @@
 #include <libsc/joystick.h>
 
 //LCD Header File
+
+#include <libsc/k60/touchscreen_lcd.h>
 #include <libsc/st7735r.h>
 #include <libsc/lcd_console.h>
 #include <libsc/lcd_typewriter.h>
@@ -40,8 +42,8 @@
 #include<libsc/dir_motor.h>
 #include<libsc/motor.h>
 
-//Dir Encoder Header File
-#include<libsc/dir_encoder.h>
+//AB Encoder Header File
+#include<libsc/ab_encoder.h>
 
 //Bluetooth Header File
 #include <libsc/k60/jy_mcu_bt_106.h>
@@ -53,26 +55,20 @@
 //Flash Header File
 #include <libbase/k60/flash.h>
 
-//Pit Header File
-#include <libbase/k60/pit.h>
-
 //Speed Control Header File
 #include <../inc/util/control.h>
 
 //Menu Header File
-#include <../inc/util/menu.h>
+#include <libutil/normal_menu.h>
 
 //Util Header File
 #include <../inc/util/util.h>
 
-//Snake Game Header File
-#include <../inc/game/snake_game.h>
+//Algo Header File
+#include <../inc/algo.h>
+#include "util/control_carC.h"
 
 //namespace
-using namespace libsc;
-using namespace libsc::k60;
-using namespace libbase::k60;
-using namespace libutil;
 using namespace std;
 
 //Struct
@@ -82,35 +78,34 @@ struct coor {
 };
 
 //Global pointer
-extern Led *led1;
-extern Led *led2;
-extern Led *led3;
-extern Led *led4;
-extern Joystick *joystick;
-extern St7735r *lcd;
-extern LcdConsole *console;
-extern LcdTypewriter *type_writer;
-extern BatteryMeter *battery_meter;
-extern PassiveBuzzer *buzzer;
-extern Ov7725 *cam;
-extern FutabaS3010 *servo;
-extern DirMotor *left_motor;
-extern DirMotor *right_motor;
-extern DirEncoder *left_encoder;
-extern DirEncoder *right_encoder;
-extern JyMcuBt106 *bt;
+extern libsc::Led *led1;
+extern libsc::Led *led2;
+extern libsc::Led *led3;
+extern libsc::Led *led4;
+extern libsc::St7735r* lcd;
+extern libsc::LcdConsole* console;
+extern libsc::BatteryMeter *battery_meter;
+extern libsc::k60::Ov7725 *cam;
+extern libsc::FutabaS3010 *servo;
+extern libsc::DirMotor *motor;
+extern libsc::AbEncoder *encoder;
+extern libsc::k60::JyMcuBt106 *bt;
 //extern util::BTComm *bt;
-extern Flash *flash;
-//extern Pit *pit;
-extern util::Control *car;
+extern libbase::k60::Flash *flash;
+extern libsc::Joystick* joystick;
 
 //Global variable
+extern const Byte* buff;
+extern bool debug;
 extern uint8_t contrast;
-extern const uint16_t cam_height;
-extern const uint16_t cam_width;
-extern const uint16_t servo_right_bound;
-extern const uint16_t servo_center;
-extern const uint16_t servo_left_bound;
+extern uint8_t corner_window_size;
+extern uint8_t corner_min;
+extern uint8_t corner_max;
+#define cam_height 120
+#define cam_width 160
+#define servo_right_bound 1380
+#define servo_center 1060
+#define servo_left_bound 750
 
 
 
