@@ -23,8 +23,6 @@
 #include <libsc/joystick.h>
 
 //LCD Header File
-
-#include <libsc/k60/touchscreen_lcd.h>
 #include <libsc/st7735r.h>
 #include <libsc/lcd_console.h>
 #include <libsc/lcd_typewriter.h>
@@ -33,17 +31,17 @@
 #include <libsc/passive_buzzer.h>
 
 //Camera Header File
-#include<libsc/k60/ov7725.h>
+#include <libsc/k60/ov7725.h>
 
 //Servo Header File
-#include<libsc/futaba_s3010.h>
+#include <libsc/servo.h>
 
 //Motor Header File
-#include<libsc/dir_motor.h>
-#include<libsc/motor.h>
+#include <libsc/dir_motor.h>
+#include <libsc/motor.h>
 
 //AB Encoder Header File
-#include<libsc/ab_encoder.h>
+#include <libsc/ab_encoder.h>
 
 //Bluetooth Header File
 #include <libsc/k60/jy_mcu_bt_106.h>
@@ -86,7 +84,7 @@ extern libsc::St7735r* lcd;
 extern libsc::LcdConsole* console;
 extern libsc::BatteryMeter *battery_meter;
 extern libsc::k60::Ov7725 *cam;
-extern libsc::FutabaS3010 *servo;
+extern libsc::Servo *servo;
 extern libsc::DirMotor *motor;
 extern libsc::AbEncoder *encoder;
 extern libsc::k60::JyMcuBt106 *bt;

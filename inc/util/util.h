@@ -19,7 +19,7 @@ void camera_tune();
 bool camera_point_check(const Byte* buff, uint16_t x, uint16_t y);
 void PrintLogo();
 void StartAction();
-void EndAction();
+void EndAction(bool is_landscape);
 
 }
 

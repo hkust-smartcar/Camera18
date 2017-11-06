@@ -362,12 +362,12 @@ void servo_tune() {
 			console->WriteString("              ");
 			console->SetCursorRow(1);
 			console->WriteString(buf);
-			if (libsc::System::Time() - last_trigger_time < 210) {
+			if (libsc::System::Time() - last_trigger_time < 150) {
 				last_trigger_time = libsc::System::Time();
-				libsc::System::DelayMs(20);
+				libsc::System::DelayMs(5);
 			} else {
 				last_trigger_time = libsc::System::Time();
-				libsc::System::DelayMs(200);
+				libsc::System::DelayMs(100);
 			}
 		} else if (joystick->GetState() == libsc::Joystick::State::kRight) {
 			angle++;
@@ -377,12 +377,12 @@ void servo_tune() {
 			console->WriteString("              ");
 			console->SetCursorRow(1);
 			console->WriteString(buf);
-			if (libsc::System::Time() - last_trigger_time < 210) {
+			if (libsc::System::Time() - last_trigger_time < 150) {
 				last_trigger_time = libsc::System::Time();
-				libsc::System::DelayMs(20);
+				libsc::System::DelayMs(5);
 			} else {
 				last_trigger_time = libsc::System::Time();
-				libsc::System::DelayMs(200);
+				libsc::System::DelayMs(100);
 			}
 		} else if (joystick->GetState() == libsc::Joystick::State::kSelect) {
 			return;
@@ -410,21 +410,55 @@ void StartAction() {
 	lcd->Clear();
 	console->Clear(true);
 	util::PrintLogo();
-	console->SetTextColor(libsc::Lcd::kGreen);
+	console->SetTextColor(libsc::Lcd::kWhite);
 	console->SetCursorRow(3);
 	console->WriteString("Camera 2018");
 	console->SetCursorRow(4);
-	console->WriteString("version 1.1");
+	console->WriteString("Battery test:");
+	console->SetCursorRow(5);
+	char voltage_string[15] = { };
+	float voltage = battery_meter->GetVoltage();
+	console->SetTextColor(voltage <= 7.4 ? libsc::Lcd::kRed : libsc::Lcd::kGreen);
+	sprintf(voltage_string, "   %.2fV", voltage);
+	console->WriteString(voltage_string);
+	console->WriteString(voltage <= 7.4 ? "  Fail" : "  Pass");
+	libsc::System::DelayMs(200);
+	console->SetTextColor(libsc::Lcd::kWhite);
+	console->SetCursorRow(6);
+	console->WriteString("Servo testing");
 	console->SetCursorRow(7);
-	console->WriteString("Created by");
-	console->SetCursorRow(8);
-	console->WriteString("Lee Chun Hei");
-	console->SetCursorRow(9);
-	console->WriteString("(Leslie)");
-	libsc::System::DelayMs(1000);
+	console->WriteString("   right        ");
+	servo->SetDegree(servo_right_bound);
+	libsc::System::DelayMs(200);
+	console->SetCursorRow(7);
+	console->WriteString("   left         ");
+	servo->SetDegree(servo_left_bound);
+	libsc::System::DelayMs(200);
+	console->SetCursorRow(7);
+	console->WriteString("   center       ");
+	servo->SetDegree(servo_center);
+	libsc::System::DelayMs(200);
+	console->SetCursorRow(7);
+	console->WriteString("         ");
+	console->SetCursorRow(6);
+	console->WriteString("Motor testing");
+	console->SetCursorRow(7);
+	motor->SetClockwise(true);
+	motor->SetPower(1000);
+	libsc::System::DelayMs(200);
+	char encoder_count[50] = { };
+	encoder->Update();
+	sprintf(encoder_count, "   %d", encoder->GetCount());
+	console->WriteString(encoder_count);
+	console->SetCursorRow(7);
+	motor->SetClockwise(false);
+	libsc::System::DelayMs(200);
+	encoder->Update();
+	sprintf(encoder_count, "   %d", encoder->GetCount());
+	console->WriteString(encoder_count);
 }
 
-void EndAction() {
+void EndAction(bool is_landscape) {
 	lcd->Clear();
 	console->Clear(true);
 	char endWords[50] = { };
@@ -440,9 +474,9 @@ void EndAction() {
 			if (time % 1000 == 0) {
 				console->SetBgColor(libsc::Lcd::kGray);
 				console->SetTextColor(libsc::Lcd::kWhite);
-				console->SetCursorRow(9);
-				console->WriteString("                ");
-				console->SetCursorRow(9);
+				console->SetCursorRow(is_landscape ? 7 : 9);
+				console->WriteString(is_landscape ? "                    " : "                ");
+				console->SetCursorRow(is_landscape ? 7 : 9);
 				char min[2] = { };
 				char sec[2] = { };
 				time /= 1000;
@@ -459,7 +493,7 @@ void EndAction() {
 				float voltage = battery_meter->GetVoltage();
 				console->SetTextColor(voltage <= 7.4 ? libsc::Lcd::kRed : libsc::Lcd::kGreen);
 				sprintf(voltage_string, "%.2fV", voltage);
-				console->SetCursorColumn(11);
+				console->SetCursorColumn(is_landscape ? 15 : 11);
 				console->WriteString(voltage_string);
 			}
 		}
