@@ -1,7 +1,7 @@
 /*
  * main.cpp
  *
- *  Created on: Jul 18, 2017
+ *  Created on: May 28, 2018
  *      Author: LeeChunHei
  */
 
@@ -28,21 +28,21 @@ int main() {
 	libbase::k60::Flash flash_(flash_config);
 	flash = &flash_;
 
-	//Led Init
-	libsc::Led::Config led_config;
+	//RGBLed Init
+	libsc::RGBLed::Config led_config;
 	led_config.id = 0;
 	led_config.is_active_low = true;
-	libsc::Led led1_(led_config);
-	led1 = &led1_;
+	libsc::RGBLed led0_(led_config);
+	led0 = &led0_;
 	led_config.id = 1;
-	libsc::Led led2_(led_config);
-	led2 = &led2_;
+	libsc::RGBLed led1_(led_config);
+	led1 = &led1_;
 	led_config.id = 2;
-	libsc::Led led3_(led_config);
-	led3 = &led3_;
+	libsc::RGBLed led2_(led_config);
+	led2 = &led2_;
 	led_config.id = 3;
-	libsc::Led led4_(led_config);
-	led4 = &led4_;
+	libsc::RGBLed led3_(led_config);
+	led3 = &led3_;
 
 	//Lcd Init
 	libsc::St7735r::Config lcd_config;
@@ -51,7 +51,7 @@ int main() {
 	lcd_config.orientation = 1;
 	libsc::St7735r lcd_(lcd_config);
 	lcd = &lcd_;
-	
+
 	//Console Init
 	libsc::LcdConsole::Config console_config;
 	console_config.lcd = lcd;
@@ -69,10 +69,9 @@ int main() {
 	libsc::Servo::Config servo_config;
 	servo_config.id = 0;
 	servo_config.period = 3333;
-	servo_config.max_pos_width = 1500 + 500;
-	servo_config.min_pos_width = 1500 - 500;
+	servo_config.max_pos_width = 1000;
+	servo_config.min_pos_width = 2000;
 	libsc::Servo servo_(servo_config);
-	servo = &servo_;
 
 	//Bluetooth Init
 	libsc::k60::JyMcuBt106::Config bt_config;
@@ -82,9 +81,9 @@ int main() {
 	bt = &bt_;
 
 	//Motor Init
-	libsc::DirMotor::Config motor_config;
+	libsc::AlternateMotor::Config motor_config;
 	motor_config.id = 0;
-	libsc::DirMotor motor_(motor_config);
+	libsc::AlternateMotor motor_(motor_config);
 	motor = &motor_;
 
 	//Joystick Init
@@ -100,16 +99,4 @@ int main() {
 	libsc::AbEncoder encoder_(encoder_config);
 	encoder = &encoder_;
 
-	//Menu Init
-	libutil::Menu menu(true, lcd, console, joystick, battery_meter, flash);
-	menu.AddItem("Engine On!!!", std::bind(&algo), &menu.main_menu);
-	menu.AddItem("Debug Mode", &debug, "on", "off", &menu.main_menu);
-	menu.AddItem("contrast", &contrast, 1, &menu.main_menu);
-	menu.AddItem("servo tune", std::bind(&util::servo_tune), &menu.main_menu);
-
-	util::StartAction();
-
-	menu.EnterMenu(&menu.main_menu);
-
-	util::EndAction(true);
 }
