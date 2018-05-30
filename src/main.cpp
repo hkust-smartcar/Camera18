@@ -44,6 +44,11 @@ int main() {
 	libsc::RGBLed led3_(led_config);
 	led3 = &led3_;
 
+	//Buzzer Init
+	libsc::PassiveBuzzer::Config buzzer_config;
+	libsc::PassiveBuzzer buzzer_(buzzer_config);
+	buzzer = &buzzer_;
+
 	//Lcd Init
 	libsc::St7735r::Config lcd_config;
 	lcd_config.fps = 60;
@@ -99,4 +104,5 @@ int main() {
 	libsc::AbEncoder encoder_(encoder_config);
 	encoder = &encoder_;
 
+	algo();
 }

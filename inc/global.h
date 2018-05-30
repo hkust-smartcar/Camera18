@@ -30,6 +30,7 @@
 
 //Buzzer Header File
 #include <libsc/passive_buzzer.h>
+#include <libutil/notes.h>
 
 //Camera Header File
 #include<libsc/k60/Mt9V034.h>
@@ -52,20 +53,26 @@
 //Battery Meter Header File
 #include <libsc/battery_meter.h>
 
-//Global Pointers
-libbase::k60::Flash* flash;
-libsc::RGBLed* led0;
-libsc::RGBLed* led1;
-libsc::RGBLed* led2;
-libsc::RGBLed* led3;
-libsc::St7735r* lcd;
-libsc::LcdConsole* console;
-libsc::BatteryMeter* battery_meter;
-libsc::Servo* servo;
-libsc::k60::JyMcuBt106* bt;
-libsc::AlternateMotor* motor;
-libsc::Joystick* joystick;
-libsc::AbEncoder* encoder;
+//Algo Header File
+#include <algo.h>
 
+//Global Pointers
+extern libbase::k60::Flash* flash;
+extern libsc::RGBLed* led0;
+extern libsc::RGBLed* led1;
+extern libsc::RGBLed* led2;
+extern libsc::RGBLed* led3;
+extern libsc::PassiveBuzzer* buzzer;
+extern libsc::St7735r* lcd;
+extern libsc::LcdConsole* console;
+extern libsc::BatteryMeter* battery_meter;
+extern libsc::Servo* servo;
+extern libsc::k60::JyMcuBt106* bt;
+extern libsc::AlternateMotor* motor;
+extern libsc::Joystick* joystick;
+extern libsc::AbEncoder* encoder;
+
+//Global Variables
+extern int edge_threshold;
 
 #endif /* INC_GLOBAL_H_ */
