@@ -71,6 +71,7 @@ extern libsc::k60::JyMcuBt106* bt;
 extern libsc::AlternateMotor* motor;
 extern libsc::Joystick* joystick;
 extern libsc::AbEncoder* encoder;
+extern libsc::k60::MT9V034* camera;
 
 //Global Variables
 extern int edge_threshold;

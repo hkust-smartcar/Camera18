@@ -21,5 +21,6 @@ libsc::k60::JyMcuBt106* bt = nullptr;
 libsc::AlternateMotor* motor = nullptr;
 libsc::Joystick* joystick = nullptr;
 libsc::AbEncoder* encoder = nullptr;
+libsc::k60::MT9V034* camera = nullptr;
 
 int edge_threshold = 150;

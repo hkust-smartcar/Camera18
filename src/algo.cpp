@@ -352,5 +352,13 @@ bool HarrisCorner(int x, int y) {
 }
 
 void algo() {
-
+	libsc::System::DelayMs(100);
+	libsc::Timer::TimerInt time_now = 0;
+	camera->Start();
+	while (1) {
+		if (camera->IsAvailable()) {
+			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
+			camera->UnlockBuffer();
+		}
+	}
 }

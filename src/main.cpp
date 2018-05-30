@@ -23,6 +23,13 @@ int main() {
 
 	libsc::System::Init();
 
+	//Camera Init
+	libsc::k60::MT9V034::Config camera_config;
+	camera_config.h_binning = camera_config.k4;
+	camera_config.w_binning = camera_config.k4;
+	libsc::k60::MT9V034 camera_(camera_config);
+	camera = &camera;
+
 	//Flash Init
 	libbase::k60::Flash::Config flash_config;
 	libbase::k60::Flash flash_(flash_config);
