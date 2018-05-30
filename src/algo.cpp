@@ -185,7 +185,172 @@ bool FindRightEdge(int& edge_prev_dir) {
 	return false;
 }
 
+bool FAST(int x, int y, int threshold) {
+	Byte center = GetPoint(x,y)-threshold;
+	Byte center2 = GetPoint(x,y)+threshold;
+	Byte point;
+	int temp=0;
+	int temp2=0;
+	bool points[16]= {false};
+	point=GetPoint(x,y-3);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x+1,y-3);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x+2,y-2);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x+3,y-1);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x+3,y);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x+3,y+1);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x+2,y+2);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x+1,y+3);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x,y+3);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x-1,y+3);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x-2,y+2);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x-3,y+1);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x-3,y);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x-3,y-1);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x-2,y-2);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	point=GetPoint(x-1,y-3);
+	if(point<center) {
+		temp++;
+	} else if(point>center2) {
+		temp2++;
+	}
+	if(temp<6&&temp>1&&temp2>10&&temp2<15)
+	return true;
+	return false;
+}
+
+bool HarrisCorner(int x, int y) {
+#define Gx(x,y) -GetPoint(x-1,y-1)-2*GetPoint(x-1,y)-GetPoint(x-1,y+1)+GetPoint(x+1,y-1)+2*GetPoint(x+1,y)+GetPoint(x+1,y+1)
+#define Gy(x,y) -GetPoint(x-1,y-1)-2*GetPoint(x,y-1)-GetPoint(x+1,y-1)+GetPoint(x-1,y+1)+2*GetPoint(x,y+1)+GetPoint(x+1,y+1)
+	float Sx2 = 0;
+	float Sy2 = 0;
+	float Sxy = 0;
+	int Ix = Gx(x - 1, y - 1);
+	int Iy = Gy(x - 1, y - 1);
+	Sx2 += 0.3679 * Ix * Ix;
+	Sy2 += 0.3679 * Iy * Iy;
+	Sxy += 0.3679 * Ix * Iy;
+	Ix = Gx(x, y - 1);
+	Iy = Gy(x, y - 1);
+	Sx2 += 0.6065 * Ix * Ix;
+	Sy2 += 0.6065 * Iy * Iy;
+	Sxy += 0.6065 * Ix * Iy;
+	Ix = Gx(x + 1, y - 1);
+	Iy = Gy(x + 1, y - 1);
+	Sx2 += 0.3679 * Ix * Ix;
+	Sy2 += 0.3679 * Iy * Iy;
+	Sxy += 0.3679 * Ix * Iy;
+	Ix = Gx(x - 1, y);
+	Iy = Gy(x - 1, y);
+	Sx2 += 0.6065 * Ix * Ix;
+	Sy2 += 0.6065 * Iy * Iy;
+	Sxy += 0.6065 * Ix * Iy;
+	Ix = Gx(x, y);
+	Iy = Gy(x, y);
+	Sx2 += Ix * Ix;
+	Sy2 += Iy * Iy;
+	Sxy += Ix * Iy;
+	Ix = Gx(x + 1, y);
+	Iy = Gy(x + 1, y);
+	Sx2 += 0.6065 * Ix * Ix;
+	Sy2 += 0.6065 * Iy * Iy;
+	Sxy += 0.6065 * Ix * Iy;
+	Ix = Gx(x - 1, y + 1);
+	Iy = Gy(x - 1, y + 1);
+	Sx2 += 0.3679 * Ix * Ix;
+	Sy2 += 0.3679 * Iy * Iy;
+	Sxy += 0.3679 * Ix * Iy;
+	Ix = Gx(x, y + 1);
+	Iy = Gy(x, y + 1);
+	Sx2 += 0.6065 * Ix * Ix;
+	Sy2 += 0.6065 * Iy * Iy;
+	Sxy += 0.6065 * Ix * Iy;
+	Ix = Gx(x + 1, y + 1);
+	Iy = Gy(x + 1, y + 1);
+	Sx2 += 0.3679 * Ix * Ix;
+	Sy2 += 0.3679 * Iy * Iy;
+	Sxy += 0.3679 * Ix * Iy;
+	float temp = Sx2 + Sy2;
+	temp *= temp;
+	temp *= 0.04;
+	temp = Sx2 * Sy2 - Sxy * Sxy - temp;
+	return temp > 5000000000;
+}
+
 void algo() {
-	FindLeftEdge(left_edge_prev_dir);
-	FindRightEdge(right_edge_prev_dir);
+
 }
