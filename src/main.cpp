@@ -28,7 +28,7 @@ int main() {
 	camera_config.h_binning = camera_config.k4;
 	camera_config.w_binning = camera_config.k4;
 	libsc::k60::MT9V034 camera_(camera_config);
-	camera = &camera;
+	camera = &camera_;
 
 	//Flash Init
 	libbase::k60::Flash::Config flash_config;
