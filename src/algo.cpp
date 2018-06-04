@@ -18,6 +18,8 @@ const Byte* buffer;
 
 std::vector<coor> left_edge;
 std::vector<coor> right_edge;
+std::vector<int> left_edge_corner;
+std::vector<int> right_edge_corner;
 #define SobelEdgeDetection(x, y) std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y)+1) + GetPoint((x) + 1, (y)-1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y)+1)) + std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x), (y)-1) - GetPoint((x) + 1, (y)-1) + GetPoint((x) - 1, (y)+1) + 2 * GetPoint((x), (y)+1) + GetPoint((x) + 1, (y)+1))
 #define RobertsEdgeDetection(x, y) std::abs(GetPoint(x,y)-GetPoint(x+1,y+1))+std::abs(GetPoint(x+1,y)-GetPoint(x,y+1))
 #define up 0
@@ -28,29 +30,10 @@ std::vector<coor> right_edge;
 #define down_right 5
 #define right 6
 #define up_right 7
+#define width 189
+#define height 120
 int left_edge_prev_dir;
 int right_edge_prev_dir;
-
-std::vector<coor> left_corner;
-std::vector<coor> right_corner;
-int threshold_FAST;
-bool left_bottom_exist = false;
-bool pre_left_bottom_exist = false;
-bool right_bottom_exist = false;
-bool pre_right_bottom_exist = false;
-//loop states
-bool roundaboutR = false;
-bool roundaboutL = false;
-
-bool finishRoundR = false;
-bool finishRoundL = false;
-
-bool enterRoundR = false;
-bool enterRoundL = false;
-
-bool leaveRoundR = false;
-bool leaveRoundL = false;
-int leavetime;
 
 bool FindLeftEdge(int& edge_prev_dir) {
 	int size = left_edge.size();
@@ -310,7 +293,7 @@ bool FAST(int x, int y, int threshold) {
 		temp2++;
 	}
 	if(temp<6&&temp>1&&temp2>10&&temp2<15)
-	return true;
+		return true;
 	return false;
 }
 
@@ -372,160 +355,55 @@ bool HarrisCorner(int x, int y) {
 	return temp > 5000000000;
 }
 
-void findRightCorner(){
-	int size = right_edge.size();
-	right_corner.clear();
-	std::vector<coor> temp;
-	for(int i = 0;i<size;i++){
-		if(FAST(right_edge[i].x,right_edge[i].y,threshold_FAST)){
-			temp.push_back(coor{right_edge[i].x,right_edge[i].y});
-		}
+bool LeftEdge(coor start_point, int& edge_prev_dir, int threshold, bool append = false){ // returns false if abnormal number of corners found
+	if(!append) {
+		left_edge.clear();
+		left_edge_corner.clear();
 	}
-	for(int i = 0; i<temp.size(); i++){
-		if(HarrisCorner(temp[i].x,temp[i].y)){
-			right_corner.push_back(coor{temp[i].x,temp[i].y});
-		}
+	left_edge.push_back(start_point);
+	while(FindLeftEdge(edge_prev_dir)){
+		if(FAST(left_edge[left_edge.size()-1].x,left_edge[left_edge.size()-1].y,threshold))
+			if (HarrisCorner(left_edge[left_edge.size() - 1].x, left_edge[left_edge.size() - 1].y))
+				left_edge_corner.push_back(left_edge.size()-1);
 	}
-}
-void findLeftCorner(){
-	int size = left_edge.size();
-	left_corner.clear();
-	std::vector<coor> temp;
-	for(int i = 0;i<size;i++){
-		if(FAST(left_edge[i].x,left_edge[i].y,threshold_FAST)){
-			coor t = coor{left_edge[i].x,left_edge[i].y};
-			temp.push_back(t);
-		}
-	}
-	for(int i = 0; i<temp.size(); i++){
-		if(HarrisCorner(temp[i].x,temp[i].y)){
-			left_corner.push_back(coor{temp[i].x,temp[i].y});
-		}
-	}
-}
-double slope(const std::vector<coor>& edge){
-    int n = edge.size();
-    int sumX = 0;
-    int sumY = 0;
-    for(int i=0; i<n; ++i){
-		sumX += edge[i].x;
-		sumY += edge[i].y;
-	}
-    double avgX = sumX / n;
-    double avgY = sumY / n;
-
-    double numerator = 0.0;
-    double denominator = 0.0;
-
-    for(int i=0; i<n; ++i){
-        numerator += (edge[i].x - avgX) * (edge[i].y - avgY);
-        denominator += (edge[i].x - avgX) * (edge[i].x - avgX);
-    }
-
-    if(denominator == 0){
-        return 1000 ;
-    }
-
-    return numerator / denominator;
-}
-bool IsLeftStraight(){
-	int size = left_corner.size();
-	if(size<60){
-		int mid = size/2;
-		int xdiff = (left_corner[0].x+left_corner[size-1].x)/2-left_corner[mid].x;
-		int ydiff = (left_corner[0].y+left_corner[size-1].y)/2-left_corner[mid].y;
-		if(xdiff>5 || ydiff>5)
-			return false;
-		else
-			return true;
-	}
-	else{
-		int mid = 30;
-		int xdiff = (left_corner[0].x+left_corner[60].x)/2-left_corner[mid].x;
-		int ydiff = (left_corner[0].y+left_corner[60].y)/2-left_corner[mid].y;
-		if(xdiff>5 || ydiff>5)
-			return false;
-		else
-			return true;
-	}
-
-}
-bool IsRightStraight(){
-	int size = right_corner.size();
-	if(size<60){
-		int mid = size/2;
-		int xdiff = (right_corner[0].x+right_corner[size-1].x)/2-right_corner[mid].x;
-		int ydiff = (right_corner[0].y+right_corner[size-1].y)/2-right_corner[mid].y;
-		if(xdiff>5 || ydiff>5)
-			return false;
-		else
-			return true;
-	}
-	else{
-		int mid = 30;
-		int xdiff = (right_corner[0].x+right_corner[60].x)/2-right_corner[mid].x;
-		int ydiff = (right_corner[0].y+right_corner[60].y)/2-right_corner[mid].y;
-		if(xdiff>5 || ydiff>5)
-			return false;
-		else
-			return true;
-	}
-
+	if((append && left_edge_corner.size() <= 2) || (!append && left_edge_corner.size() <= 1))
+		return true;
+	return false;
 }
 
-void checkState(){
-	if(right_corner.size()==1 && left_corner.size()==0 && IsRightStraight() && !IsLeftStraight() ){
-		if(!roundaboutR && !finishRoundR){
-			roundaboutR = true;
-			enterRoundR = true;
-		}
+bool RightEdge(coor start_point, int& edge_prev_dir, int threshold, bool append = false){ // returns false if abnormal number of corners found
+	if(!append) {
+		right_edge.clear();
+		right_edge_corner.clear();
 	}
-	else if(left_bottom_exist == true && pre_left_bottom_exist == false && enterRoundR && roundaboutR){
-		enterRoundR = false;
+	right_edge.push_back(start_point);
+	while(FindRightEdge(edge_prev_dir)){
+		if(FAST(right_edge[right_edge.size()-1].x,right_edge[right_edge.size()-1].y,threshold))
+			if (HarrisCorner(right_edge[right_edge.size() - 1].x, right_edge[right_edge.size() - 1].y))
+				right_edge_corner.push_back(right_edge.size()-1);
 	}
-	else if(roundaboutR && !enterRoundR && left_corner.size()==1 && right_corner.size()==0){
-		leaveRoundR = true; //turn right until see
-	}
-	else if(roundaboutR&&!enterRoundR && leaveRoundR){
-		if(left_bottom_exist == true && IsLeftStraight()){
-			roundaboutR = false;
-			leaveRoundR = false;
-			finishRoundR = true;
-			leavetime = libsc::System::Time();
-			return;
-		}
-	}
-
-	if(left_corner.size()==1 && right_corner.size()==0 && IsLeftStraight() && !IsRightStraight() ){
-		if(!roundaboutL && !finishRoundL){
-			roundaboutL = true;
-			enterRoundL = true;
-		}
-	}
-	else if(right_bottom_exist == true && pre_right_bottom_exist == false && enterRoundL && roundaboutL){
-		enterRoundL = false;
-	}
-	else if(roundaboutL && !enterRoundL && right_corner.size()==1 && left_corner.size()==0){
-		leaveRoundL = true; //turn right until see
-	}
-	else if(roundaboutL&&!enterRoundL && leaveRoundL){
-		if(right_bottom_exist == true && IsRightStraight()){
-			roundaboutL = false;
-			leaveRoundL = false;
-			finishRoundL = true;
-			leavetime = libsc::System::Time();
-			return;
-		}
-	}
-
-
-	int curtime = libsc::System::Time();
-	if((curtime-leavetime)>1500){
-		finishRoundR = false;
-		finishRoundL = false;
-	}
+	if((append && right_edge_corner.size() <= 2) || (!append && right_edge_corner.size() <= 1))
+		return true;
+	return false;
 }
 
+bool jump(coor point1, coor point2, coor& new_start, int threshold){ //jump from the corner to new edge. returns true if a edge is found
+	float slope = (point1.y - point2.y)/(point1.x - point2.x);
+	float constant = point2.y - slope*point2.x;
+	int16_t y = point2.y;
+	y-=3;
+	int16_t x = (int16_t)((y-constant)/slope);
+	while(SobelEdgeDetection(x,y)<threshold && x<width-1 && x>0 && y<height-1 && y>0){
+		y--;
+		x = (int16_t)((y-constant)/slope);
+	}
+	if(SobelEdgeDetection(x,y)>=threshold) {
+		new_start.x = x;
+		new_start.y = y;
+		return true;
+	}
+	return false;
+}
 
 void algo() {
 	libsc::System::DelayMs(100);
@@ -536,7 +414,5 @@ void algo() {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
 			camera->UnlockBuffer();
 		}
-
-		checkState();
 	}
 }
