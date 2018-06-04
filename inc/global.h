@@ -56,6 +56,12 @@
 //Algo Header File
 #include <algo.h>
 
+//Global Type
+struct coor {
+	int16_t x;
+	int16_t y;
+};
+
 //Global Pointers
 extern libbase::k60::Flash* flash;
 extern libsc::RGBLed* led0;

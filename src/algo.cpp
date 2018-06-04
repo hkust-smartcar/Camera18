@@ -9,11 +9,6 @@
 
 #define GetPoint(x, y) buffer[(x) + (y) * 189]
 
-struct coor {
-	int16_t x;
-	int16_t y;
-};
-
 const Byte* buffer;
 
 std::vector<coor> left_edge;
