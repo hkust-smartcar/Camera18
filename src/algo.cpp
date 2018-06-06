@@ -32,6 +32,10 @@ std::vector<int> right_edge_corner;
 #define up_right 7
 #define width 189
 #define height 120
+
+bool right_jump;
+bool left_jump;
+
 int left_edge_prev_dir;
 int right_edge_prev_dir;
 
@@ -355,18 +359,40 @@ bool HarrisCorner(int x, int y) {
 	return temp > 5000000000;
 }
 
+bool check_corner(coor pivot, coor m, coor n){
+    int a2 = (pivot.x - m.x)*(pivot.x - m.x) + (pivot.y - m.y)*(pivot.y - m.y);
+    int b2 = (pivot.x - n.x)*(pivot.x - n.x) + (pivot.y - n.y)*(pivot.y - n.y);
+    int c2 = (m.x - n.x)*(m.x - n.x) + (m.y - n.y)*(m.y - n.y);
+    int pythagoras = a2 + b2 - c2;
+    if(pythagoras>=0)
+        return true;
+    float value = (float)(pythagoras*pythagoras)/(4*a2*b2);
+    if(value<0.117)
+    	return true;
+    return false;
+}
+
 bool LeftEdge(coor start_point, int& edge_prev_dir, int threshold, bool append = false){ // returns false if abnormal number of corners found
 	if(!append) {
 		left_edge.clear();
 		left_edge_corner.clear();
 	}
-	left_edge.push_back(start_point);
-	while(FindLeftEdge(edge_prev_dir)){
+	bool guessed_corner = false;
+	if(left_edge.size() && left_edge[left_edge.size()-1].y != start_point.y && left_edge[left_edge.size()-1].x != start_point.x)
+		left_edge.push_back(start_point);
+	while(FindLeftEdge(edge_prev_dir) && !guessed_corner){
 		if(FAST(left_edge[left_edge.size()-1].x,left_edge[left_edge.size()-1].y,threshold))
 			if (HarrisCorner(left_edge[left_edge.size() - 1].x, left_edge[left_edge.size() - 1].y))
-				left_edge_corner.push_back(left_edge.size()-1);
+				guessed_corner = true;
 	}
-	if((append && left_edge_corner.size() <= 2) || (!append && left_edge_corner.size() <= 1))
+	if(guessed_corner){
+		for(int i=0;i<5 && FindLeftEdge(edge_prev_dir);i++);
+		if(check_corner(left_edge[left_edge.size()-6],left_edge[left_edge.size()-1],left_edge[left_edge.size()-11]))
+			left_edge_corner.push_back(left_edge.size()-6);
+		else
+			LeftEdge(left_edge[left_edge.size()-1],edge_prev_dir,threshold,true);
+	}
+	if((left_jump && left_edge_corner.size() <= 2) || (!left_jump && left_edge_corner.size() <= 1))
 		return true;
 	return false;
 }
@@ -376,33 +402,50 @@ bool RightEdge(coor start_point, int& edge_prev_dir, int threshold, bool append 
 		right_edge.clear();
 		right_edge_corner.clear();
 	}
-	right_edge.push_back(start_point);
-	while(FindRightEdge(edge_prev_dir)){
+	bool guessed_corner = false;
+	if(right_edge.size() && right_edge[right_edge.size()-1].y != start_point.y && right_edge[right_edge.size()-1].x != start_point.x)
+		right_edge.push_back(start_point);
+	while(FindRightEdge(edge_prev_dir) && !guessed_corner){
 		if(FAST(right_edge[right_edge.size()-1].x,right_edge[right_edge.size()-1].y,threshold))
 			if (HarrisCorner(right_edge[right_edge.size() - 1].x, right_edge[right_edge.size() - 1].y))
-				right_edge_corner.push_back(right_edge.size()-1);
+				guessed_corner = true;
 	}
-	if((append && right_edge_corner.size() <= 2) || (!append && right_edge_corner.size() <= 1))
+	if(guessed_corner){
+		for(int i=0;i<5 && FindRightEdge(edge_prev_dir);i++);
+		if(check_corner(right_edge[right_edge.size()-6],right_edge[right_edge.size()-1],right_edge[right_edge.size()-11]))
+			right_edge_corner.push_back(right_edge.size()-6);
+		else
+			RightEdge(right_edge[right_edge.size()-1],edge_prev_dir,threshold,true);
+	}
+	if((right_jump && right_edge_corner.size() <= 2) || (!right_jump && right_edge_corner.size() <= 1))
 		return true;
 	return false;
 }
 
-bool jump(coor point1, coor point2, coor& new_start, int threshold){ //jump from the corner to new edge. returns true if a edge is found
-	float slope = (point1.y - point2.y)/(point1.x - point2.x);
-	float constant = point2.y - slope*point2.x;
+bool jump(coor point1, coor point2, coor& new_start, int threshold, bool direction){ //jump from the corner to new edge. returns true if a edge is found
+	float slope = (point1.x - point2.x)/(point1.y - point2.y);
+	float constant = point2.x - slope*point2.y;
 	int16_t y = point2.y;
 	y-=3;
-	int16_t x = (int16_t)((y-constant)/slope);
+	int16_t x = (int16_t)(y*slope+constant);
 	while(SobelEdgeDetection(x,y)<threshold && x<width-1 && x>0 && y<height-1 && y>0){
 		y--;
-		x = (int16_t)((y-constant)/slope);
+		x = (int16_t)(y*slope+constant);
 	}
-	if(SobelEdgeDetection(x,y)>=threshold) {
-		new_start.x = x;
-		new_start.y = y;
+	new_start.x = x;
+	new_start.y = y;
+	if(x<width-1 && x>0 && y<height-1 && y>0) {
+		if(direction)
+			right_jump = true;
+		else
+			left_jump = true;
 		return true;
 	}
 	return false;
+}
+
+void fsm(){
+
 }
 
 void algo() {
@@ -414,5 +457,6 @@ void algo() {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
 			camera->UnlockBuffer();
 		}
+		fsm();
 	}
 }
