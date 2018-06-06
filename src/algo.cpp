@@ -2,7 +2,8 @@
  * algo.cpp
  *
  *  Created on: May 30, 2018
- *      Author: LeeChunHei
+ *      Author: Amrutavarsh S Kinagi
+ *      		LeeChunHei
  */
 
 #include <algo.h>
@@ -386,11 +387,15 @@ bool LeftEdge(coor start_point, int& edge_prev_dir, int threshold, bool append =
 				guessed_corner = true;
 	}
 	if(guessed_corner){
-		for(int i=0;i<5 && FindLeftEdge(edge_prev_dir);i++);
-		if(check_corner(left_edge[left_edge.size()-6],left_edge[left_edge.size()-1],left_edge[left_edge.size()-11]))
-			left_edge_corner.push_back(left_edge.size()-6);
-		else
-			LeftEdge(left_edge[left_edge.size()-1],edge_prev_dir,threshold,true);
+		int i=0;
+		for(;i<5 && FindLeftEdge(edge_prev_dir);i++);
+		if(i==4) {
+			if (check_corner(left_edge[left_edge.size() - 6], left_edge[left_edge.size() - 1],
+							 left_edge[left_edge.size() - 11]))
+				left_edge_corner.push_back(left_edge.size() - 6);
+			else
+				LeftEdge(left_edge[left_edge.size() - 1], edge_prev_dir, threshold, true);
+		}
 	}
 	if((left_jump && left_edge_corner.size() <= 2) || (!left_jump && left_edge_corner.size() <= 1))
 		return true;
@@ -411,11 +416,15 @@ bool RightEdge(coor start_point, int& edge_prev_dir, int threshold, bool append 
 				guessed_corner = true;
 	}
 	if(guessed_corner){
-		for(int i=0;i<5 && FindRightEdge(edge_prev_dir);i++);
-		if(check_corner(right_edge[right_edge.size()-6],right_edge[right_edge.size()-1],right_edge[right_edge.size()-11]))
-			right_edge_corner.push_back(right_edge.size()-6);
-		else
-			RightEdge(right_edge[right_edge.size()-1],edge_prev_dir,threshold,true);
+		int i=0;
+		for(;i<5 && FindRightEdge(edge_prev_dir);i++);
+		if(i==4) {
+			if (check_corner(right_edge[right_edge.size() - 6], right_edge[right_edge.size() - 1],
+							 right_edge[right_edge.size() - 11]))
+				right_edge_corner.push_back(right_edge.size() - 6);
+			else
+				RightEdge(right_edge[right_edge.size() - 1], edge_prev_dir, threshold, true);
+		}
 	}
 	if((right_jump && right_edge_corner.size() <= 2) || (!right_jump && right_edge_corner.size() <= 1))
 		return true;
