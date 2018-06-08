@@ -22,6 +22,14 @@ enum Tstate{
 	LeftLoop
 };
 
+enum Cstate{
+	Entering1,
+	Entering2,
+	Entered,
+	Exiting1,
+	Exiting2
+};
+
 const Byte* buffer;
 
 std::vector<coor> left_edge;
@@ -496,13 +504,13 @@ void normal_left_corner_fsm(Tstate& track_state,coor& final_point, coor& midpoin
 		LeftEdge(new_start,left_edge_prev_dir,edge_threshold,true);
 		if(left_edge_corner.size() == 2){
 			track_state = Crossroad;
-			final_point = left_edge[left_edge.size()-1];
-			set_midpoint(midpoint,left_edge[left_edge.size()-1].x + 5,left_edge[left_edge.size()-1].y);
+//			final_point = left_edge[left_edge.size()-1];
+//			set_midpoint(midpoint,left_edge[left_edge.size()-1].x + 5,left_edge[left_edge.size()-1].y);
 		}
 		else{
 			track_state = LeftLoop;
-			final_point = left_edge[(left_edge.size()/2)-1+left_edge_corner[0]];
-			set_midpoint(midpoint,left_edge[left_edge.size()/2-1+left_edge_corner[0]].x + 5,left_edge[left_edge.size()/2-1+left_edge_corner[0]].y);
+//			final_point = left_edge[(left_edge.size()/2)-1+left_edge_corner[0]];
+//			set_midpoint(midpoint,left_edge[left_edge.size()/2-1+left_edge_corner[0]].x + 5,left_edge[left_edge.size()/2-1+left_edge_corner[0]].y);
 		}
 	}
 	else{
@@ -524,13 +532,13 @@ void normal_right_corner_fsm(Tstate& track_state,coor& final_point, coor& midpoi
 		RightEdge(new_start,right_edge_prev_dir,edge_threshold,true);
 		if(right_edge_corner.size() == 2){
 			track_state = Crossroad;
-			final_point = right_edge[right_edge.size()-1];
-			set_midpoint(midpoint,right_edge[right_edge.size()-1].x - 5,right_edge[right_edge.size()-1].y);
+//			final_point = right_edge[right_edge.size()-1];
+//			set_midpoint(midpoint,right_edge[right_edge.size()-1].x - 5,right_edge[right_edge.size()-1].y);
 		}
 		else{
 			track_state = RightLoop;
-			final_point = right_edge[right_edge.size()/2-1+right_edge_corner[0]];
-			set_midpoint(midpoint,right_edge[(right_edge.size()/2)-1+right_edge_corner[0]].x - 5,right_edge[right_edge.size()/2-1+right_edge_corner[0]].y);
+//			final_point = right_edge[right_edge.size()/2-1+right_edge_corner[0]];
+//			set_midpoint(midpoint,right_edge[(right_edge.size()/2)-1+right_edge_corner[0]].x - 5,right_edge[right_edge.size()/2-1+right_edge_corner[0]].y);
 		}
 	}
 	else{
@@ -545,6 +553,8 @@ void algo() {
 	libsc::Timer::TimerInt time_now = 0;
 	camera->Start();
 	Tstate track_state = Normal;
+	Tstate prev_track_state = Normal;
+	Cstate crossroad_state = Entering1;
 	coor midpoint = {92,115};
 	coor left_start;
 	coor right_start;
@@ -555,21 +565,24 @@ void algo() {
 			camera->UnlockBuffer();
 		}
 
+		empty_left();
+		empty_right();
+
 		if(track_state == Normal){
+
 			left_edge_prev_dir = up;
 			right_edge_prev_dir = up;
-			empty_left();
-			empty_right();
 			if(left_start_point(midpoint,left_start,edge_threshold))
 				LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
 			if(right_start_point(midpoint,right_start,edge_threshold))
 				RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+
 			if(left_edge.size() && right_edge.size()){
 				if(left_edge_corner.size() == 1 && right_edge_corner.size() == 1){ //TODO: could be corners of different features, check distance between corners to determine.
 					if(dist_corners(left_edge[left_edge_corner[0]],right_edge[right_edge_corner[0]])) {
 						track_state = Crossroad;
-						final_point.x = (left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2;
-						final_point.y = (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2;
+//						final_point.x = (left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2;
+//						final_point.y = (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2;
 					}
 					else if(left_edge[left_edge_corner[0]].y>right_edge[right_edge_corner[0]].y){
 						normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
@@ -585,6 +598,7 @@ void algo() {
 					normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
 				}
 				else{
+					track_state = Normal;
 					final_point.x = (left_edge[left_edge.size()-1].x + right_edge[right_edge.size()-1].x)/2;
 					final_point.y = (left_edge[left_edge.size()-1].y + right_edge[right_edge.size()-1].y)/2;
 					set_midpoint(midpoint,left_start,right_start);
@@ -611,5 +625,38 @@ void algo() {
 				}
 			}
 		}
+		if(track_state == Crossroad){
+			if(crossroad_state == Entering1){
+				if(prev_track_state != Normal){
+//					if(right_edge_corner.size() == 1){
+//						coor point1;
+//						if(right_edge_corner[0]>10)
+//							point1 = right_edge[right_edge_corner[0]-10];
+//						else
+//							point1 = right_edge[0];
+//						coor new_start = {0, 0};
+//						jump(point1,right_edge[right_edge_corner[0]],new_start,edge_threshold,true);
+//						right_edge_prev_dir = left;
+//						RightEdge(new_start,right_edge_prev_dir,edge_threshold,true);
+//					}
+//					if(left_edge_corner.size() == 1){
+//						coor point1;
+//						if(left_edge_corner[0]>10)
+//							point1 = left_edge[left_edge_corner[0]-10];
+//						else
+//							point1 = left_edge[0];
+//						coor new_start = {0, 0};
+//						jump(point1,left_edge[left_edge_corner[0]],new_start,edge_threshold,false);
+//						left_edge_prev_dir = left;
+//						LeftEdge(new_start,left_edge_prev_dir,edge_threshold,true);
+//					}
+				}
+			}
+
+		}
+		if(track_state == LeftLoop){
+
+		}
+		prev_track_state = track_state;
 	}
 }
