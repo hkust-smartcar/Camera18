@@ -177,47 +177,6 @@ void InitValueDebug() {
 			break;
 		}
 	}
-	libsc::System::DelayMs(1000);
+	libsc::System::DelayMs(3000);
 	var_name.clear();
-}
-
-bool SendData(std::vector<coor>& left_edge, std::vector<coor>& right_edge, int servo_angle, int mode, bool left_corner_valid, bool right_corner_valid, int car_speed, int left_edge_end_point, int right_edge_end_point, coor left_corner, coor right_corner) {
-	if (!received_ack)
-		return false;
-	received_ack = false;
-	bt->SendBuffer(&camera_data_start_byte, 1);
-	send_buffer.push_back(6);
-	send_buffer.push_back(left_edge.size());
-	send_buffer.push_back(right_edge.size());
-	send_buffer.push_back(servo_angle + 127);
-	send_buffer.push_back(car_speed && 0b11111111);
-	send_buffer.push_back(0 | (mode << 12) | (left_corner_valid << 3) | (right_corner_valid << 2) | (car_speed && 0b1100000000));
-	if (left_edge.size()) {
-		send_buffer.push_back(left_edge_end_point);
-	}
-	if (right_edge.size()) {
-		send_buffer.push_back(right_edge_end_point);
-	}
-	if (left_edge.size()) {
-		for (int i = 0; i < left_edge.size(); i++) {
-			send_buffer.push_back(left_edge[i].x);
-			send_buffer.push_back(left_edge[i].y);
-		}
-	}
-	if (right_edge.size()) {
-		for (int i = 0; i < right_edge.size(); i++) {
-			send_buffer.push_back(right_edge[i].x);
-			send_buffer.push_back(right_edge[i].y);
-		}
-	}
-	if (left_corner_valid) {
-		send_buffer.push_back(left_corner.x);
-		send_buffer.push_back(left_corner.y);
-	}
-	if (right_corner_valid) {
-		send_buffer.push_back(right_corner.x);
-		send_buffer.push_back(right_corner.y);
-	}
-	bt->SendBuffer(send_buffer);
-	return true;
 }

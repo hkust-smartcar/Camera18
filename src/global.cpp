@@ -22,5 +22,6 @@ libsc::AlternateMotor* motor = nullptr;
 libsc::Joystick* joystick = nullptr;
 libsc::AbEncoder* encoder = nullptr;
 libsc::k60::MT9V034* camera = nullptr;
+libsc::Mpu6050* mpu = nullptr;
 
-int edge_threshold = 150;
+int edge_threshold = 195;

@@ -38,14 +38,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 		edge_prev_dir = edge_prev_dir < 0 ? 8 + edge_prev_dir : edge_prev_dir > up_right ? edge_prev_dir - 8 : edge_prev_dir;
 		switch (edge_prev_dir) {
 		case up:
-			if (SobelEdgeDetection(x, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x, y - 1) < edge_threshold) {
 				edge_coor.y = y - 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case up_left:
-			if (SobelEdgeDetection(x - 1, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y - 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y - 1;
 				left_edge.push_back(edge_coor);
@@ -53,14 +53,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 			}
 			break;
 		case left:
-			if (SobelEdgeDetection(x - 1, y) > edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y) < edge_threshold) {
 				edge_coor.x = x - 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_left:
-			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
@@ -68,14 +68,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 			}
 			break;
 		case down:
-			if (size > 3 && SobelEdgeDetection(x, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x, y + 1) < edge_threshold) {
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_right:
-			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
@@ -83,14 +83,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 			}
 			break;
 		case right:
-			if (SobelEdgeDetection(x + 1, y) > edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y) < edge_threshold) {
 				edge_coor.x = x + 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case up_right:
-			if (SobelEdgeDetection(x + 1, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y - 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y - 1;
 				left_edge.push_back(edge_coor);
@@ -115,14 +115,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 		edge_prev_dir = edge_prev_dir < 0 ? 8 + edge_prev_dir : edge_prev_dir > up_right ? edge_prev_dir - 8 : edge_prev_dir;
 		switch (edge_prev_dir) {
 		case up:
-			if (SobelEdgeDetection(x, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x, y - 1) < edge_threshold) {
 				edge_coor.y = y - 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case up_left:
-			if (SobelEdgeDetection(x - 1, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y - 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y - 1;
 				right_edge.push_back(edge_coor);
@@ -130,14 +130,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 			}
 			break;
 		case left:
-			if (SobelEdgeDetection(x - 1, y) > edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y) < edge_threshold) {
 				edge_coor.x = x - 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_left:
-			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
@@ -145,14 +145,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 			}
 			break;
 		case down:
-			if (size > 3 && SobelEdgeDetection(x, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x, y + 1) < edge_threshold) {
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_right:
-			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
@@ -160,14 +160,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 			}
 			break;
 		case right:
-			if (SobelEdgeDetection(x + 1, y) > edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y) < edge_threshold) {
 				edge_coor.x = x + 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case up_right:
-			if (SobelEdgeDetection(x + 1, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y - 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y - 1;
 				right_edge.push_back(edge_coor);
