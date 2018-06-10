@@ -454,17 +454,27 @@ void RightEdge(coor start_point, int& edge_prev_dir, int threshold, bool append 
 	}
 }
 
-void RightLoopEdge(coor start_point, int& edge_prev_dir, coor& leftmostP, int threshold, bool append = false){
+void RightLoopEdge(coor start_point, int& edge_prev_dir, coor& rightmostP, int threshold, bool append = false){
 	if(!append)
 		empty_right();
 	if(right_edge.size() && right_edge[right_edge.size()-1].y != start_point.y && right_edge[right_edge.size()-1].x != start_point.x)
 		right_edge.push_back(start_point);
 	while(FindRightEdge(edge_prev_dir)){
-		if(right_edge[right_edge.size()-1].x<leftmostP.x)
-			leftmostP = right_edge[right_edge.size()-1];
+		if(right_edge[right_edge.size()-1].x > rightmostP.x)
+			rightmostP = right_edge[right_edge.size()-1];
 	}
 }
 
+void LeftLoopEdge(coor start_point, int& edge_prev_dir, coor& leftmostP, int threshold, bool append = false){
+	if(!append)
+		empty_right();
+	if(left_edge.size() && left_edge[left_edge.size()-1].y != start_point.y && left_edge[left_edge.size()-1].x != start_point.x)
+		left_edge.push_back(start_point);
+	while(FindLeftEdge(edge_prev_dir)){
+		if(left_edge[left_edge.size()-1].x<leftmostP.x)
+			leftmostP = right_edge[right_edge.size()-1];
+	}
+}
 bool jump(coor point1, coor point2, coor& new_start, int threshold, bool direction){ //jump from the corner to new edge. returns true if a edge is found.
 	float slope = (point1.x - point2.x)/(point1.y - point2.y);						 //direction = true is for right edge, direction = false is for left edge.
 	float constant = point2.x - slope*point2.y;
@@ -705,16 +715,24 @@ void algo() {
 					left_edge_prev_dir = down;
 					right_edge_prev_dir = down_left;
 					if(left_start_point(midpoint,left_start,edge_threshold)){
-						LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+						//as the direction is down, use rightedge function
+						//and the left edge will be stored in right_edge
+						RightEdge(left_start,left_edge_prev_dir,edge_threshold,false);
 					}
-					if(right_start_point(midpoint,right_start,edge_threshold))
-						RightLoopEdge(right_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
+					if(right_start_point(midpoint,right_start,edge_threshold)){
+						//opposite as well
+						LeftLoopEdge(right_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
+					}
 					midpoint = {leftmostP.x-10,leftmostP.y};
+
+					left_edge = right_edge;
+					left_edge_corner = right_edge_corner;
+
 					right_edge_prev_dir = up;
 					if(right_start_point(midpoint,right_start,edge_threshold))
 						RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
 
-					if(left_edge_corner.size == 1){
+					if(left_edge_corner.size() == 1){
 						loop_state = In;
 						set_midpoint(midpoint,left_start,right_start);
 						set_midpoint(midpoint,midpoint.x,115);
@@ -753,10 +771,19 @@ void algo() {
 				set_midpoint(midpoint,midpoint.x,100);
 				left_edge_prev_dir = up;
 				right_edge_prev_dir = down;
-				if(left_start_point(midpoint,left_start,edge_threshold))
+				std::vector<coor> temp_edge;
+				std::vector<int> temp_edge_corner;
+				if(left_start_point(midpoint,left_start,edge_threshold)){
 					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+					temp_edge = left_edge;
+					temp_edge_corner = left_edge_corner;
+				}
 				if(right_start_point(midpoint,right_start,edge_threshold))
-					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+					LeftEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+				right_edge = left_edge;
+				right_edge_corner = left_edge_corner;
+				left_edge = temp_edge;
+				left_edge_corner = temp_edge_corner;
 				set_midpoint(midpoint,left_start,right_start);
 				if(right_edge_corner.size()==1){
 					track_state = Normal;
