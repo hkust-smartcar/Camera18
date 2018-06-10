@@ -81,14 +81,15 @@ int main() {
 	libsc::Servo::Config servo_config;
 	servo_config.id = 0;
 	servo_config.period = 3333;
-	servo_config.max_pos_width = 1000;
-	servo_config.min_pos_width = 2000;
+	servo_config.max_pos_width = 2000;
+	servo_config.min_pos_width = 1000;
 	libsc::Servo servo_(servo_config);
 
 	//Bluetooth Init
 	libsc::k60::JyMcuBt106::Config bt_config;
 	bt_config.baud_rate = libbase::k60::Uart::Config::BaudRate::k115200;
 	bt_config.id = 0;
+	bt_config.tx_dma_channel = 2;
 	libsc::k60::JyMcuBt106 bt_(bt_config);
 	bt = &bt_;
 
