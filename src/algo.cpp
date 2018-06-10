@@ -71,14 +71,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 		edge_prev_dir = edge_prev_dir < 0 ? 8 + edge_prev_dir : edge_prev_dir > up_right ? edge_prev_dir - 8 : edge_prev_dir;
 		switch (edge_prev_dir) {
 		case up:
-			if (SobelEdgeDetection(x, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x, y - 1) < edge_threshold) {
 				edge_coor.y = y - 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case up_left:
-			if (SobelEdgeDetection(x - 1, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y - 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y - 1;
 				left_edge.push_back(edge_coor);
@@ -86,14 +86,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 			}
 			break;
 		case left:
-			if (SobelEdgeDetection(x - 1, y) > edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y) < edge_threshold) {
 				edge_coor.x = x - 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_left:
-			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
@@ -101,14 +101,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 			}
 			break;
 		case down:
-			if (size > 3 && SobelEdgeDetection(x, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x, y + 1) < edge_threshold) {
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_right:
-			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
@@ -116,14 +116,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 			}
 			break;
 		case right:
-			if (SobelEdgeDetection(x + 1, y) > edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y) < edge_threshold) {
 				edge_coor.x = x + 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case up_right:
-			if (SobelEdgeDetection(x + 1, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y - 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y - 1;
 				left_edge.push_back(edge_coor);
@@ -135,6 +135,7 @@ bool FindLeftEdge(int& edge_prev_dir) {
 	}
 	return false;
 }
+
 
 bool FindRightEdge(int& edge_prev_dir) {
 	int size = right_edge.size();
@@ -148,14 +149,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 		edge_prev_dir = edge_prev_dir < 0 ? 8 + edge_prev_dir : edge_prev_dir > up_right ? edge_prev_dir - 8 : edge_prev_dir;
 		switch (edge_prev_dir) {
 		case up:
-			if (SobelEdgeDetection(x, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x, y - 1) < edge_threshold) {
 				edge_coor.y = y - 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case up_left:
-			if (SobelEdgeDetection(x - 1, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y - 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y - 1;
 				right_edge.push_back(edge_coor);
@@ -163,14 +164,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 			}
 			break;
 		case left:
-			if (SobelEdgeDetection(x - 1, y) > edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y) < edge_threshold) {
 				edge_coor.x = x - 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_left:
-			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
@@ -178,14 +179,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 			}
 			break;
 		case down:
-			if (size > 3 && SobelEdgeDetection(x, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x, y + 1) < edge_threshold) {
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_right:
-			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) > edge_threshold) {
+			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
@@ -193,14 +194,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 			}
 			break;
 		case right:
-			if (SobelEdgeDetection(x + 1, y) > edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y) < edge_threshold) {
 				edge_coor.x = x + 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case up_right:
-			if (SobelEdgeDetection(x + 1, y - 1) > edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y - 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y - 1;
 				right_edge.push_back(edge_coor);
@@ -453,26 +454,52 @@ void RightEdge(coor start_point, int& edge_prev_dir, int threshold, bool append 
 		}
 	}
 }
-
-void RightLoopEdge(coor start_point, int& edge_prev_dir, coor& rightmostP, int threshold, bool append = false){
-	if(!append)
-		empty_right();
+//for left loop
+void RightLoopEdgeL(coor start_point, int& edge_prev_dir, coor& rightmostP, int threshold,bool append){
+	if(!append) {
+        empty_right();
+        right_edge.push_back(start_point);
+    }
 	if(right_edge.size() && right_edge[right_edge.size()-1].y != start_point.y && right_edge[right_edge.size()-1].x != start_point.x)
 		right_edge.push_back(start_point);
-	while(FindRightEdge(edge_prev_dir)){
-		if(right_edge[right_edge.size()-1].x > rightmostP.x)
+	while(FindRightEdge(edge_prev_dir) && (right_edge[right_edge.size()-1].x - start_point.x > -20)){
+		if(right_edge[right_edge.size()-1].x>rightmostP.x)
 			rightmostP = right_edge[right_edge.size()-1];
 	}
 }
-
-void LeftLoopEdge(coor start_point, int& edge_prev_dir, coor& leftmostP, int threshold, bool append = false){
+//for right loop
+void RightLoopEdgeR(coor start_point, int& edge_prev_dir, coor& leftmostP, int threshold,bool append){
+	if(!append) {
+        empty_right();
+        right_edge.push_back(start_point);
+    }
+	if(right_edge.size() && right_edge[right_edge.size()-1].y != start_point.y && right_edge[right_edge.size()-1].x != start_point.x)
+		right_edge.push_back(start_point);
+	while(FindRightEdge(edge_prev_dir) && (right_edge[right_edge.size()-1].x - start_point.x > -20)){
+		if(right_edge[right_edge.size()-1].x<leftmostP.x)
+			leftmostP = right_edge[right_edge.size()-1];
+	}
+}
+//for right loop
+void LeftLoopEdgeR(coor start_point, int& edge_prev_dir, coor& leftmostP, int threshold, bool append = false){
 	if(!append)
 		empty_right();
 	if(left_edge.size() && left_edge[left_edge.size()-1].y != start_point.y && left_edge[left_edge.size()-1].x != start_point.x)
 		left_edge.push_back(start_point);
-	while(FindLeftEdge(edge_prev_dir)){
+	while(FindLeftEdge(edge_prev_dir)&& (left_edge[left_edge.size()-1].x - start_point.x < 20)){
 		if(left_edge[left_edge.size()-1].x<leftmostP.x)
-			leftmostP = right_edge[right_edge.size()-1];
+			leftmostP = left_edge[left_edge.size()-1];
+	}
+}
+//for left loop
+void LeftLoopEdgeL(coor start_point, int& edge_prev_dir, coor& rightmostP, int threshold, bool append = false){
+	if(!append)
+		empty_right();
+	if(left_edge.size() && left_edge[left_edge.size()-1].y != start_point.y && left_edge[left_edge.size()-1].x != start_point.x)
+		left_edge.push_back(start_point);
+	while(FindLeftEdge(edge_prev_dir)&& (left_edge[left_edge.size()-1].x - start_point.x < 20)){
+		if(left_edge[left_edge.size()-1].x>rightmostP.x)
+			rightmostP = left_edge[left_edge.size()-1];
 	}
 }
 bool jump(coor point1, coor point2, coor& new_start, int threshold, bool direction){ //jump from the corner to new edge. returns true if a edge is found.
@@ -575,6 +602,23 @@ void normal_right_corner_fsm(Tstate& track_state,coor& final_point, coor& midpoi
 	}
 }
 
+void print(const std::vector<coor>& v){
+	for(uint i = 0; i<v.size(); i++){
+		coor t = v[i];
+		lcd->SetRegion(libsc::Lcd::Rect(t.x,t.y,1,1));
+		lcd->FillColor(lcd->kRed);
+	}
+}
+
+void printsize(){
+
+	char buffer[50];
+	sprintf(buffer,"l %d r %d",left_edge.size(),right_edge.size());
+	lcd->SetRegion(libsc::Lcd::Rect(80,40,40,40));
+	writerP->WriteString(buffer);
+
+}
+
 
 void algo() {
 	libsc::System::DelayMs(100);
@@ -586,6 +630,7 @@ void algo() {
 	Lstate loop_state = Entering;
 	coor midpoint = {92,115};
 	coor leftmostP = {188,120};
+	coor rightmostP = {0,120};
 
 	coor left_start;
 	coor right_start;
@@ -595,9 +640,15 @@ void algo() {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
 			camera->UnlockBuffer();
 		}
+		for(uint i=0;i<height;i++){
+			lcd->SetRegion(libsc::Lcd::Rect(0,i,160,1));
+			lcd->FillGrayscalePixel(buffer+camera->GetW()*i,160);
+		}
 
 		empty_left();
 		empty_right();
+		leftmostP = {188,120};
+		rightmostP = {0,120};
 
 		if(track_state == Normal){
 
@@ -704,7 +755,7 @@ void algo() {
 					coor new_start = {0, 0};
 					if (jump(point1,right_edge[right_edge_corner[0]+4],new_start,edge_threshold,true)){
 						right_edge_prev_dir = left;
-						RightLoopEdge(new_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
+						RightLoopEdgeR(new_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
 						midpoint = {leftmostP.x-10,leftmostP.y};
 						right_edge_prev_dir = up;
 						if(right_start_point(midpoint,right_start,edge_threshold))
@@ -721,7 +772,7 @@ void algo() {
 					}
 					if(right_start_point(midpoint,right_start,edge_threshold)){
 						//opposite as well
-						LeftLoopEdge(right_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
+						LeftLoopEdgeR(right_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
 					}
 					midpoint = {leftmostP.x-10,leftmostP.y};
 
@@ -791,6 +842,115 @@ void algo() {
 				}
 			}
 		}
+		if(track_state == LeftLoop){
+			//follow the right edge when Entering
+			if(loop_state == Entering){
+				if(prev_track_state == Normal){
+					left_edge_prev_dir = up;
+					right_edge_prev_dir = up;
+					if(right_start_point(midpoint,right_start,edge_threshold)){
+						RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+					}
+					if(left_start_point(midpoint,left_start,edge_threshold))
+						LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+					coor point1;
+					if(left_edge_corner[0]>10)
+						point1 = left_edge[left_edge_corner[0]-10];
+					else
+						point1 = left_edge[0];
+					coor new_start = {0, 0};
+					if (jump(point1,left_edge[left_edge_corner[0]+4],new_start,edge_threshold,true)){
+						left_edge_prev_dir = left;
+						LeftLoopEdgeL(new_start,right_edge_prev_dir,rightmostP,edge_threshold,true);
+						midpoint = {rightmostP.x-10,rightmostP.y};
+						left_edge_prev_dir = up;
+						if(left_start_point(midpoint,left_start,edge_threshold))
+							LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+					}
+				}
+				else if(prev_track_state == LeftLoop){
+					right_edge_prev_dir = down;
+					left_edge_prev_dir = down_left;
+					if(right_start_point(midpoint,right_start,edge_threshold)){
+						//as the direction is down, use rightedge function
+						//and the left edge will be stored in right_edge
+						LeftEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+					}
+					if(left_start_point(midpoint,left_start,edge_threshold)){
+						//opposite as well
+						RightLoopEdgeL(right_start,right_edge_prev_dir,rightmostP,edge_threshold,true);
+					}
+					midpoint = {rightmostP.x-10,rightmostP.y};
+
+					right_edge = left_edge;
+					right_edge_corner = left_edge_corner;
+
+					left_edge_prev_dir = up;
+					if(left_start_point(midpoint,left_start,edge_threshold))
+						LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+
+					if(right_edge_corner.size() == 1){
+						loop_state = In;
+						set_midpoint(midpoint,left_start,right_start);
+						set_midpoint(midpoint,midpoint.x,115);
+					}
+				}
+			}
+			//follow the normal way when In
+			else if(loop_state == In){
+				left_edge_prev_dir = up;
+				right_edge_prev_dir = up;
+				if(left_start_point(midpoint,left_start,edge_threshold))
+					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+				if(right_start_point(midpoint,right_start,edge_threshold))
+					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+				set_midpoint(midpoint,left_start,right_start);
+				if(right_edge_corner.size() == 1 && left_edge_corner.size() == 0){
+					loop_state = Leaving;
+				}
+			}
+			//follow the right edges when Leaving
+			else if(loop_state == Leaving){
+				left_edge_prev_dir = up;
+				right_edge_prev_dir = up;
+				if(left_start_point(midpoint,left_start,edge_threshold))
+					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+				if(right_start_point(midpoint,right_start,edge_threshold))
+					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+				set_midpoint(midpoint,left_start,right_start);
+				if(right_edge.size()>0 && right_edge_corner.size()==0){
+					loop_state = Finished;
+				}
+			}
+			//follow the left edges when Finished
+			else if(loop_state == Finished){
+				//increase the midpoint height for detecting the corner?
+				set_midpoint(midpoint,midpoint.x,100);
+				right_edge_prev_dir = up;
+				left_edge_prev_dir = down;
+				std::vector<coor> temp_edge;
+				std::vector<int> temp_edge_corner;
+				if(right_start_point(midpoint,right_start,edge_threshold)){
+					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+					temp_edge = right_edge;
+					temp_edge_corner = right_edge_corner;
+				}
+				if(left_start_point(midpoint,left_start,edge_threshold))
+					RightEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+				left_edge = right_edge;
+				left_edge_corner = right_edge_corner;
+				right_edge = temp_edge;
+				right_edge_corner = temp_edge_corner;
+				set_midpoint(midpoint,left_start,right_start);
+				if(left_edge_corner.size()==1){
+					track_state = Normal;
+					loop_state = Entering;
+				}
+			}
+		}
 	prev_track_state = track_state;
+	print(left_edge);
+	print(right_edge);
+	printsize();
 	}
 }

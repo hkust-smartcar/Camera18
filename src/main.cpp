@@ -81,8 +81,8 @@ int main() {
 	libsc::Servo::Config servo_config;
 	servo_config.id = 0;
 	servo_config.period = 3333;
-	servo_config.max_pos_width = 1000;
-	servo_config.min_pos_width = 2000;
+	servo_config.max_pos_width = 2000;
+	servo_config.min_pos_width = 1000;
 	libsc::Servo servo_(servo_config);
 
 	//Bluetooth Init
@@ -110,6 +110,12 @@ int main() {
 	encoder_config.id = 0;
 	libsc::AbEncoder encoder_(encoder_config);
 	encoder = &encoder_;
+
+	//initialize lcd typewriter
+	libsc::LcdTypewriter::Config typeconfig;
+	typeconfig.lcd = &lcd_;
+	libsc::LcdTypewriter writer(typeconfig);
+	writerP = &writer;
 
 	algo();
 }

@@ -64,6 +64,7 @@ extern libsc::RGBLed* led2;
 extern libsc::RGBLed* led3;
 extern libsc::PassiveBuzzer* buzzer;
 extern libsc::St7735r* lcd;
+extern libsc::LcdTypewriter* writerP;
 extern libsc::LcdConsole* console;
 extern libsc::BatteryMeter* battery_meter;
 extern libsc::Servo* servo;
