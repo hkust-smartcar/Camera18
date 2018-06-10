@@ -61,8 +61,8 @@
 
 //Global Type
 struct coor {
-	int16_t x;
-	int16_t y;
+	uint8_t x;
+	uint8_t y;
 };
 
 //Global Pointers

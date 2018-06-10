@@ -7,14 +7,22 @@
 
 #include <algo.h>
 
-#define GetPoint(x, y) buffer[(x) + (y) * 189]
-
 const Byte* buffer;
+
+inline Byte GetPoint(uint8_t x, uint8_t y) {
+	return buffer[x+y*189];
+}
+
+inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
+	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
+}
+
+inline int16_t RobertsEdgeDetection(uint8_t x, uint8_t y) {
+	return std::abs(GetPoint(x, y) - GetPoint(x + 1, y + 1)) + std::abs(GetPoint(x + 1, y) - GetPoint(x, y + 1));
+}
 
 std::vector<coor> left_edge;
 std::vector<coor> right_edge;
-#define SobelEdgeDetection(x, y) std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y)+1) + GetPoint((x) + 1, (y)-1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y)+1)) + std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x), (y)-1) - GetPoint((x) + 1, (y)-1) + GetPoint((x) - 1, (y)+1) + 2 * GetPoint((x), (y)+1) + GetPoint((x) + 1, (y)+1))
-#define RobertsEdgeDetection(x, y) std::abs(GetPoint(x,y)-GetPoint(x+1,y+1))+std::abs(GetPoint(x+1,y)-GetPoint(x,y+1))
 #define up 0
 #define up_left 1
 #define left 2
