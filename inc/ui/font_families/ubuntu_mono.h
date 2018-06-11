@@ -2,9 +2,8 @@
 // Created by Daniel on 21/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_UBUNTU_MONO_FAMILY_H
-#define INNO14_D_2017_INNO_UBUNTU_MONO_FAMILY_H
-
+#ifndef LIBUI_UBUNTU_MONO_FAMILY_H
+#define LIBUI_UBUNTU_MONO_FAMILY_H
 
 #include <ui/font_family.h>
 #include <ui/fonts/ubuntu_mono.h>
@@ -30,4 +29,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_UBUNTU_MONO_FAMILY_H
+#endif //LIBUI_UBUNTU_MONO_FAMILY_H

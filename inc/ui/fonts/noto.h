@@ -2,8 +2,8 @@
 // Created by Daniel on 19/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_NOTO_H
-#define INNO14_D_2017_INNO_NOTO_H
+#ifndef LIBUI_NOTO_H
+#define LIBUI_NOTO_H
 
 #include <cstdint>
 #include "ui/font.h"
@@ -23,4 +23,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_NOTO_H
+#endif //LIBUI_NOTO_H

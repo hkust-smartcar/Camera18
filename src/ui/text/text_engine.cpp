@@ -8,7 +8,7 @@ bool ui::text::TextEngine::render(const std::string &string) {
     if (font_ptr == nullptr)
         return false; //You must set a font using `setFont(Font*)`
 
-    Uint px_per_line = ui_region.w;
+    uint32_t px_per_line = ui_region.w;
     std::string::const_iterator it = string.begin();
 
     //TODO Aligning center and right
@@ -20,14 +20,14 @@ bool ui::text::TextEngine::render(const std::string &string) {
     if (text_wrap == WRAP) {
 
         std::queue<char> word;
-        Uint accumulated_length = 0;
-        Uint word_length = 0;
-        Uint x = 0;
-        Uint y = 0;
+        uint32_t accumulated_length = 0;
+        uint32_t word_length = 0;
+        uint32_t x = 0;
+        uint32_t y = 0;
 
         while (it <= string_end) {
             const char& c = *it;
-            Uint carry_over_start = 0;
+            uint32_t carry_over_start = 0;
 
             if (c != ' ' && c != '\0' && c != '\n') {
                 word.push(c);
@@ -81,8 +81,8 @@ bool ui::text::TextEngine::render(const std::string &string) {
 
         uint16_t current_character_width = 0;
         const FONT_CHAR_INFO* current_char_info = nullptr;
-        Uint remaining_space = px_per_line - reserved_space;
-        Uint accumulated_length = 0;
+        uint32_t remaining_space = px_per_line - reserved_space;
+        uint32_t accumulated_length = 0;
         while (*it == ' ' || (accumulated_length + (current_character_width = (*(current_char_info = &font_ptr->getCharInfo(*it))).width)
                < remaining_space && it < string_end)) {
 
@@ -127,7 +127,7 @@ bool ui::text::TextEngine::render(const std::string &string) {
     return true;
 }
 
-void ui::text::TextEngine::drawCharacter(char &c, Uint x, Uint y) {
+void ui::text::TextEngine::drawCharacter(char &c, uint32_t x, uint32_t y) {
     //draw character
     if (font_ptr != nullptr) {
         const FONT_CHAR_INFO& char_info = font_ptr->getCharInfo(c);
@@ -135,7 +135,9 @@ void ui::text::TextEngine::drawCharacter(char &c, Uint x, Uint y) {
     }
 }
 
-void ui::text::TextEngine::drawCharacter(const ui::FONT_CHAR_INFO& c, Uint x, Uint y) {
+void ui::text::TextEngine::drawCharacter(const ui::FONT_CHAR_INFO& c, uint32_t x, uint32_t y) {
+    adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
+    
     /*
      * Character 1+ bytes wide
      * 0b01100000
@@ -159,13 +161,12 @@ void ui::text::TextEngine::drawCharacter(const ui::FONT_CHAR_INFO& c, Uint x, Ui
         uint8_t xi = 0;
         for (uint8_t byte_i = 0; byte_i < bytes_width; byte_i++) {
             for (uint8_t bi = 0; bi < 8; bi++, xi++) {
-                uint16_t bit_mask = (uint8_t) 1 << (7 - bi);
+                uint16_t bit_mask = 1u << (7 - bi);
                 if ((*bitmap_offset & bit_mask) >> (7 - bi)) {
                     consecutive_px++;
                 } else if (consecutive_px) {
-                    libsc::Lcd::Rect line(x + xi - consecutive_px, y + yi, consecutive_px, 1);
-                    Context::lcd_ptr->SetRegion(line);
-                    Context::lcd_ptr->FillColor(foreground_color);
+                    screen_ptr->setRegion(x + xi - consecutive_px, y + yi, consecutive_px, 1);
+                    screen_ptr->fill(foreground_color);
                     consecutive_px = 0;
                 }
                 if (xi - c.width == 0) //Already printed last character, scanning 1 pixel afterwards
@@ -174,9 +175,8 @@ void ui::text::TextEngine::drawCharacter(const ui::FONT_CHAR_INFO& c, Uint x, Ui
             bitmap_offset ++;
         }
         if (consecutive_px > 0) {
-            libsc::Lcd::Rect line(x + xi - consecutive_px, y + yi, consecutive_px, 1);
-            Context::lcd_ptr->SetRegion(line);
-            Context::lcd_ptr->FillColor(foreground_color);
+            screen_ptr->setRegion(x + xi - consecutive_px, y + yi, consecutive_px, 1);
+            screen_ptr->fill(foreground_color);
         }
     }
 
@@ -188,7 +188,7 @@ std::vector<ui::text::TextEngine::Line> ui::text::TextEngine::getLines(const std
     auto current_line_start = it;
 
     ui::text::TextEngine::Line current_line{0, current_line_start};
-    Uint accumulated_length = 0;
+    uint32_t accumulated_length = 0;
     const uint8_t& space_width = font_ptr->getFontInfo().space_width;
     const uint8_t& tracking = font_ptr->getFontInfo().tracking;
     std::deque<uint8_t> char_lengths;
@@ -238,6 +238,6 @@ std::vector<ui::text::TextEngine::Line> ui::text::TextEngine::getLines(const std
     return lines;
 }
 
-Uint ui::text::TextEngine::getParagraphHeight(const std::string &string) {
+uint32_t ui::text::TextEngine::getParagraphHeight(const std::string &string) {
     return 0;
 }

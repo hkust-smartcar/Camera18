@@ -2,14 +2,16 @@
 // Created by Daniel on 19/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_UI_ELEMENT_H
-#define INNO14_D_2017_INNO_UI_ELEMENT_H
+#ifndef LIBUI_UI_ELEMENT_H
+#define LIBUI_UI_ELEMENT_H
 
 #include <cstdint>
 #include <ui/ui_base.h>
-#include <libsc/lcd.h>
+#include <ui/context.h>
 
 namespace ui {
+
+    class UIElementGroup;
 
     enum Layout {
         WRAP_CONTENT,
@@ -26,10 +28,9 @@ namespace ui {
      */
     class UIElement: public virtual UIBase {
     public:
+        UIElementGroup* getParent();
 
-        void setParent(UIElement* ui_element_ptr);
-
-        UIElement* getParent();
+        void setParent(UIElementGroup* ui_element_ptr);
 
         /**
          * Sets background color in RGB565
@@ -46,13 +47,39 @@ namespace ui {
     protected:
         UIElement() = default;
 
-        UIElement* parent_ptr = nullptr;
+        UIElementGroup* parent_ptr = nullptr;
         Layout horizontal_layout = WRAP_CONTENT;
         Layout vertical_layout = WRAP_CONTENT;
         Opacity background_opacity = TRANSPARENT;
-        uint16_t background_color = libsc::Lcd::kBlack;
+        uint16_t background_color = Context::color_scheme.BACKGROUND;
+    };
+
+    class UIElementGroup: public virtual UIElement {
+    public:
+        void render() override;
+
+        void addElement(UIElement* ui_element_ptr);
+
+        /**
+         *
+         * @param list initializer list of element pointers
+         * @example
+         * @code
+         * group.addElements({ptr1, ptr2, ptr3});
+         * @endcode
+         */
+        void addElements(std::initializer_list<UIElement*> list);
+
+        std::vector<UIElement*> getElements();
+
+    protected:
+        /**
+         * On screen elements
+         */
+        std::vector<UIElement*> ui_element_ptrs;
+
     };
 }
 
 
-#endif //INNO14_D_2017_INNO_UI_ELEMENT_H
+#endif //LIBUI_UI_ELEMENT_H

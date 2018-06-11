@@ -2,8 +2,8 @@
 // Created by Daniel on 19/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_TEXT_BLOCK_H
-#define INNO14_D_2017_INNO_TEXT_BLOCK_H
+#ifndef LIBUI_TEXT_BLOCK_H
+#define LIBUI_TEXT_BLOCK_H
 
 
 #include <string>
@@ -45,4 +45,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_TEXT_BLOCK_H
+#endif //LIBUI_TEXT_BLOCK_H

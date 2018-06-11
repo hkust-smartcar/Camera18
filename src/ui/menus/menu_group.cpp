@@ -8,7 +8,7 @@ namespace ui {
 
     MenuGroup::MenuGroup(std::string menu_name) {
         this->setName(std::move(menu_name));
-        this->setRegion(Context::full_screen);
+        this->setRegion(0, 0, Context::getScreen()->getWidth(), Context::getScreen()->getHeight());
 
         toolbar.setRegion(ui_region.x, ui_region.y, ui_region.w, TITLE_BAR_HEIGHT);
         toolbar.reserveHSpace(16);
@@ -16,7 +16,7 @@ namespace ui {
         assert(Context::font_repo["Blocky"] != nullptr);
         textBlockBatteryVoltage.setFont(Context::font_repo["Blocky"]);
         textBlockBatteryVoltage.setTextWrap(text::NO_WRAP);
-        textBlockBatteryVoltage.setRegion(112, 6, 20, 5);
+        textBlockBatteryVoltage.setRegion(Context::getScreen()->getWidth() - 17u, 6, 20, 5);
         textBlockBatteryVoltage.setText("Err");
     }
 
@@ -33,31 +33,33 @@ namespace ui {
         drawPage();
 
         //Rendering loop
-        libsc::Timer::TimerInt time = libsc::System::Time();
+        uint32_t time = Context::getSystemTime();
 
-        std::function<void(E)> joystick_handler = [&](E e){
-            if (e.JOYSTICK_STATE == Context::JOYSTICK_UP) {
+        std::function<void(E&)> joystick_handler = [&](E& e){
+            if (e.JOYSTICK_STATE == JoystickState::UP) {
                 //Select prev item
                 selectPrevAction();
-            } else if (e.JOYSTICK_STATE == Context::JOYSTICK_DOWN) {
+                e.consume();
+            } else if (e.JOYSTICK_STATE == JoystickState::DOWN) {
                 //Select next item
                 selectNextAction();
-            } else if (e.JOYSTICK_STATE == Context::JOYSTICK_SELECT) {
+                e.consume();
+            } else if (e.JOYSTICK_STATE == JoystickState::SELECT) {
                 runAction();
+                e.consume();
             }
         };
 
         Context::addEventListener(Event::JOYSTICK_DOWN, &joystick_handler);
 
         while (!is_exit) {
-            if (time != libsc::System::Time()) {
-                time = libsc::System::Time();
+            if (time != Context::getSystemTime()) {
+                time = Context::getSystemTime();
 
+                //When an action is queued for running
                 if (run_action != nullptr) {
-                    Context::removeEventListener(Event::JOYSTICK_DOWN, &joystick_handler);
                     run_action->run();
                     run_action = nullptr;
-                    Context::addEventListener(Event::JOYSTICK_DOWN, &joystick_handler);
 
                     if (is_exit)
                         break;
@@ -84,14 +86,16 @@ namespace ui {
     }
 
     void MenuGroup::drawBatteryMeter() {
-        float voltage = Context::batteryMeter->GetVoltage();
+        float voltage = Context::getBatteryMeter()->getVoltage();
         uint16_t &battery_color = voltage > 7.4 ?
                                   Context::color_scheme.SUCCESS :
                                   Context::color_scheme.DANGER;
 
-        Icons::drawBatteryGauge(Context::full_screen.w - 19, 4, battery_color, 16, 9);
-        Context::lcd_ptr->SetRegion(libsc::Lcd::Rect(Context::full_screen.w - 18, 5, 13, 7));
-        Context::lcd_ptr->FillColor(Context::color_scheme.BACKGROUND_LIGHTER);
+        adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
+
+        Icons::drawBatteryGauge(screen_ptr->getWidth() - 19u, 4, battery_color, 16, 9);
+        screen_ptr->setRegion(screen_ptr->getWidth() - 18u, 5, 13, 7);
+        screen_ptr->fill(Context::color_scheme.BACKGROUND_LIGHT);
         std::ostringstream os;
         os << (roundf(voltage * 10) / 10);
         if (os.str().back() == '.')
@@ -101,20 +105,28 @@ namespace ui {
         textBlockBatteryVoltage.render();
     }
 
-    void MenuGroup::addMenuAction(MenuAction* menu_action) {
-        menu_actions.push_back(menu_action);
+    void MenuGroup::addMenuAction(MenuAction* menu_action_ptr) {
+        menu_actions.push_back(menu_action_ptr);
+    }
+
+    void MenuGroup::addMenuActions(std::initializer_list<MenuAction *> menu_action_ptrs) {
+        for (auto* menu_action_ptr: menu_action_ptrs) {
+            addMenuAction(menu_action_ptr);
+        }
     }
 
     void MenuGroup::render() {
-        Context::lcd_ptr->SetRegion(ui_region);
-        Context::lcd_ptr->FillColor(is_selected ? Context::color_scheme.PRIMARY_LIGHTER : Context::color_scheme.BACKGROUND_LIGHT);
+        adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
+
+        screen_ptr->setRegion(ui_region);
+        screen_ptr->fill(is_selected ? Context::color_scheme.PRIMARY_LIGHTER : Context::color_scheme.BACKGROUND);
         textBlockName.setRegion(ui_region.x + PADDING, ui_region.y + TEXT_OFFSET, ui_region.w - PADDING * 2, ITEM_HEIGHT);
         textBlockName.setText(name);
         textBlockName.render();
 
         //Draw arrow
         Icons::drawCaret(
-                Context::full_screen.w - PADDING,
+                screen_ptr->getWidth() - PADDING,
                 CARET_OFFSET,
                 is_selected ? Context::color_scheme.PRIMARY : Context::color_scheme.GRAY,
                 graphics::RIGHT, 5
@@ -123,25 +135,29 @@ namespace ui {
     }
 
     void MenuGroup::drawBaseUI() {
+        adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
+        
         toolbar.render();
 
         //Draw battery meter
         drawBatteryMeter();
 
         //Draw scrollbar
-        Context::lcd_ptr->SetRegion(libsc::Lcd::Rect(
-                Context::full_screen.w - 2,
+        screen_ptr->setRegion(
+                screen_ptr->getWidth() - 2u,
                 TITLE_BAR_HEIGHT + 1,
                 SCROLLBAR_WIDTH,
-                Context::full_screen.h - TITLE_BAR_HEIGHT
-        ));
-        Context::lcd_ptr->FillColor(Context::color_scheme.BACKGROUND_LIGHTER);
+                screen_ptr->getHeight() - TITLE_BAR_HEIGHT
+        );
+        screen_ptr->fill(Context::color_scheme.BACKGROUND_LIGHT);
     }
 
     void MenuGroup::drawPage() {
+        adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
+        
         //Draw background
-        Context::lcd_ptr->SetRegion(libsc::Lcd::Rect(0, TITLE_BAR_HEIGHT, Context::full_screen.w, Context::full_screen.h));
-        Context::lcd_ptr->FillColor(Context::color_scheme.BACKGROUND_LIGHT);
+        screen_ptr->setRegion(0, TITLE_BAR_HEIGHT, screen_ptr->getWidth(), screen_ptr->getHeight() - TITLE_BAR_HEIGHT);
+        screen_ptr->fill(Context::color_scheme.BACKGROUND);
 
         std::deque<MenuAction*> current_page_actions;
 
@@ -177,7 +193,7 @@ namespace ui {
     }
 
     uint8_t MenuGroup::getItemsPerPage() {
-        return uint8_t ((Context::full_screen.h - TITLE_BAR_HEIGHT) / ITEM_HEIGHT);
+        return uint8_t ((Context::getScreen()->getHeight() - TITLE_BAR_HEIGHT) / ITEM_HEIGHT);
     }
 
     uint8_t MenuGroup::getTotalPages() {
@@ -198,7 +214,7 @@ namespace ui {
             if (new_index < 0)
             	new_index += (int16_t) menu_actions.size();
         } else
-            new_index = (uint8_t) std::min(std::max((int) new_index, 0), (int) (menu_actions.size() - 1));
+            new_index = (int16_t) std::min(std::max((int) new_index, 0), (int) (menu_actions.size() - 1));
 
         if (new_index == selected_index)
             return;
@@ -207,14 +223,14 @@ namespace ui {
         MenuAction* new_action_ptr = menu_actions[new_index];
         current_action_ptr->deselect();
         new_action_ptr->select();
-        if (isIndexInPage(new_index)) {
+        if (isIndexInPage((uint8_t) new_index)) {
             //New index is in the same page. Alter current and last item
             current_action_ptr->render();
             new_action_ptr->render();
-            selected_index = new_index;
+            selected_index = (uint8_t) new_index;
         } else {
             //New index is on a new page. Need to re-render entire page
-            selected_index = new_index;
+            selected_index = (uint8_t) new_index;
             drawPage();
         }
     }
@@ -237,19 +253,21 @@ namespace ui {
     }
 
     void MenuGroup::drawScrollBar() {
+        adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
+
         if (getTotalPages() > 1) {
             //draw scroll bar
             uint8_t scroll_bar_height = (uint8_t) (ui_region.h - TITLE_BAR_HEIGHT) / getTotalPages();
             uint8_t scroll_bar_offset = (getCurrentPageIndex() / (getTotalPages() - (uint8_t) 1)) * scroll_bar_height;
 
-            Context::lcd_ptr->SetRegion(libsc::Lcd::Rect(
+            screen_ptr->setRegion(
                     ui_region.x + ui_region.w - SCROLLBAR_WIDTH,
                     TITLE_BAR_HEIGHT + scroll_bar_offset,
                     SCROLLBAR_WIDTH,
-                    scroll_bar_height)
+                    scroll_bar_height
             );
 
-            Context::lcd_ptr->FillColor(Context::color_scheme.PRIMARY);
+            screen_ptr->fill(Context::color_scheme.PRIMARY);
 
         }
     }

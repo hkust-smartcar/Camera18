@@ -2,10 +2,9 @@
 // Created by Daniel on 21/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_FUTURISM_H
-#define INNO14_D_2017_INNO_FUTURISM_H
+#ifndef LIBUI_FUTURISM_H
+#define LIBUI_FUTURISM_H
 
-#include <stdint-gcc.h>
 #include "color_scheme.h"
 
 namespace ui {
@@ -13,11 +12,11 @@ namespace ui {
         /**
          * This file lists out colors in the RGB-565 format
          */
-        class Futurism: public ColorScheme {
+        class Light: public ColorScheme {
         public:
-            Futurism();
+            Light();
         };
     }
 }
 
-#endif //INNO14_D_2017_INNO_FUTURISM_H
+#endif //LIBUI_FUTURISM_H

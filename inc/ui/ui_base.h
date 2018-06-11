@@ -2,11 +2,10 @@
 // Created by Daniel on 21/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_UI_BASE_H
-#define INNO14_D_2017_INNO_UI_BASE_H
+#ifndef LIBUI_UI_BASE_H
+#define LIBUI_UI_BASE_H
 
-
-#include <libsc/lcd.h>
+#include "graphics.h"
 
 namespace ui {
 
@@ -24,29 +23,29 @@ namespace ui {
          * Sets the ui region
          * @param rect
          */
-        void setRegion(libsc::Lcd::Rect rect);
+        void setRegion(graphics::Rectangle rect);
 
         /**
          * Sets the ui region
          * @param rect
          */
-        void setRegion(Uint x, Uint y, Uint w, Uint h);
+        void setRegion(uint32_t x, uint32_t y, uint32_t w, uint32_t h);
 
         /**
          * Retrieves the region where text is drawn.
          * @return
          */
-        libsc::Lcd::Rect getRegion();
+        graphics::Rectangle getRegion();
 
         void setVisibility(Visibility visibility);
 
         Visibility getVisibility();
 
     protected:
-        libsc::Lcd::Rect ui_region{};
+        graphics::Rectangle ui_region;
         Visibility visibility = VISIBLE;
     };
 }
 
 
-#endif //INNO14_D_2017_INNO_UI_BASE_H
+#endif //LIBUI_UI_BASE_H

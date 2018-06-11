@@ -2,8 +2,8 @@
 // Created by Daniel on 21/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_FONT_FAMILY_H
-#define INNO14_D_2017_INNO_FONT_FAMILY_H
+#ifndef LIBUI_FONT_FAMILY_H
+#define LIBUI_FONT_FAMILY_H
 
 
 #include <vector>
@@ -73,4 +73,4 @@ namespace ui {
     };
 }
 
-#endif //INNO14_D_2017_INNO_FONT_FAMILY_H
+#endif //LIBUI_FONT_FAMILY_H

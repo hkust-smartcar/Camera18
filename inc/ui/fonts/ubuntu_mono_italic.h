@@ -2,8 +2,8 @@
 // Created by Daniel on 19/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_UBUNTU_MONO_ITALIC_H
-#define INNO14_D_2017_INNO_UBUNTU_MONO_ITALIC_H
+#ifndef LIBUI_UBUNTU_MONO_ITALIC_H
+#define LIBUI_UBUNTU_MONO_ITALIC_H
 
 #include <cstdint>
 #include "ui/font.h"
@@ -23,4 +23,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_UBUNTU_MONO_ITALIC_H
+#endif //LIBUI_UBUNTU_MONO_ITALIC_H

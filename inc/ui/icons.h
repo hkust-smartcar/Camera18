@@ -2,8 +2,8 @@
 // Created by Daniel on 22/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_ICONS_H
-#define INNO14_D_2017_INNO_ICONS_H
+#ifndef LIBUI_ICONS_H
+#define LIBUI_ICONS_H
 
 #include <ui/context.h>
 #include "ui/graphics.h"
@@ -39,7 +39,7 @@ namespace ui {
          *
          * @see ui::graphics::Direction
          */
-        static void drawCaret(Uint x, Uint y, uint16_t color, Direction direction, uint16_t size);
+        static void drawCaret(uint32_t x, uint32_t y, uint16_t color, Direction direction, uint16_t size);
 
         /**
          * Draws a right angle triangle.
@@ -68,7 +68,7 @@ namespace ui {
          * @endcode
          *
          */
-        static void drawTriangle(Uint x, Uint y, uint16_t color, Direction direction, uint16_t size);
+        static void drawTriangle(uint32_t x, uint32_t y, uint16_t color, Direction direction, uint16_t size);
 
         /**
          * Draws a battery gauge
@@ -88,9 +88,9 @@ namespace ui {
          * #########
          * @endcode
          */
-        static void drawBatteryGauge(Uint x, Uint y, uint16_t color, uint16_t width, Uint height);
+        static void drawBatteryGauge(uint32_t x, uint32_t y, uint16_t color, uint16_t width, uint32_t height);
     };
 }
 
 
-#endif //INNO14_D_2017_INNO_ICONS_H
+#endif //LIBUI_ICONS_H

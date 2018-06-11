@@ -2,10 +2,9 @@
 // Created by Daniel on 20/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_TEXT_ENGINE_H
-#define INNO14_D_2017_INNO_TEXT_ENGINE_H
+#ifndef LIBUI_TEXT_ENGINE_H
+#define LIBUI_TEXT_ENGINE_H
 
-#include <libsc/lcd.h>
 #include <ui/context.h>
 #include <ui/font.h>
 #include <queue>
@@ -15,7 +14,7 @@
 namespace ui {
     namespace text {
         /**
-         * TextEngine utilizes a libsc::Lcd object. The text engine can render text using a specific font file generated
+         * The text engine can render text using a specific font file generated
          * with The Dot Factory with slight modifications. Features include: text wrapping and text color
          * configurations. This rendering can be further abstracted by utilizing the UI element TextBlock.
          *
@@ -40,7 +39,7 @@ namespace ui {
                 /**
                  * The occupied width as it would on the screen on the line.
                  */
-                Uint width;
+                uint32_t width;
                 std::string::const_iterator line_start;
             };
 
@@ -81,15 +80,15 @@ namespace ui {
              * @param string
              * @return
              */
-            Uint getParagraphHeight(const std::string &string);
+            uint32_t getParagraphHeight(const std::string &string);
 
         private:
-            void drawCharacter(char& c, Uint x, Uint y);
+            void drawCharacter(char& c, uint32_t x, uint32_t y);
 
-            void drawCharacter(const FONT_CHAR_INFO& c, Uint x, Uint y);
+            void drawCharacter(const FONT_CHAR_INFO& c, uint32_t x, uint32_t y);
         };
     }
 }
 
 
-#endif //INNO14_D_2017_INNO_TEXT_ENGINE_H
+#endif //LIBUI_TEXT_ENGINE_H

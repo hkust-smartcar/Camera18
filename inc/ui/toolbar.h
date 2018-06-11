@@ -2,8 +2,8 @@
 // Created by Daniel on 2/3/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_TOOLBAR_H
-#define INNO14_D_2017_INNO_TOOLBAR_H
+#ifndef LIBUI_TOOLBAR_H
+#define LIBUI_TOOLBAR_H
 
 
 #include "ui/context.h"
@@ -29,7 +29,7 @@ namespace ui {
 
         void setHasBackArrow(bool has_back_arrow);
 
-        void reserveHSpace(Uint w);
+        void reserveHSpace(uint32_t w);
 
     private:
         static const uint16_t PADDING = 18;
@@ -46,4 +46,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_TOOLBAR_H
+#endif //LIBUI_TOOLBAR_H

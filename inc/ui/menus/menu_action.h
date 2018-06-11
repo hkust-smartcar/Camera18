@@ -2,12 +2,11 @@
 // Created by Daniel on 17/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_MENU_ACTION_H
-#define INNO14_D_2017_INNO_MENU_ACTION_H
+#ifndef LIBUI_MENU_ACTION_H
+#define LIBUI_MENU_ACTION_H
 
 #include <functional>
 #include <vector>
-#include <libbase/misc_utils.h>
 #include <ui/context.h>
 #include <ui/ui_base.h>
 #include <ui/text_block.h>
@@ -55,7 +54,7 @@ namespace ui {
 
     protected:
         static const uint8_t ITEM_HEIGHT = 18;
-        static const uint16_t PADDING = 18;
+        static const uint16_t PADDING = 9;
         static const uint16_t TEXT_OFFSET = 3;
 
         std::string name = "Untitled";
@@ -67,4 +66,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_MENU_ACTION_H
+#endif //LIBUI_MENU_ACTION_H

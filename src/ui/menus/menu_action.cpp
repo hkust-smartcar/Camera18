@@ -2,8 +2,6 @@
 // Created by Daniel on 17/2/2018.
 //
 
-#include <utility>
-
 #include "ui/menus/menu_action.h"
 
 ui::MenuAction::MenuAction() {
@@ -35,9 +33,10 @@ void ui::MenuAction::render() {
      *
      * @see ui::Context::font_repo
      */
+     adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
 
-    Context::lcd_ptr->SetRegion(ui_region);
-    Context::lcd_ptr->FillColor(is_selected ? Context::color_scheme.PRIMARY_LIGHTER : Context::color_scheme.BACKGROUND_LIGHT);
+    screen_ptr->setRegion(ui_region);
+    screen_ptr->fill(is_selected ? Context::color_scheme.PRIMARY_LIGHTER : Context::color_scheme.BACKGROUND);
     textBlockName.setRegion(ui_region.x + PADDING, ui_region.y + TEXT_OFFSET, ui_region.w - PADDING, ITEM_HEIGHT);
     textBlockName.setText(name);
     textBlockName.render();

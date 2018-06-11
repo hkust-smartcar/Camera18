@@ -2,12 +2,11 @@
 // Created by Daniel on 21/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_TEXT_ELEMENT_H
-#define INNO14_D_2017_INNO_TEXT_ELEMENT_H
+#ifndef LIBUI_TEXT_ELEMENT_H
+#define LIBUI_TEXT_ELEMENT_H
 
 #include <cstdint>
 #include <ui/font.h>
-#include <libsc/lcd.h>
 #include <ui/ui_base.h>
 
 namespace ui {
@@ -101,4 +100,4 @@ namespace ui {
     }
 }
 
-#endif //INNO14_D_2017_INNO_TEXT_ELEMENT_H
+#endif //LIBUI_TEXT_ELEMENT_H

@@ -2,9 +2,8 @@
 // Created by Daniel on 4/3/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_CYCLE_EVENTS_H
-#define INNO14_D_2017_INNO_CYCLE_EVENTS_H
-
+#ifndef LIBUI_CYCLE_EVENTS_H
+#define LIBUI_CYCLE_EVENTS_H
 
 namespace ui {
     namespace events {
@@ -23,4 +22,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_CYCLE_EVENTS_H
+#endif //LIBUI_CYCLE_EVENTS_H

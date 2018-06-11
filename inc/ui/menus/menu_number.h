@@ -2,8 +2,8 @@
 // Created by Daniel on 17/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_MENU_NUMBER_H
-#define INNO14_D_2017_INNO_MENU_NUMBER_H
+#ifndef LIBUI_MENU_NUMBER_H
+#define LIBUI_MENU_NUMBER_H
 
 
 #include <ui/menus/menu_action.h>
@@ -33,20 +33,20 @@ namespace ui {
         T step;
 
     private:
-        static const Uint DIALOG_MARGIN = 12;
-        const Uint DIALOG_WIDTH = Context::full_screen.w - DIALOG_MARGIN * 2;
-        static const Uint DIALOG_HEIGHT = 60;
-        static const Uint DIALOG_TEXT_OFFSET = 5;
-        static const Uint CARET_SIZE = 5;
+        static const uint32_t DIALOG_MARGIN = 12;
+        const uint32_t DIALOG_WIDTH = Context::getScreen()->getWidth() - DIALOG_MARGIN * 2;
+        static const uint32_t DIALOG_HEIGHT = 60;
+        static const uint32_t DIALOG_TEXT_OFFSET = 5;
+        static const uint32_t CARET_SIZE = 5;
 
-        const libsc::Lcd::Rect DIALOG_REGION {
+        const graphics::Rectangle DIALOG_REGION {
                 DIALOG_MARGIN,
-                (Context::full_screen.h - DIALOG_HEIGHT) / 2,
+                (Context::getScreen()->getHeight() - DIALOG_HEIGHT) / 2,
                 DIALOG_WIDTH,
                 DIALOG_HEIGHT
         };
 
-        libsc::Lcd::Rect text_region;
+        graphics::Rectangle text_region;
 
         TextBlock textBlockLabel;
         TextBlock textBlockValue;
@@ -63,7 +63,7 @@ namespace ui {
         textBlockLabel.setRegion(DIALOG_REGION.x + DIALOG_TEXT_OFFSET, DIALOG_REGION.y + DIALOG_TEXT_OFFSET, DIALOG_WIDTH - DIALOG_TEXT_OFFSET * 2, 10);
         textBlockLabel.setText(this->name);
 
-        text_region = libsc::Lcd::Rect(DIALOG_REGION.x + DIALOG_TEXT_OFFSET * 2 + CARET_SIZE, DIALOG_REGION.y + 25, DIALOG_REGION.w - (DIALOG_TEXT_OFFSET * 2 + CARET_SIZE) * 2, 12);
+        text_region = graphics::Rectangle{DIALOG_REGION.x + DIALOG_TEXT_OFFSET * 2 + CARET_SIZE, DIALOG_REGION.y + 25, DIALOG_REGION.w - (DIALOG_TEXT_OFFSET * 2 + CARET_SIZE) * 2, 12};
 
         textBlockValue.setFont(Context::font_repo["Humanist"]);
         textBlockValue.setTextWrap(text::ELLIPSIS);
@@ -75,19 +75,22 @@ namespace ui {
     template<class T>
     int MenuNumber<T>::run() {
     	onEnter();
+    	
+    	adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
+    	
         //Draw dialog
-        Context::lcd_ptr->SetRegion(DIALOG_REGION);
-        Context::lcd_ptr->FillColor(Context::color_scheme.BACKGROUND_LIGHTER);
+        screen_ptr->setRegion(DIALOG_REGION);
+        screen_ptr->fill(Context::color_scheme.BACKGROUND_LIGHT);
 
         //Draw border
-        Context::lcd_ptr->SetRegion(libsc::Lcd::Rect(DIALOG_REGION.x, DIALOG_REGION.y, DIALOG_WIDTH, 1));
-        Context::lcd_ptr->FillColor(Context::color_scheme.GRAY);
-        Context::lcd_ptr->SetRegion(libsc::Lcd::Rect(DIALOG_REGION.x, DIALOG_REGION.y + DIALOG_HEIGHT - 1, DIALOG_WIDTH, 1));
-        Context::lcd_ptr->FillColor(Context::color_scheme.GRAY);
-        Context::lcd_ptr->SetRegion(libsc::Lcd::Rect(DIALOG_REGION.x, DIALOG_REGION.y, 1, DIALOG_HEIGHT));
-        Context::lcd_ptr->FillColor(Context::color_scheme.GRAY);
-        Context::lcd_ptr->SetRegion(libsc::Lcd::Rect(DIALOG_REGION.x + DIALOG_REGION.w - 1, DIALOG_REGION.y, 1, DIALOG_HEIGHT));
-        Context::lcd_ptr->FillColor(Context::color_scheme.GRAY);
+        screen_ptr->setRegion(DIALOG_REGION.x, DIALOG_REGION.y, DIALOG_WIDTH, 1);
+        screen_ptr->fill(Context::color_scheme.GRAY);
+        screen_ptr->setRegion(DIALOG_REGION.x, DIALOG_REGION.y + DIALOG_HEIGHT - 1, DIALOG_WIDTH, 1);
+        screen_ptr->fill(Context::color_scheme.GRAY);
+        screen_ptr->setRegion(DIALOG_REGION.x, DIALOG_REGION.y, 1, DIALOG_HEIGHT);
+        screen_ptr->fill(Context::color_scheme.GRAY);
+        screen_ptr->setRegion(DIALOG_REGION.x + DIALOG_REGION.w - 1, DIALOG_REGION.y, 1, DIALOG_HEIGHT);
+        screen_ptr->fill(Context::color_scheme.GRAY);
 
         //Draw name
         textBlockLabel.render();
@@ -98,20 +101,21 @@ namespace ui {
 
         bool is_exit = false;
 
-        std::function<void(E)> joystick_handler = [&](E e){
-            if (e.JOYSTICK_STATE == Context::JOYSTICK_LEFT) {
+        std::function<void(E&)> joystick_handler = [&](E& e){
+            if (e.JOYSTICK_STATE == JoystickState::LEFT) {
                 //Decrease
                 value -= step;
                 printValue();
                 onChange();
-            } else if (e.JOYSTICK_STATE == Context::JOYSTICK_RIGHT) {
+            } else if (e.JOYSTICK_STATE == JoystickState::RIGHT) {
                 //Increase
                 value += step;
                 printValue();
                 onChange();
-            } else if (e.JOYSTICK_STATE == Context::JOYSTICK_SELECT) {
+            } else if (e.JOYSTICK_STATE == JoystickState::SELECT) {
                 is_exit = true;
             }
+            e.consume();
         };
 
         Context::addEventListener(Event::JOYSTICK_DOWN, &joystick_handler);
@@ -150,9 +154,11 @@ namespace ui {
 
     template<class T>
     void MenuNumber<T>::printValue() {
+        adapters::ScreenAdapterInterface* screen_ptr = Context::getScreen();
+        
         //Re-render
-        Context::lcd_ptr->SetRegion(text_region);
-        Context::lcd_ptr->FillColor(Context::color_scheme.BACKGROUND_LIGHTER);
+        screen_ptr->setRegion(text_region);
+        screen_ptr->fill(Context::color_scheme.BACKGROUND_LIGHT);
 
         std::ostringstream os;
         os.precision(3);
@@ -170,4 +176,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_MENU_NUMBER_H
+#endif //LIBUI_MENU_NUMBER_H

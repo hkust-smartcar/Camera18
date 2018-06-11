@@ -2,15 +2,13 @@
 // Created by Daniel on 17/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_MENU_GROUP_H
-#define INNO14_D_2017_INNO_MENU_GROUP_H
+#ifndef LIBUI_MENU_GROUP_H
+#define LIBUI_MENU_GROUP_H
 
 
 #include <utility>
 #include <sstream>
-#include <libsc/system.h>
 #include <string>
-#include <libsc/lcd.h>
 #include <ui/context.h>
 #include <ui/color_util.h>
 #include <ui/text_block.h>
@@ -30,7 +28,9 @@ namespace ui {
 
         void setHasBackArrow(bool has_back_arrow);
 
-        void addMenuAction(MenuAction* menu_action);
+        void addMenuAction(MenuAction* menu_action_ptr);
+
+        void addMenuActions(std::initializer_list<MenuAction*> menu_action_ptrs);
 
         void render() override;
 
@@ -83,4 +83,4 @@ namespace ui {
 }
 
 
-#endif //INNO14_D_2017_INNO_MENU_GROUP_H
+#endif //LIBUI_MENU_GROUP_H

@@ -2,8 +2,8 @@
 // Created by Daniel on 19/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_HUMANIST_H
-#define INNO14_D_2017_INNO_HUMANIST_H
+#ifndef LIBUI_HUMANIST_H
+#define LIBUI_HUMANIST_H
 
 #include <cstdint>
 #include "ui/font.h"
@@ -22,4 +22,4 @@ namespace ui {
     }
 }
 
-#endif //INNO14_D_2017_INNO_HUMANIST_H
+#endif //LIBUI_HUMANIST_H

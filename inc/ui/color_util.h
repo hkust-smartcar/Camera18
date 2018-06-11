@@ -28,9 +28,15 @@ namespace ui {
             double g = 1;
             double b = 1;
 
+            RGBDouble();
+
             RGBDouble(double r_, double g_, double b_);
 
-            HSV toHSV(RGBDouble rgbDouble);
+            HSV toHSV();
+
+            RGB565 toRGB565();
+
+            RGB24 toRGB24();
         };
 
         struct RGB24 {
@@ -38,21 +44,15 @@ namespace ui {
             uint16_t g = 255;
             uint16_t b = 255;
 
+            RGB24();
+
             RGB24(uint16_t r_, uint16_t g_, uint16_t b_);
 
             /**
-             * Converts a True Color stored in an RGB24 to an RGB-565 uint16_t structure.
-             * @param rgb24
+             * Converts a True Color stored in an RGB24 to an RGB-565 structure.
              * @return An RGB-565 color in RGB565
              */
-            RGB565 toRGB565(RGB24 rgb24);
-
-            /**
-             * Converts an RGB-565 color stored in an RGB24 to a uint16_t structure.
-             * @param rgb565
-             * @return An RGB-565 color in uint16_t
-             */
-            uint16_t toUInt16(RGB565 rgb565);
+            RGB565 toRGB565();
         };
 
         struct RGB565 {
@@ -60,21 +60,29 @@ namespace ui {
             uint8_t g = 0x3F;
             uint8_t b = 0x1F;
 
+            RGB565();
+
             RGB565(uint8_t r_, uint8_t g_, uint8_t b_);
 
             /**
-             * Converts an RGB-565 color stored in a uint16_t to an RGB24 structure.
+             * Converts an RGB-565 color stored in a uint16_t to an RGB565 structure.
              * @param rgb565
              * @return An RGB-565 color in RGB565
              */
             explicit RGB565(uint16_t rgb565);
 
             /**
-             * Converts an RGB-565 color stored in a uint16_t to a True Color RGB24 structure.
-             * @param rgb565
+             * Converts an RGB-565 color stored in a RGB565 to a True Color RGB24 structure.
              * @return An RGB-24 color in RGB24
              */
-            RGB24 toRGB24(uint16_t rgb565);
+             RGB24 toRGB24();
+
+            /**
+             * Converts an RGB-565 color stored in an RGB24 to a uint16_t structure.
+             * @param rgb565
+             * @return An RGB-565 color in uint16_t
+             */
+            uint16_t toUInt16();
         };
 
         struct HSV {
@@ -82,13 +90,15 @@ namespace ui {
             double s = 0;
             double v = 1;
 
+            HSV();
+
             HSV(double h_, double s_, double v_);
 
-            RGBDouble toDouble(HSV hsv);
+            RGBDouble toDouble();
 
-            RGB565 toRGB565(HSV hsv);
+            RGB565 toRGB565();
 
-            RGB24 toRGB24(HSV hsv);
+            RGB24 toRGB24();
 
             HSV& darken(double percent);
 

@@ -2,8 +2,8 @@
 // Created by Daniel on 19/2/2018.
 //
 
-#ifndef INNO14_D_2017_INNO_FONT_INFO_H
-#define INNO14_D_2017_INNO_FONT_INFO_H
+#ifndef LIBUI_FONT_INFO_H
+#define LIBUI_FONT_INFO_H
 
 #include <map>
 
@@ -49,4 +49,4 @@ namespace ui {
     };
 }
 
-#endif //INNO14_D_2017_INNO_FONT_INFO_H
+#endif //LIBUI_FONT_INFO_H

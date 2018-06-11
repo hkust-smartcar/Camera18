@@ -17,7 +17,7 @@ void ui::TextBlock::setText(const std::string& text) {
     }
 }
 
-void ui::TextBlock::onChange(std::function<void(TextBlock&)> function) {
+void ui::TextBlock::onChange(std::function<void(ui::TextBlock&)> function) {
     listener_stack.push_back(function);
 }
 

@@ -2,17 +2,18 @@
 // Created by Daniel on 21/2/2018.
 //
 
+#include <ui/graphics.h>
 #include "ui/ui_base.h"
 
-void ui::UIBase::setRegion(libsc::Lcd::Rect rect) {
+void ui::UIBase::setRegion(ui::graphics::Rectangle rect) {
     ui_region = rect;
 }
 
-void ui::UIBase::setRegion(Uint x, Uint y, Uint w, Uint h) {
-    ui_region = libsc::Lcd::Rect(x, y, w, h);
+void ui::UIBase::setRegion(uint32_t x, uint32_t y, uint32_t w, uint32_t h) {
+    ui_region = graphics::Rectangle{x, y, w, h};
 }
 
-libsc::Lcd::Rect ui::UIBase::getRegion() {
+ui::graphics::Rectangle ui::UIBase::getRegion() {
     return ui_region;
 }
 

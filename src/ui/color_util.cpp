@@ -8,15 +8,15 @@ namespace ui {
     ColorUtil::RGBDouble::RGBDouble(double r_, double g_, double b_)
             : r(r_), g(g_), b(b_) {}
 
-    ColorUtil::HSV ColorUtil::RGBDouble::toHSV(ColorUtil::RGBDouble rgbDouble) {
+    ColorUtil::HSV ColorUtil::RGBDouble::toHSV() {
         HSV hsv(0, 0, 0);
         double min, max, delta;
 
-        min = rgbDouble.r < rgbDouble.g ? rgbDouble.r : rgbDouble.g;
-        min = min < rgbDouble.b ? min : rgbDouble.b;
+        min = r < g ? r : g;
+        min = min < b ? min : b;
 
-        max = rgbDouble.r > rgbDouble.g ? rgbDouble.r : rgbDouble.g;
-        max = max > rgbDouble.b ? max : rgbDouble.b;
+        max = r > g ? r : g;
+        max = max > b ? max : b;
 
         hsv.v = max;                                // v
         delta = max - min;
@@ -34,12 +34,12 @@ namespace ui {
             hsv.h = NAN;                            // its now undefined
             return hsv;
         }
-        if (rgbDouble.r >= max)                           // > is bogus, just keeps compilor happy
-            hsv.h = (rgbDouble.g - rgbDouble.b) / delta;        // between yellow & magenta
-        else if (rgbDouble.g >= max)
-            hsv.h = 2.0 + (rgbDouble.b - rgbDouble.r) / delta;  // between cyan & yellow
+        if (r >= max)                           // > is bogus, just keeps compilor happy
+            hsv.h = (g - b) / delta;        // between yellow & magenta
+        else if (g >= max)
+            hsv.h = 2.0 + (b - r) / delta;  // between cyan & yellow
         else
-            hsv.h = 4.0 + (rgbDouble.r - rgbDouble.g) / delta;  // between magenta & cyan
+            hsv.h = 4.0 + (r - g) / delta;  // between magenta & cyan
 
         hsv.h *= 60.0;                              // degrees
 
@@ -49,19 +49,39 @@ namespace ui {
         return hsv;
     }
 
-    ColorUtil::RGB24::RGB24(uint16_t r_, uint16_t g_, uint16_t b_)
-            : r(r_), g(g_), b(b_) {}
-
-    ColorUtil::RGB565 ColorUtil::RGB24::toRGB565(ColorUtil::RGB24 rgb24) {
+    ColorUtil::RGB565 ColorUtil::RGBDouble::toRGB565() {
         return {
-                (uint8_t) (rgb24.r * 31 / 255),
-                (uint8_t) (rgb24.g * 63 / 255),
-                (uint8_t) (rgb24.b * 31 / 255)
+                (uint8_t) round(r * 0x1F),
+                (uint8_t) round(g * 0x3F),
+                (uint8_t) round(b * 0x1F)
         };
     }
 
-    uint16_t ColorUtil::RGB24::toUInt16(ColorUtil::RGB565 rgb565) {
-        return rgb565.r << 11 ^ rgb565.g << 5 ^ rgb565.b;
+    ColorUtil::RGB24 ColorUtil::RGBDouble::toRGB24() {
+        return {
+                (uint8_t) round(r * 255),
+                (uint8_t) round(g * 255),
+                (uint8_t) round(b * 255)
+        };
+    }
+
+    ColorUtil::RGBDouble::RGBDouble() = default;
+
+    ColorUtil::RGB24::RGB24(uint16_t r_, uint16_t g_, uint16_t b_)
+            : r(r_), g(g_), b(b_) {}
+
+    ColorUtil::RGB565 ColorUtil::RGB24::toRGB565() {
+        return {
+                (uint8_t) (r * 31 / 255),
+                (uint8_t) (g * 63 / 255),
+                (uint8_t) (b * 31 / 255)
+        };
+    }
+
+    ColorUtil::RGB24::RGB24() = default;
+
+    uint16_t ColorUtil::RGB565::toUInt16() {
+        return r << 11u ^ g << 5u ^ b;
     }
 
     ColorUtil::RGB565::RGB565(uint8_t r_, uint8_t g_, uint8_t b_)
@@ -71,28 +91,27 @@ namespace ui {
         uint16_t red_mask = 0xF800;
         uint16_t green_mask = 0x07E0;
         uint16_t blue_mask = 0x001F;
-        r = (uint8_t) ((rgb565 & red_mask) >> 11);
-        g = (uint8_t) ((rgb565 & green_mask) >> 5);
+        r = (uint8_t) ((rgb565 & red_mask) >> 11u);
+        g = (uint8_t) ((rgb565 & green_mask) >> 5u);
         b = (uint8_t) ((rgb565 & blue_mask));
     }
 
-    ColorUtil::RGB24 ColorUtil::RGB565::toRGB24(uint16_t rgb565) {
-        uint16_t red_mask = 0xF800;
-        uint16_t green_mask = 0x07E0;
-        uint16_t blue_mask = 0x001F;
+    ColorUtil::RGB24 ColorUtil::RGB565::toRGB24() {
         return {
-                (uint16_t) ((rgb565 & red_mask) >> 11 * 255 / 31),
-                (uint16_t) ((rgb565 & green_mask) >> 5 * 255 / 63),
-                (uint16_t) ((rgb565 & blue_mask) >> 5 * 255 / 31)
+                (uint16_t) (r * 255 / 31),
+                (uint16_t) (g * 255 / 63),
+                (uint16_t) (b * 255 / 31)
         };
     }
 
-    uint16_t ColorUtil::rgb565Mix(ColorUtil::RGB565 &color_from, ColorUtil::RGB565 &color_to, double_t percent) {
-        uint8_t r = (uint8_t) round(color_to.r * percent + color_from.r * (1-percent));
-        uint8_t g = (uint8_t) round(color_to.g * percent + color_from.g * (1-percent));
-        uint8_t b = (uint8_t) round(color_to.b * percent + color_from.b * (1-percent));
+    ColorUtil::RGB565::RGB565() = default;
 
-        return r << 11 ^ g << 5 ^ b;
+    uint16_t ColorUtil::rgb565Mix(ColorUtil::RGB565 &color_from, ColorUtil::RGB565 &color_to, double_t percent) {
+        auto r = (uint8_t) round(color_to.r * percent + color_from.r * (1-percent));
+        auto g = (uint8_t) round(color_to.g * percent + color_from.g * (1-percent));
+        auto b = (uint8_t) round(color_to.b * percent + color_from.b * (1-percent));
+
+        return r << 11u ^ g << 5u ^ b;
     }
 
     uint16_t ColorUtil::rgb565Mix(uint16_t &color_from, uint16_t &color_to, double_t percent) {
@@ -108,14 +127,10 @@ namespace ui {
         v = v_;
     }
 
-    ColorUtil::RGBDouble ColorUtil::HSV::toDouble(ColorUtil::HSV hsv) {
+    ColorUtil::RGBDouble ColorUtil::HSV::toDouble() {
         double r;
         double g;
         double b;
-
-        double& h = hsv.h;
-        double& s = hsv.s;
-        double& v = hsv.v;
 
         auto i = (uint8_t) floor(h * 6);
         double f = h * 6 - i;
@@ -136,22 +151,12 @@ namespace ui {
         return {r, g, b};
     }
 
-    ColorUtil::RGB565 ColorUtil::HSV::toRGB565(ColorUtil::HSV hsv) {
-        RGBDouble rgbDouble = toDouble(hsv);
-        return {
-                (uint8_t) round(rgbDouble.r * 0x1F),
-                (uint8_t) round(rgbDouble.g * 0x3F),
-                (uint8_t) round(rgbDouble.b * 0x1F)
-        };
+    ColorUtil::RGB565 ColorUtil::HSV::toRGB565() {
+        return toDouble().toRGB565();
     }
 
-    ColorUtil::RGB24 ColorUtil::HSV::toRGB24(ColorUtil::HSV hsv) {
-        RGBDouble rgbDouble = toDouble(hsv);
-        return {
-                (uint8_t) round(rgbDouble.r * 255),
-                (uint8_t) round(rgbDouble.g * 255),
-                (uint8_t) round(rgbDouble.b * 255)
-        };
+    ColorUtil::RGB24 ColorUtil::HSV::toRGB24() {
+        return toDouble().toRGB24();
     }
 
     ColorUtil::HSV &ColorUtil::HSV::darken(double percent) {
@@ -165,4 +170,6 @@ namespace ui {
         v = std::max(1.0, std::min(0.0, v));
         return *this;
     }
+
+    ColorUtil::HSV::HSV() = default;
 }
