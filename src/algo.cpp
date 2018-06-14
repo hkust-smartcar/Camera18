@@ -403,7 +403,7 @@ void LeftEdge(coor start_point, int& edge_prev_dir, int threshold, bool append){
 							 left_edge[left_edge.size() - 11]))
 				left_edge_corner.push_back(left_edge.size() - 6);
 			else if (check_corner(left_edge[left_edge.size() - 6], left_edge[left_edge.size() - 1],
-										 left_edge[left_edge.size() - 11]))
+										 left_edge[0]))
 				left_edge_corner.push_back(left_edge.size() - 6);
 			else
 				LeftEdge(left_edge[left_edge.size() - 1], edge_prev_dir, threshold, true);
@@ -1015,11 +1015,11 @@ void algo() {
 
 		for(int i=0;i<left_edge_corner.size();i++){
 
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[left_edge_corner[i]].x,left_edge[left_edge_corner[i]].y, 2, 2));
+			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[left_edge_corner[i]].x,left_edge[left_edge_corner[i]].y, 5, 5));
 			lcd->FillColor(lcd->kPurple);
 		}
 		for(int i=0;i<right_edge_corner.size();i++){
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[right_edge_corner[i]].x,right_edge[right_edge_corner[i]].y, 2, 2));
+			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[right_edge_corner[i]].x,right_edge[right_edge_corner[i]].y, 5, 5));
 			lcd->FillColor(lcd->kGreen);
 		}
 		prev_track_state = track_state;
