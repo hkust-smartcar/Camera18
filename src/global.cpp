@@ -24,4 +24,4 @@ libsc::AbEncoder* encoder = nullptr;
 libsc::k60::MT9V034* camera = nullptr;
 libsc::LcdTypewriter* writerP = nullptr;
 
-int edge_threshold = 150;
+int edge_threshold = 195;

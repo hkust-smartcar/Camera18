@@ -213,108 +213,73 @@ bool FindRightEdge(int& edge_prev_dir) {
 
 bool FAST(int x, int y, int threshold) {
 	Byte center = GetPoint(x,y)-threshold;
-	Byte center2 = GetPoint(x,y)+threshold;
 	Byte point;
 	int temp=0;
-	int temp2=0;
-	bool points[16]= {false};
 	point=GetPoint(x,y-3);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x+1,y-3);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x+2,y-2);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x+3,y-1);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
-	point=GetPoint(x+3,y);
+		point=GetPoint(x+3,y);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x+3,y+1);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x+2,y+2);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x+1,y+3);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x,y+3);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x-1,y+3);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x-2,y+2);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x-3,y+1);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x-3,y);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x-3,y-1);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x-2,y-2);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
 	point=GetPoint(x-1,y-3);
 	if(point<center) {
 		temp++;
-	} else if(point>center2) {
-		temp2++;
 	}
-	if(temp<6&&temp>1&&temp2>10&&temp2<15)
+	if(temp<4&&temp>0)
 		return true;
 	return false;
 }
@@ -433,9 +398,12 @@ void LeftEdge(coor start_point, int& edge_prev_dir, int threshold, bool append){
 	if(guessed_corner){
 		int i=0;
 		for(;i<5 && FindLeftEdge(edge_prev_dir);i++);
-		if(i==4) {
-			if (check_corner(left_edge[left_edge.size() - 6], left_edge[left_edge.size() - 1],
+		if(i==5) {
+			if (left_edge.size()>11 && check_corner(left_edge[left_edge.size() - 6], left_edge[left_edge.size() - 1],
 							 left_edge[left_edge.size() - 11]))
+				left_edge_corner.push_back(left_edge.size() - 6);
+			else if (check_corner(left_edge[left_edge.size() - 6], left_edge[left_edge.size() - 1],
+										 left_edge[left_edge.size() - 11]))
 				left_edge_corner.push_back(left_edge.size() - 6);
 			else
 				LeftEdge(left_edge[left_edge.size() - 1], edge_prev_dir, threshold, true);
@@ -472,9 +440,12 @@ void RightEdge(coor start_point, int& edge_prev_dir, int threshold, bool append)
 	if(guessed_corner){
 		int i=0;
 		for(;i<5 && FindRightEdge(edge_prev_dir);i++);
-		if(i==4) {
-			if (check_corner(right_edge[right_edge.size() - 6], right_edge[right_edge.size() - 1],
+		if(i==5) {
+			if (right_edge.size() > 11 && check_corner(right_edge[right_edge.size() - 6], right_edge[right_edge.size() - 1],
 							 right_edge[right_edge.size() - 11]))
+				right_edge_corner.push_back(right_edge.size() - 6);
+			else if(check_corner(right_edge[right_edge.size() - 6], right_edge[right_edge.size() - 1],
+					 right_edge[0]))
 				right_edge_corner.push_back(right_edge.size() - 6);
 			else
 				RightEdge(right_edge[right_edge.size() - 1], edge_prev_dir, threshold, true);
@@ -1042,12 +1013,13 @@ void algo() {
             }
         }
 
-		for(int i=0;i<left_edge.size();i++){
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[i].x,left_edge[i].y, 2, 2));
+		for(int i=0;i<left_edge_corner.size();i++){
+
+			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[left_edge_corner[i]].x,left_edge[left_edge_corner[i]].y, 2, 2));
 			lcd->FillColor(lcd->kPurple);
 		}
-		for(int i=0;i<right_edge.size();i++){
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[i].x,right_edge[i].y, 2, 2));
+		for(int i=0;i<right_edge_corner.size();i++){
+			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[right_edge_corner[i]].x,right_edge[right_edge_corner[i]].y, 2, 2));
 			lcd->FillColor(lcd->kGreen);
 		}
 		prev_track_state = track_state;
