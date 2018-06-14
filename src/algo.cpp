@@ -22,11 +22,8 @@ enum Tstate{
 };
 
 enum Cstate{
-	Entering1,
-	Entering2,
-	Entered,
-	Exiting1,
-	Exiting2
+	Detected,
+	Inside,
 };
 
 enum Lstate{
@@ -626,7 +623,7 @@ void algo() {
 	camera->Start();
 	Tstate track_state = Normal;
 	Tstate prev_track_state = Normal;
-	Cstate crossroad_state = Entering1;
+	Cstate crossroad_state = Detected;
 	Lstate loop_state = Entering;
 	coor midpoint = {92,115};
 	coor leftmostP = {188,120};
@@ -708,59 +705,178 @@ void algo() {
 			}
 		}
 		if(track_state == Crossroad){
-			if(crossroad_state == Entering1){
+			if(crossroad_state == Detected){
 				if(prev_track_state != Normal){
-//					if(right_edge_corner.size() == 1){
-//						coor point1;
-//						if(right_edge_corner[0]>10)
-//							point1 = right_edge[right_edge_corner[0]-10];
-//						else
-//							point1 = right_edge[0];
-//						coor new_start = {0, 0};
-//						jump(point1,right_edge[right_edge_corner[0]],new_start,edge_threshold,true);
-//						right_edge_prev_dir = left;
-//						RightEdge(new_start,right_edge_prev_dir,edge_threshold,true);
-//					}
-//					if(left_edge_corner.size() == 1){
-//						coor point1;
-//						if(left_edge_corner[0]>10)
-//							point1 = left_edge[left_edge_corner[0]-10];
-//						else
-//							point1 = left_edge[0];
-//						coor new_start = {0, 0};
-//						jump(point1,left_edge[left_edge_corner[0]],new_start,edge_threshold,false);
-//						left_edge_prev_dir = left;
-//						LeftEdge(new_start,left_edge_prev_dir,edge_threshold,true);
-//					}
+					left_edge_prev_dir = up;
+					right_edge_prev_dir = up;
+					if(left_start_point(midpoint,left_start,edge_threshold))
+						LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+					if(right_start_point(midpoint,right_start,edge_threshold))
+						RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+				}
+				if(left_edge.size() && right_edge.size()) {
+					if (left_edge[left_edge_corner[0]].y > 70 || right_edge[right_edge_corner[0]].y > 70) {
+						crossroad_state = Inside;
+						if(prev_track_state != Normal) {
+							coor point1;
+							if (right_edge_corner[0] > 10)
+								point1 = right_edge[right_edge_corner[0] - 10];
+							else
+								point1 = right_edge[0];
+							coor new_start = {0, 0};
+							jump(point1, right_edge[right_edge_corner[0]], new_start, edge_threshold, true);
+							right_edge_prev_dir = left;
+							RightEdge(new_start, right_edge_prev_dir, edge_threshold, true);
+
+							if (left_edge_corner[0] > 10)
+								point1 = left_edge[left_edge_corner[0] - 10];
+							else
+								point1 = left_edge[0];
+							jump(point1, left_edge[left_edge_corner[0]], new_start, edge_threshold, false);
+							left_edge_prev_dir = right;
+							LeftEdge(new_start, left_edge_prev_dir, edge_threshold, true);
+						}
+
+						final_point={(left_edge[left_edge_corner[1]].x + right_edge[right_edge_corner[1]].x) / 2,
+									 (left_edge[left_edge_corner[1]].y + right_edge[right_edge_corner[1]].y) / 2};
+						midpoint = final_point;
+					}
+					else {
+						crossroad_state = Detected;
+						final_point.x = (left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2;
+						final_point.y = (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2;
+						midpoint={(left_start.x+right_start.x)/2,115};
+					}
+				}
+				else if(left_edge.size()){
+					if (left_edge[left_edge_corner[0]].y > 70) {
+						crossroad_state = Inside;
+						if (prev_track_state != Normal) {
+							coor point1;
+							if (left_edge_corner[0] > 10)
+								point1 = left_edge[left_edge_corner[0] - 10];
+							else
+								point1 = left_edge[0];
+							coor new_start = {0, 0};
+							jump(point1, left_edge[left_edge.size() - 1], new_start, edge_threshold, false);
+							left_edge_prev_dir = right;
+							LeftEdge(new_start, left_edge_prev_dir, edge_threshold, true);
+						}
+						final_point = left_edge[left_edge.size() - 1];
+						midpoint= {left_edge[left_edge.size() - 1].x + 10, left_edge[left_edge.size() - 1].y};
+					}
+					else{
+						crossroad_state = Detected;
+						final_point = left_edge[left_edge_corner[0]];
+						midpoint={(left_start.x+right_start.x)/2,115};
+					}
+				}
+				else if(right_edge.size()){
+					if (right_edge[right_edge_corner[0]].y > 70) {
+						crossroad_state = Inside;
+						if(prev_track_state != Normal) {
+							coor point1;
+							if (right_edge_corner[0] > 10)
+								point1 = right_edge[right_edge_corner[0] - 10];
+							else
+								point1 = right_edge[0];
+							coor new_start = {0, 0};
+							jump(point1, right_edge[right_edge.size() - 1], new_start, edge_threshold, true);
+							right_edge_prev_dir = left;
+							RightEdge(new_start, right_edge_prev_dir, edge_threshold, true);
+						}
+						final_point = right_edge[right_edge.size()-1];
+						midpoint={right_edge[right_edge.size()-1].x - 10,right_edge[right_edge.size()-1].y};
+					}
+					else{
+						crossroad_state = Detected;
+						final_point = right_edge[right_edge_corner[0]];
+						midpoint={(left_start.x+right_start.x)/2,115};
+					}
 				}
 			}
+			else if(crossroad_state == Inside){
+				left_edge_prev_dir = down;
+				right_edge_prev_dir = down;
+				if(left_start_point(midpoint,left_start,edge_threshold))
+					LeftEdge(right_start,left_edge_prev_dir,edge_threshold,false);
+				if(right_start_point(midpoint,right_start,edge_threshold))
+					RightEdge(left_start,right_edge_prev_dir,edge_threshold,false);
+
+				if(left_edge_corner.size() == 1 && right_edge_corner.size() == 1){
+					final_point = {(right_edge[right_edge_corner[0]].x+left_edge[left_edge_corner[0]].x)/2,
+									 (right_edge[right_edge_corner[0]].y+left_edge[left_edge_corner[0]].y)/2};
+					midpoint=final_point;
+				}
+				else if(left_edge_corner.size()==1){
+					left_edge_prev_dir = up;
+					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+					final_point = left_edge[left_edge.size()-1];
+					midpoint={(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+				}
+				else if(right_edge_corner.size()==1){
+					right_edge_prev_dir = up;
+					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+					final_point = right_edge[right_edge.size()-1];
+					midpoint={(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+				}
+				else{
+					track_state = Normal;
+					crossroad_state = Detected;
+					left_edge_prev_dir = up;
+					right_edge_prev_dir = up;
+					if(left_start_point(midpoint,left_start,edge_threshold))
+						LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+					if(right_start_point(midpoint,right_start,edge_threshold))
+						RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+					if(left_edge.size() && right_edge.size()){
+						final_point = {(left_edge[left_edge.size()-1].x + right_edge[right_edge.size()-1].x)/2,
+									   (left_edge[left_edge.size()-1].y + right_edge[right_edge.size()-1].y)/2};
+					}
+					else if(left_edge.size()){
+						final_point = left_edge[left_edge.size()-1];
+					}
+					else if(right_edge.size()) {
+						final_point = right_edge[right_edge.size()-1];
+					}
+					midpoint={(left_start.x+right_start.x)/2,115};;
+				};
+			}
+
 
 		}
 		if(track_state == RightLoop){
 			//follow the right edge when Entering
 			if(loop_state == Entering){
 				if(prev_track_state == Normal){
-					left_edge_prev_dir = up;
+//					left_edge_prev_dir = up;
+//					right_edge_prev_dir = up;
+//					if(left_start_point(midpoint,left_start,edge_threshold)){
+//						LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
+//					}
+//					if(right_start_point(midpoint,right_start,edge_threshold))
+//						RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+//					coor point1;
+//					if(right_edge_corner[0]>10)
+//						point1 = right_edge[right_edge_corner[0]-10];
+//					else
+//						point1 = right_edge[0];
+//					coor new_start = {0, 0};
+//					if (jump(point1,right_edge[right_edge_corner[0]+4],new_start,edge_threshold,true)){
+//						right_edge_prev_dir = left;
+//						RightLoopEdgeR(new_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
+//						midpoint = {leftmostP.x-10,leftmostP.y};
+//						right_edge_prev_dir = up;
+//						if(right_start_point(midpoint,right_start,edge_threshold))
+//							RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
+					for(int i = 0; i< right_edge.size();i++){
+						if(right_edge[i].x<leftmostP.x)
+							leftmostP = right_edge[i];
+					}
+					midpoint = {leftmostP.x-10,leftmostP.y};
 					right_edge_prev_dir = up;
-					if(left_start_point(midpoint,left_start,edge_threshold)){
-						LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
-					}
 					if(right_start_point(midpoint,right_start,edge_threshold))
-						RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
-					coor point1;
-					if(right_edge_corner[0]>10)
-						point1 = right_edge[right_edge_corner[0]-10];
-					else
-						point1 = right_edge[0];
-					coor new_start = {0, 0};
-					if (jump(point1,right_edge[right_edge_corner[0]+4],new_start,edge_threshold,true)){
-						right_edge_prev_dir = left;
-						RightLoopEdgeR(new_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
-						midpoint = {leftmostP.x-10,leftmostP.y};
-						right_edge_prev_dir = up;
-						if(right_start_point(midpoint,right_start,edge_threshold))
-							RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
-					}
+					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
 				}
 				else if(prev_track_state == RightLoop){
 					left_edge_prev_dir = down;
@@ -846,27 +962,14 @@ void algo() {
 			//follow the right edge when Entering
 			if(loop_state == Entering){
 				if(prev_track_state == Normal){
+					for(int i = 0; i< left_edge.size();i++){
+						if(left_edge[i].x<rightmostP.x)
+							rightmostP = left_edge[i];
+					}
+					midpoint = {rightmostP.x-10,rightmostP.y};
 					left_edge_prev_dir = up;
-					right_edge_prev_dir = up;
-					if(right_start_point(midpoint,right_start,edge_threshold)){
-						RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
-					}
 					if(left_start_point(midpoint,left_start,edge_threshold))
-						LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
-					coor point1;
-					if(left_edge_corner[0]>10)
-						point1 = left_edge[left_edge_corner[0]-10];
-					else
-						point1 = left_edge[0];
-					coor new_start = {0, 0};
-					if (jump(point1,left_edge[left_edge_corner[0]+4],new_start,edge_threshold,true)){
-						left_edge_prev_dir = left;
-						LeftLoopEdgeL(new_start,right_edge_prev_dir,rightmostP,edge_threshold,true);
-						midpoint = {rightmostP.x-10,rightmostP.y};
-						left_edge_prev_dir = up;
-						if(left_start_point(midpoint,left_start,edge_threshold))
-							LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
-					}
+					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
 				}
 				else if(prev_track_state == LeftLoop){
 					right_edge_prev_dir = down;
