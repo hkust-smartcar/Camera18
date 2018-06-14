@@ -515,15 +515,15 @@ bool jump(coor point1, coor point2, coor& new_start, int threshold, bool directi
 	return false;
 }
 
-void set_midpoint(coor& midpoint,int16_t x,int16_t y){
-	midpoint.x = x;
-	midpoint.y = y;
-}
+//void midpoint(coor& midpoint,int16_t x,int16_t y){
+//	midpoint.x = x;
+//	midpoint.y = y;
+//}
 
-void set_midpoint(coor& midpoint,coor a,coor b){
-	midpoint.x = (a.x+b.x)/2;
-	midpoint.y = 115;
-}
+//void set_midpoint(coor& midpoint,coor a,coor b){
+//	midpoint.x = (a.x+b.x)/2;
+//	midpoint.y = 115;
+//}
 
 bool right_start_point(coor midpoint, coor& right_start,int threshold){
 	right_start = midpoint;
@@ -567,7 +567,8 @@ void normal_left_corner_fsm(Tstate& track_state,coor& final_point, coor& midpoin
 	else{
 		track_state = Normal;
 		final_point = new_start;
-		set_midpoint(midpoint,left_start,right_start);
+		midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+
 	}
 }
 
@@ -595,14 +596,14 @@ void normal_right_corner_fsm(Tstate& track_state,coor& final_point, coor& midpoi
 	else{
 		track_state = Normal;
 		final_point = new_start;
-		set_midpoint(midpoint,left_start,right_start);
+		midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 	}
 }
 
 void print(const std::vector<coor>& v){
 	for(uint i = 0; i<v.size(); i++){
 		coor t = v[i];
-		lcd->SetRegion(libsc::Lcd::Rect(t.x,t.y,1,1));
+		lcd->SetRegion(libsc::Lcd::Rect(t.x,t.y,2,2));
 		lcd->FillColor(lcd->kRed);
 	}
 }
@@ -680,7 +681,7 @@ void algo() {
 					track_state = Normal;
 					final_point.x = (left_edge[left_edge.size()-1].x + right_edge[right_edge.size()-1].x)/2;
 					final_point.y = (left_edge[left_edge.size()-1].y + right_edge[right_edge.size()-1].y)/2;
-					set_midpoint(midpoint,left_start,right_start);
+					midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				}
 			}
 			else if(right_edge.size()){
@@ -690,7 +691,7 @@ void algo() {
 				else if(right_edge_corner.size() == 0);{
 					track_state = Normal;
 					final_point = right_edge[right_edge.size()-1];
-					set_midpoint(midpoint,left_start,right_start);
+					midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				}
 			}
 			else if(left_edge.size()){
@@ -700,7 +701,7 @@ void algo() {
 				else if(left_edge_corner.size() == 0);{
 					track_state = Normal;
 					final_point = left_edge[left_edge.size()-1];
-					set_midpoint(midpoint,left_start,right_start);
+					midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				}
 			}
 		}
@@ -901,8 +902,7 @@ void algo() {
 
 					if(left_edge_corner.size() == 1){
 						loop_state = In;
-						set_midpoint(midpoint,left_start,right_start);
-						set_midpoint(midpoint,midpoint.x,115);
+						midpoint = {(left_start.x+right_start.x)/2,115};
 					}
 				}
 			}
@@ -914,7 +914,7 @@ void algo() {
 					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
 				if(right_start_point(midpoint,right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
-				set_midpoint(midpoint,left_start,right_start);
+				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0){
 					loop_state = Leaving;
 				}
@@ -927,7 +927,7 @@ void algo() {
 					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
 				if(right_start_point(midpoint,right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
-				set_midpoint(midpoint,left_start,right_start);
+				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				if(left_edge.size()>0 && left_edge_corner.size()==0){
 					loop_state = Finished;
 				}
@@ -935,7 +935,7 @@ void algo() {
 			//follow the left edges when Finished
 			else if(loop_state == Finished){
 				//increase the midpoint height for detecting the corner?
-				set_midpoint(midpoint,midpoint.x,100);
+				midpoint = {midpoint.x,100};
 				left_edge_prev_dir = up;
 				right_edge_prev_dir = down;
 				std::vector<coor> temp_edge;
@@ -951,7 +951,7 @@ void algo() {
 				right_edge_corner = left_edge_corner;
 				left_edge = temp_edge;
 				left_edge_corner = temp_edge_corner;
-				set_midpoint(midpoint,left_start,right_start);
+				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				if(right_edge_corner.size()==1){
 					track_state = Normal;
 					loop_state = Entering;
@@ -994,8 +994,7 @@ void algo() {
 
 					if(right_edge_corner.size() == 1){
 						loop_state = In;
-						set_midpoint(midpoint,left_start,right_start);
-						set_midpoint(midpoint,midpoint.x,115);
+						midpoint = {(left_start.x+right_start.x)/2,115};
 					}
 				}
 			}
@@ -1007,7 +1006,7 @@ void algo() {
 					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
 				if(right_start_point(midpoint,right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
-				set_midpoint(midpoint,left_start,right_start);
+				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				if(right_edge_corner.size() == 1 && left_edge_corner.size() == 0){
 					loop_state = Leaving;
 				}
@@ -1020,7 +1019,7 @@ void algo() {
 					LeftEdge(left_start,left_edge_prev_dir,edge_threshold,false);
 				if(right_start_point(midpoint,right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
-				set_midpoint(midpoint,left_start,right_start);
+				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				if(right_edge.size()>0 && right_edge_corner.size()==0){
 					loop_state = Finished;
 				}
@@ -1028,7 +1027,7 @@ void algo() {
 			//follow the left edges when Finished
 			else if(loop_state == Finished){
 				//increase the midpoint height for detecting the corner?
-				set_midpoint(midpoint,midpoint.x,100);
+				midpoint = {midpoint.x,100};
 				right_edge_prev_dir = up;
 				left_edge_prev_dir = down;
 				std::vector<coor> temp_edge;
@@ -1044,16 +1043,18 @@ void algo() {
 				left_edge_corner = right_edge_corner;
 				right_edge = temp_edge;
 				right_edge_corner = temp_edge_corner;
-				set_midpoint(midpoint,left_start,right_start);
+				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 				if(left_edge_corner.size()==1){
 					track_state = Normal;
 					loop_state = Entering;
 				}
 			}
 		}
+
 	prev_track_state = track_state;
 	print(left_edge);
 	print(right_edge);
 	printsize();
 	}
 }
+
