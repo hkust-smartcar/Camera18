@@ -612,6 +612,26 @@ void normal_right_corner_fsm(Tstate& track_state,coor& final_point, coor& midpoi
 	}
 }
 
+
+void print(const std::vector<coor>& v){
+	for(uint i = 0; i<v.size(); i++){
+		coor t = v[i];
+		lcd->SetRegion(libsc::Lcd::Rect(t.x,t.y,2,2));
+		lcd->FillColor(lcd->kRed);
+	}
+}
+
+void printsize(){
+
+	char buffer[50];
+	sprintf(buffer,"l %d r %d",left_edge.size(),right_edge.size());
+	lcd->SetRegion(libsc::Lcd::Rect(80,40,40,40));
+	writerP->WriteString(buffer);
+
+}
+
+
+
 void algo() {
 	libsc::System::DelayMs(100);
 	libsc::Timer::TimerInt time_now = 0;
@@ -621,8 +641,7 @@ void algo() {
 	Cstate crossroad_state = Detected;
 	Lstate loop_state = Entering;
 	coor midpoint = {92,115};
-	coor leftmostP = {188,120};
-    coor rightmostP = {0,120};
+
 	coor left_start;
 	coor right_start;
 	coor final_point;
@@ -632,9 +651,16 @@ void algo() {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
 			camera->UnlockBuffer();
 		}
+		for(uint i=0;i<height;i++){
+			lcd->SetRegion(libsc::Lcd::Rect(0,i,160,1));
+			lcd->FillGrayscalePixel(buffer+camera->GetW()*i,160);
+		}
 
 		empty_left();
 		empty_right();
+
+		coor leftmostP = {188,120};
+		coor rightmostP = {0,120};
 
 		if(track_state == Normal){
 
@@ -854,7 +880,7 @@ void algo() {
                     }
                     if(right_start_point(midpoint,right_start,edge_threshold)){
                         //opposite as well
-                        LeftLoopEdgeR(right_start,right_edge_prev_dir,leftmostP,edge_threshold,true);
+                        LeftLoopEdgeR(right_start,right_edge_prev_dir,leftmostP,true);
                     }
                     midpoint = {leftmostP.x-10,leftmostP.y};
 
@@ -946,7 +972,7 @@ void algo() {
                     }
                     if(left_start_point(midpoint,left_start,edge_threshold)){
                         //opposite as well
-                        RightLoopEdgeL(right_start,right_edge_prev_dir,rightmostP,edge_threshold,true);
+                        RightLoopEdgeL(right_start,right_edge_prev_dir,rightmostP,true);
                     }
                     midpoint = {rightmostP.x-10,rightmostP.y};
 
@@ -1016,15 +1042,12 @@ void algo() {
             }
         }
 
-		lcd->SetRegion(libsc::St7735r::Lcd::Rect(0, 0, 120, 60));
-		lcd->FillGrayscalePixel(buffer,120*60);
-
 		for(int i=0;i<left_edge.size();i++){
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[i].x,left_edge[i].y, 1, 1));
+			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[i].x,left_edge[i].y, 2, 2));
 			lcd->FillColor(lcd->kPurple);
 		}
 		for(int i=0;i<right_edge.size();i++){
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[i].x,right_edge[i].y, 1, 1));
+			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[i].x,right_edge[i].y, 2, 2));
 			lcd->FillColor(lcd->kGreen);
 		}
 		prev_track_state = track_state;

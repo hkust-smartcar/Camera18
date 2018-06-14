@@ -111,5 +111,11 @@ int main() {
 	libsc::AbEncoder encoder_(encoder_config);
 	encoder = &encoder_;
 
+	//initialize lcd typewriter
+	libsc::LcdTypewriter::Config typeconfig;
+	typeconfig.lcd = &lcd_;
+	libsc::LcdTypewriter writer(typeconfig);
+	writerP = &writer;
+
 	algo();
 }
