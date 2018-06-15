@@ -73,6 +73,8 @@ bool FindLeftEdge(int& edge_prev_dir) {
 	coor edge_coor = left_edge.back();
 	int x = edge_coor.x;
 	int y = edge_coor.y;
+	if(x<4||x>184||y<4||y>116)
+		return false;
 	edge_prev_dir += 2;
 	for (int i = 0; i < 5; i++) {
 		edge_prev_dir = edge_prev_dir < 0 ? 8 + edge_prev_dir : edge_prev_dir > up_right ? edge_prev_dir - 8 : edge_prev_dir;
@@ -150,6 +152,8 @@ bool FindRightEdge(int& edge_prev_dir) {
 	coor edge_coor = right_edge.back();
 	int x = edge_coor.x;
 	int y = edge_coor.y;
+	if(x<4||x>184||y<4||y>116)
+		return false;
 	edge_prev_dir -= 2;
 	for (int i = 0; i < 5; i++) {
 		edge_prev_dir = edge_prev_dir < 0 ? 8 + edge_prev_dir : edge_prev_dir > up_right ? edge_prev_dir - 8 : edge_prev_dir;
@@ -221,6 +225,8 @@ bool FindRightEdge(int& edge_prev_dir) {
 }
 
 bool FAST(int x, int y) {
+	if(x<4||x>184||y<4||y>116)
+		return false;
 	Byte center = GetPoint(x,y)-fast_threshold;
 	Byte point;
 	int temp=0;
@@ -405,8 +411,8 @@ void LeftEdge(coor start_point, int& edge_prev_dir, int threshold, bool append){
 	}
 	if(guessed_corner){
 		int i=0;
-		for(;i<5 && FindLeftEdge(edge_prev_dir);i++);
-		if(i==5) {
+		for(;i<10 && FindLeftEdge(edge_prev_dir);i++);
+		if(i==10) {
 			if (left_edge.size()>16 && check_corner(left_edge[left_edge.size() - 11], left_edge[left_edge.size() - 1],
 							 left_edge[left_edge.size() - 16]))
 				left_edge_corner.push_back(left_edge.size() - 11);
@@ -649,51 +655,51 @@ void algo() {
 			if(right_start_point(midpoint,right_start,edge_threshold))
 				RightEdge(right_start,right_edge_prev_dir,edge_threshold,false);
 
-//			if(left_edge.size() && right_edge.size()){
-//				if(left_edge_corner.size() == 1 && right_edge_corner.size() == 1){ //TODO: could be corners of different features, check distance between corners to determine.
-//					if(dist_corners(left_edge[left_edge_corner[0]],right_edge[right_edge_corner[0]])) {
-//						track_state = Crossroad;
-//					}
-//					else if(left_edge[left_edge_corner[0]].y>right_edge[right_edge_corner[0]].y){
-//						normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
-//					}
-//					else if(left_edge[left_edge_corner[0]].y>right_edge[right_edge_corner[0]].y){
-//						normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
-//					}
-//				}
-//				else if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0){ //TODO: corner distance requirement needs to be rethought
-//					normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
-//				}
-//				else if(left_edge_corner.size() == 0 && right_edge_corner.size() == 1){ //TODO: corner distance requirement needs to be rethought
-//					normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
-//				}
-//				else{
-//					track_state = Normal;
-//					final_point = {(left_edge[left_edge.size()-1].x + right_edge[right_edge.size()-1].x)/2,
-//								   (left_edge[left_edge.size()-1].y + right_edge[right_edge.size()-1].y)/2};
-//					midpoint={(left_start.x+right_start.x)/2,115};
-//				}
-//			}
-//			else if(right_edge.size()){
-//				if(right_edge_corner.size() == 1){
-//					normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
-//				}
-//				else if(right_edge_corner.size() == 0){
-//					track_state = Normal;
-//					final_point = right_edge[right_edge.size()-1];
-//					midpoint={(left_start.x+right_start.x)/2,115};
-//				}
-//			}
-//			else if(left_edge.size()){
-//				if(left_edge_corner.size() == 1){
-//					normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
-//				}
-//				else if(left_edge_corner.size() == 0){
-//					track_state = Normal;
-//					final_point = left_edge[left_edge.size()-1];
-//					midpoint={(left_start.x+right_start.x)/2,115};
-//				}
-//			}
+			if(left_edge.size() && right_edge.size()){
+				if(left_edge_corner.size() == 1 && right_edge_corner.size() == 1){ //TODO: could be corners of different features, check distance between corners to determine.
+					if(dist_corners(left_edge[left_edge_corner[0]],right_edge[right_edge_corner[0]])) {
+						track_state = Crossroad;
+					}
+					else if(left_edge[left_edge_corner[0]].y>right_edge[right_edge_corner[0]].y){
+						normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
+					}
+					else if(left_edge[left_edge_corner[0]].y>right_edge[right_edge_corner[0]].y){
+						normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
+					}
+				}
+				else if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0){ //TODO: corner distance requirement needs to be rethought
+					normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
+				}
+				else if(left_edge_corner.size() == 0 && right_edge_corner.size() == 1){ //TODO: corner distance requirement needs to be rethought
+					normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
+				}
+				else{
+					track_state = Normal;
+					final_point = {(left_edge[left_edge.size()-1].x + right_edge[right_edge.size()-1].x)/2,
+								   (left_edge[left_edge.size()-1].y + right_edge[right_edge.size()-1].y)/2};
+					midpoint={(left_start.x+right_start.x)/2,115};
+				}
+			}
+			else if(right_edge.size()){
+				if(right_edge_corner.size() == 1){
+					normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
+				}
+				else if(right_edge_corner.size() == 0){
+					track_state = Normal;
+					final_point = right_edge[right_edge.size()-1];
+					midpoint={(left_start.x+right_start.x)/2,115};
+				}
+			}
+			else if(left_edge.size()){
+				if(left_edge_corner.size() == 1){
+					normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
+				}
+				else if(left_edge_corner.size() == 0){
+					track_state = Normal;
+					final_point = left_edge[left_edge.size()-1];
+					midpoint={(left_start.x+right_start.x)/2,115};
+				}
+			}
 		}
 		if(track_state == Crossroad){
 			if(crossroad_state == Detected){
@@ -1029,6 +1035,19 @@ void algo() {
 			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[i].x,right_edge[i].y, 1, 1));
 			lcd->FillColor(lcd->kRed);
 		}
+
+		for(int i=0;i<left_edge_corner.size();i++){
+			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[left_edge_corner[i]].x,left_edge[left_edge_corner[i]].y, 5, 5));
+			lcd->FillColor(lcd->kPurple);
+		}
+		for(int i=0;i<right_edge_corner.size();i++){
+			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[right_edge_corner[i]].x,right_edge[right_edge_corner[i]].y, 5, 5));
+			lcd->FillColor(lcd->kRed);
+		}
+		char buffer[50];
+		sprintf(buffer,"t %d l %d",track_state, loop_state);
+		lcd->SetRegion(libsc::Lcd::Rect(0,60,160,40));
+		writerP->WriteString(buffer);
 		prev_track_state = track_state;
 
 	}
