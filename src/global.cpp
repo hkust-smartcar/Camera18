@@ -23,5 +23,7 @@ libsc::Joystick* joystick = nullptr;
 libsc::AbEncoder* encoder = nullptr;
 libsc::k60::MT9V034* camera = nullptr;
 libsc::LcdTypewriter* writerP = nullptr;
+libsc::Mpu6050* mpu = nullptr;
 
 int edge_threshold = 195;
+const float img2world[189][120][2] = { };

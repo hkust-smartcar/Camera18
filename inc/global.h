@@ -54,6 +54,9 @@
 //Battery Meter Header File
 #include <libsc/battery_meter.h>
 
+//MPU6050 Header File
+#include <libsc/mpu6050.h>
+
 //Algo Header File
 #include <algo.h>
 
@@ -74,8 +77,10 @@ extern libsc::Joystick* joystick;
 extern libsc::AbEncoder* encoder;
 extern libsc::k60::MT9V034* camera;
 extern libsc::LcdTypewriter* writerP;
+extern libsc::Mpu6050* mpu;
 
 //Global Variables
 extern int edge_threshold;
+extern const float img2world[189][120][2];
 
 #endif /* INC_GLOBAL_H_ */
