@@ -397,8 +397,10 @@ void LeftEdge(coor start_point, int& edge_prev_dir, int threshold, bool append) 
 				left_edge_corner.push_back(left_edge.size() - 11);
 			else if (check_corner(left_edge[left_edge.size() - 11], left_edge[left_edge.size() - 1], left_edge[0]))
 				left_edge_corner.push_back(left_edge.size() - 11);
-			else
-				LeftEdge(left_edge[left_edge.size() - 1], edge_prev_dir, threshold, true);
+			else {
+			    left_edge.erase(left_edge.end() - 11,left_edge.end() - 1);
+                LeftEdge(left_edge[left_edge.size() - 1], edge_prev_dir, threshold, true);
+            }
 		}
 	}
 }
@@ -436,8 +438,10 @@ void RightEdge(coor start_point, int& edge_prev_dir, int threshold, bool append)
 				right_edge_corner.push_back(right_edge.size() - 11);
 			else if (check_corner(right_edge[right_edge.size() - 11], right_edge[right_edge.size() - 1], right_edge[0]))
 				right_edge_corner.push_back(right_edge.size() - 11);
-			else
-				RightEdge(right_edge[right_edge.size() - 1], edge_prev_dir, threshold, true);
+			else {
+			    right_edge.erase(right_edge.end() - 11,right_edge.end() - 1);
+                RightEdge(right_edge[right_edge.size() - 1], edge_prev_dir, threshold, true);
+            }
 		}
 	}
 }
