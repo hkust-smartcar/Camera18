@@ -333,6 +333,53 @@ bool FAST(int x, int y) {
 	return false;
 }
 
+bool FAST4(int x, int y, int threshold) {
+	if (x < 5 || x > 185 || y < 5 || y > 115)
+		return false;
+	int black_count = 0, center = GetPoint(x, y) - threshold;
+	if (GetPoint(x, y + 4) < center)
+		black_count++;
+	if (GetPoint(x, y - 4) < center)
+		black_count++;
+	if (GetPoint(x + 4, y) < center)
+		black_count++;
+	if (GetPoint(x - 4, y) < center)
+		black_count++;
+	if (GetPoint(x + 1, y + 4) < center)
+		black_count++;
+	if (GetPoint(x - 1, y + 4) < center)
+		black_count++;
+	if (GetPoint(x + 1, y - 4) < center)
+		black_count++;
+	if (GetPoint(x - 1, y - 4) < center)
+		black_count++;
+	if (GetPoint(x + 4, y + 1) < center)
+		black_count++;
+	if (GetPoint(x + 4, y - 1) < center)
+		black_count++;
+	if (GetPoint(x - 4, y + 1) < center)
+		black_count++;
+	if (GetPoint(x - 4, y - 1) < center)
+		black_count++;
+	if (GetPoint(x + 2, y + 3) < center)
+		black_count++;
+	if (GetPoint(x - 2, y + 3) < center)
+		black_count++;
+	if (GetPoint(x + 2, y - 3) < center)
+		black_count++;
+	if (GetPoint(x - 2, y - 3) < center)
+		black_count++;
+	if (GetPoint(x + 3, y + 2) < center)
+		black_count++;
+	if (GetPoint(x + 3, y - 2) < center)
+		black_count++;
+	if (GetPoint(x - 3, y + 2) < center)
+		black_count++;
+	if (GetPoint(x - 3, y - 2) < center)
+		black_count++;
+	return black_count > 0 && black_count < threshold;
+}
+
 bool dist_corners(coor m, coor n) {
     float x1 = img2world[m.y][m.x][0];
     float y1 = img2world[m.y][m.x][1];
