@@ -16,6 +16,7 @@
 #include <libsc/system.h>
 #include <functional>
 #include <vector>
+#include <math.h>
 
 
 //RGB LED Header File

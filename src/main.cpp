@@ -84,6 +84,7 @@ int main() {
 	servo_config.max_pos_width = 2000;
 	servo_config.min_pos_width = 1000;
 	libsc::Servo servo_(servo_config);
+	servo = &servo_;
 
 	//Bluetooth Init
 	libsc::k60::JyMcuBt106::Config bt_config;
@@ -118,12 +119,12 @@ int main() {
 	writerP = &writer;
 
 	//MPU6050 Init
-	libsc::Mpu6050::Config mpu_config;
-	mpu_config.accel_range = mpu_config.Range::kSmall;
-	mpu_config.gyro_range = mpu_config.Range::kSmall;
-	mpu_config.cal_drift = true;
-	libsc::Mpu6050 mpu_(mpu_config);
-	mpu = &mpu_;
+//	libsc::Mpu6050::Config mpu_config;
+//	mpu_config.accel_range = mpu_config.Range::kSmall;
+//	mpu_config.gyro_range = mpu_config.Range::kSmall;
+//	mpu_config.cal_drift = true;
+//	libsc::Mpu6050 mpu_(mpu_config);
+//	mpu = &mpu_;
 
 	algo();
 }
