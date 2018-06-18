@@ -81,6 +81,6 @@ extern libsc::Mpu6050* mpu;
 
 //Global Variables
 extern int edge_threshold;
-extern const float img2world[189][120][2];
+extern const int img2world[189][120][2];
 
 #endif /* INC_GLOBAL_H_ */
