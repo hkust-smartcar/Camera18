@@ -39,7 +39,7 @@ inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
 	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
 }
 
-float search_distance = 250;
+float search_distance = 400;
 float search_m;
 float search_c;
 float search_slope;
@@ -684,10 +684,12 @@ void algo() {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
 			camera->UnlockBuffer();
 		}
-		for (uint16_t i = 0; i < height; i++) {
-			lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
-			lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
-		}
+//		for (uint16_t i = 0; i < height; i++) {
+//			lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
+//			lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
+//		}
+		motor->SetPower(200);
+		motor->SetClockwise(false);
 
 		InitSearchDistance(0);
 
@@ -973,7 +975,7 @@ void algo() {
 					}
 					if (right_start_point(midpoint, right_start, edge_threshold)) {
 						//opposite as well
-						LeftLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, true);
+						LeftLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, false);
 					}
 					midpoint = {leftmostP.x-10,leftmostP.y};
 					align = right_align;
@@ -985,14 +987,20 @@ void algo() {
 //					right_edge_prev_dir = up;
 //					if (right_start_point(midpoint, right_start, edge_threshold))
 //						RightEdge(right_start, right_edge_prev_dir,  false);
-
-					if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 100) {
+//					if(right_edge_corner.size()==1){
+//						char buffer[50];
+//						sprintf(buffer, "%d", right_edge[right_edge_corner[0]].y);
+//						lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
+//						writerP->WriteString(buffer);
+//					}
+					if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 80) {
 
 						loop_state = In;
 						midpoint = {(left_start.x+right_start.x)/2,100};
 					}
 					else {
-						if(isRightBottomExist(midpoint,edge_threshold)) {
+						if(leftmostP.y>90) {
+							midpoint = {midpoint.x-10,90};
 							right_edge_prev_dir = up;
 							if (right_start_point(midpoint, right_start, edge_threshold))
 							RightEdge(right_start, right_edge_prev_dir, false);
@@ -1035,7 +1043,8 @@ void algo() {
 				align = left_align;
 				else if(right_edge.size())
 				align = right_align;
-				if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0 && left_edge[left_edge_corner[0]].y>100) {
+				//&& left_edge[left_edge_corner[0]].y>100
+				if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0 && left_edge[left_edge_corner[0]].y>90) {
 					loop_state = Leaving;
 				}
 
@@ -1045,14 +1054,19 @@ void algo() {
 			}
 			//follow the right edges when Leaving
 			else if(loop_state == Leaving) {
+				midpoint = {(left_start.x+right_start.x)/2,90};
 				left_edge_prev_dir = up;
 				right_edge_prev_dir = up;
 				if(left_start_point(midpoint,left_start,edge_threshold))
 				LeftEdge(left_start,left_edge_prev_dir,false);
 				if(right_start_point(midpoint,right_start,edge_threshold))
 				RightEdge(right_start,right_edge_prev_dir,false);
-				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-				if(left_edge.size()>0 && left_edge_corner.size()==0) {
+				midpoint = {(left_start.x+right_start.x)/2,90};
+				char buffer[50];
+				sprintf(buffer, "%d", left_edge.size());
+				lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
+				writerP->WriteString(buffer);
+				if(left_edge.size()>110 && left_edge_corner.size()==0) {
 					loop_state = Finished;
 				}
 				else {
@@ -1068,7 +1082,7 @@ void algo() {
 			//follow the left edges when Finished
 			else if(loop_state == Finished) {
 				//increase the midpoint height for detecting the corner?
-				midpoint = {midpoint.x,115};
+				midpoint = {midpoint.x,90};
 				left_edge_prev_dir = up;
 				right_edge_prev_dir = down;
 				std::vector<coor> temp_edge;
@@ -1080,14 +1094,24 @@ void algo() {
 				}
 				if(right_start_point(midpoint,right_start,edge_threshold))
 				LeftEdge(right_start,right_edge_prev_dir,false);
+				else {
+					left_edge_corner.clear();
+					left_edge.clear();
+				}
+
 				right_edge = left_edge;
 				right_edge_corner = left_edge_corner;
 				left_edge = temp_edge;
 				left_edge_corner = temp_edge_corner;
 				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+//				char buffer[50];
+//				sprintf(buffer, "%d %d", right_edge_corner.size(),left_edge_corner.size());
+//				lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
+//				writerP->WriteString(buffer);
 				if(right_edge_corner.size()==1) {
 					track_state = Normal;
 					loop_state = Entering;
+					midpoint = {midpoint.x,115};
 				}
 				else {
 					//set control
@@ -1217,7 +1241,7 @@ void algo() {
 		lcd->SetRegion(libsc::St7735r::Lcd::Rect(midpoint.x, midpoint.y, 4, 4));
 		lcd->FillColor(lcd->kBlue);
 		char buffer[50];
-		sprintf(buffer, "t %d c %d l %d", track_state, crossroad_state, loop_state);
+		sprintf(buffer, "t %d l %d", track_state, loop_state);
 		lcd->SetRegion(libsc::Lcd::Rect(0, 60, 160, 40));
 		writerP->WriteString(buffer);
 //			lcd->Clear();
@@ -1263,6 +1287,8 @@ void algo() {
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
 					servo->SetDegree(servo_angle);
 				} else if(left_edge_corner.size()||right_edge_corner.size()) {
+//					lcd->SetRegion(libsc::Lcd::Rect(final_point.x-1,final_point.y-1,3,3));
+//					lcd->FillColor(libsc::Lcd::kRed);
 					switch(align) {
 						case 0:
 						destination=final_point;
