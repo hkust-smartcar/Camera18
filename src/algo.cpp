@@ -259,9 +259,15 @@ bool FindRightEdge(int& edge_prev_dir) {
 	return false;
 }
 
-void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
-	int x = edge.back().x;
-	int y = edge.back().y;
+void FindJumpStart(int& prev_edge_dir) {
+	int x, y;
+	if (prev_edge_dir == left) {
+		x = left_edge.back().x;
+		y = left_edge.back().y;
+	} else {
+		x = right_edge.back().x;
+		y = right_edge.back().y;
+	}
 	bool prev_white = SobelEdgeDetection(x + 1, y - 1) < edge_threshold;
 	std::vector<coor> point;
 	std::vector<uint8_t> dir;
@@ -376,18 +382,18 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 	}
 	if (prev_edge_dir == left) {
 		if (point.front().x > point.back().x) {
-			edge.push_back(point.front());
+			left_edge.push_back(point.front());
 			prev_edge_dir = dir.front();
 		} else {
-			edge.push_back(point.back());
+			left_edge.push_back(point.back());
 			prev_edge_dir = dir.back();
 		}
-	} else if (prev_edge_dir == right) {
+	} else {
 		if (point.front().x < point.back().x) {
-			edge.push_back(point.front());
+			right_edge.push_back(point.front());
 			prev_edge_dir = dir.front();
 		} else {
-			edge.push_back(point.back());
+			right_edge.push_back(point.back());
 			prev_edge_dir = dir.back();
 		}
 	}
