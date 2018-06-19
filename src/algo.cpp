@@ -272,11 +272,12 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 			if (prev_white != (SobelEdgeDetection(x, y - 1) < edge_threshold)) {
 				if (prev_white) {
 					temp= {x+1,y-1};
+					dir.push_back(7);
 				} else {
 					temp= {x,y-1};
+					dir.push_back(i);
 				}
 				point.push_back(temp);
-				dir.push_back(i);
 				prev_white=!prev_white;
 			}
 			break;
@@ -284,11 +285,12 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 			if (prev_white!=(SobelEdgeDetection(x - 1, y - 1) < edge_threshold)) {
 				if(prev_white) {
 					temp= {x,y-1};
+					dir.push_back(0);
 				} else {
 					temp= {x-1,y-1};
+					dir.push_back(i);
 				}
 				point.push_back(temp);
-				dir.push_back(i);
 				prev_white=!prev_white;
 			}
 			break;
@@ -296,11 +298,12 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 			if (prev_white!=(SobelEdgeDetection(x - 1, y) < edge_threshold)) {
 				if(prev_white) {
 					temp= {x-1,y-1};
+					dir.push_back(1);
 				} else {
 					temp= {x-1,y};
+					dir.push_back(i);
 				}
 				point.push_back(temp);
-				dir.push_back(i);
 				prev_white=!prev_white;
 			}
 			break;
@@ -308,11 +311,12 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 			if (prev_white!=(SobelEdgeDetection(x - 1, y + 1) < edge_threshold)) {
 				if(prev_white) {
 					temp= {x-1,y};
+					dir.push_back(2);
 				} else {
 					temp= {x-1,y+1};
+					dir.push_back(i);
 				}
 				point.push_back(temp);
-				dir.push_back(i);
 				prev_white=!prev_white;
 			}
 			break;
@@ -320,11 +324,12 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 			if (prev_white!=(SobelEdgeDetection(x, y + 1) < edge_threshold)) {
 				if(prev_white) {
 					temp= {x-1,y+1};
+					dir.push_back(3);
 				} else {
 					temp= {x,y+1};
+					dir.push_back(i);
 				}
 				point.push_back(temp);
-				dir.push_back(i);
 				prev_white=!prev_white;
 			}
 			break;
@@ -332,11 +337,12 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 			if (prev_white!=(SobelEdgeDetection(x + 1, y + 1) < edge_threshold)) {
 				if(prev_white) {
 					temp= {x,y+1};
+					dir.push_back(4);
 				} else {
 					temp= {x+1,y+1};
+					dir.push_back(i);
 				}
 				point.push_back(temp);
-				dir.push_back(i);
 				prev_white=!prev_white;
 			}
 			break;
@@ -344,11 +350,12 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 			if (prev_white!=(SobelEdgeDetection(x + 1, y) < edge_threshold)) {
 				if(prev_white) {
 					temp= {x+1,y+1};
+					dir.push_back(5);
 				} else {
 					temp= {x+1,y};
+					dir.push_back(i);
 				}
 				point.push_back(temp);
-				dir.push_back(i);
 				prev_white=!prev_white;
 			}
 			break;
@@ -356,11 +363,12 @@ void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
 			if (prev_white!=(SobelEdgeDetection(x + 1, y - 1) < edge_threshold)) {
 				if(prev_white) {
 					temp= {x+1,y};
+					dir.push_back(6);
 				} else {
 					temp= {x+1,y-1};
+					dir.push_back(i);
 				}
 				point.push_back(temp);
-				dir.push_back(i);
 				prev_white=!prev_white;
 			}
 			break;
