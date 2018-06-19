@@ -84,6 +84,7 @@ int main() {
 	servo_config.max_pos_width = 2000;
 	servo_config.min_pos_width = 1000;
 	libsc::Servo servo_(servo_config);
+	servo = &servo_;
 
 	//Bluetooth Init
 	libsc::k60::JyMcuBt106::Config bt_config;
