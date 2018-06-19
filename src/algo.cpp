@@ -334,52 +334,52 @@ bool FAST(int x, int y) {
 	return false;
 }
 
-bool FAST4(int x, int y) {
-	if (x < 5 || x > 185 || y < 5 || y > 115)
-		return false;
-	int black_count = 0, center = GetPoint(x, y) - fast_threshold;
-	if (GetPoint(x, y + 4) < center)
-		black_count++;
-	if (GetPoint(x, y - 4) < center)
-		black_count++;
-	if (GetPoint(x + 4, y) < center)
-		black_count++;
-	if (GetPoint(x - 4, y) < center)
-		black_count++;
-	if (GetPoint(x + 1, y + 4) < center)
-		black_count++;
-	if (GetPoint(x - 1, y + 4) < center)
-		black_count++;
-	if (GetPoint(x + 1, y - 4) < center)
-		black_count++;
-	if (GetPoint(x - 1, y - 4) < center)
-		black_count++;
-	if (GetPoint(x + 4, y + 1) < center)
-		black_count++;
-	if (GetPoint(x + 4, y - 1) < center)
-		black_count++;
-	if (GetPoint(x - 4, y + 1) < center)
-		black_count++;
-	if (GetPoint(x - 4, y - 1) < center)
-		black_count++;
-	if (GetPoint(x + 2, y + 3) < center)
-		black_count++;
-	if (GetPoint(x - 2, y + 3) < center)
-		black_count++;
-	if (GetPoint(x + 2, y - 3) < center)
-		black_count++;
-	if (GetPoint(x - 2, y - 3) < center)
-		black_count++;
-	if (GetPoint(x + 3, y + 2) < center)
-		black_count++;
-	if (GetPoint(x + 3, y - 2) < center)
-		black_count++;
-	if (GetPoint(x - 3, y + 2) < center)
-		black_count++;
-	if (GetPoint(x - 3, y - 2) < center)
-		black_count++;
-	return black_count > 0 && black_count < 6;
-}
+//bool FAST(int x, int y) {
+//	if (x < 5 || x > 185 || y < 5 || y > 115)
+//		return false;
+//	int black_count = 0, center = GetPoint(x, y) - fast_threshold;
+//	if (GetPoint(x, y + 4) < center)
+//		black_count++;
+//	if (GetPoint(x, y - 4) < center)
+//		black_count++;
+//	if (GetPoint(x + 4, y) < center)
+//		black_count++;
+//	if (GetPoint(x - 4, y) < center)
+//		black_count++;
+//	if (GetPoint(x + 1, y + 4) < center)
+//		black_count++;
+//	if (GetPoint(x - 1, y + 4) < center)
+//		black_count++;
+//	if (GetPoint(x + 1, y - 4) < center)
+//		black_count++;
+//	if (GetPoint(x - 1, y - 4) < center)
+//		black_count++;
+//	if (GetPoint(x + 4, y + 1) < center)
+//		black_count++;
+//	if (GetPoint(x + 4, y - 1) < center)
+//		black_count++;
+//	if (GetPoint(x - 4, y + 1) < center)
+//		black_count++;
+//	if (GetPoint(x - 4, y - 1) < center)
+//		black_count++;
+//	if (GetPoint(x + 2, y + 3) < center)
+//		black_count++;
+//	if (GetPoint(x - 2, y + 3) < center)
+//		black_count++;
+//	if (GetPoint(x + 2, y - 3) < center)
+//		black_count++;
+//	if (GetPoint(x - 2, y - 3) < center)
+//		black_count++;
+//	if (GetPoint(x + 3, y + 2) < center)
+//		black_count++;
+//	if (GetPoint(x + 3, y - 2) < center)
+//		black_count++;
+//	if (GetPoint(x - 3, y + 2) < center)
+//		black_count++;
+//	if (GetPoint(x - 3, y - 2) < center)
+//		black_count++;
+//	return black_count > 0 && black_count < 6;
+//}
 
 bool dist_corners(coor m, coor n) {
 	int x1 = img2world[m.x][m.y][0];
@@ -438,7 +438,7 @@ void LeftEdge(coor start_point, int& edge_prev_dir, bool append) {
 			breach = true;
 		else if (direction == right && left_edge[left_edge.size() - 1].x < start_point.x - 20)
 			breach = true;
-		if (left_edge[left_edge.size() - 1].y > 30 && FAST4(left_edge[left_edge.size() - 1].x, left_edge[left_edge.size() - 1].y))
+		if (left_edge[left_edge.size() - 1].y > 30 && FAST(left_edge[left_edge.size() - 1].x, left_edge[left_edge.size() - 1].y))
 			guessed_corner = true;
 	}
 	if (guessed_corner) {
@@ -480,7 +480,7 @@ void RightEdge(coor start_point, int& edge_prev_dir, bool append) {
 			breach = true;
 		else if (direction == right && right_edge[right_edge.size() - 1].x < start_point.x - 20)
 			breach = true;
-		if (right_edge[right_edge.size() - 1].y > 40 && FAST4(right_edge[right_edge.size() - 1].x, right_edge[right_edge.size() - 1].y))
+		if (right_edge[right_edge.size() - 1].y > 40 && FAST(right_edge[right_edge.size() - 1].x, right_edge[right_edge.size() - 1].y))
 			guessed_corner = true;
 	}
 	if (guessed_corner) {
