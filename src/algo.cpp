@@ -131,7 +131,7 @@ bool FindLeftEdge(int& edge_prev_dir) {
 			}
 			break;
 		case down_left:
-			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) < edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y + 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
@@ -139,14 +139,14 @@ bool FindLeftEdge(int& edge_prev_dir) {
 			}
 			break;
 		case down:
-			if (size > 3 && SobelEdgeDetection(x, y + 1) < edge_threshold) {
+			if (SobelEdgeDetection(x, y + 1) < edge_threshold) {
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_right:
-			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) < edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y + 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y + 1;
 				left_edge.push_back(edge_coor);
@@ -216,7 +216,7 @@ bool FindRightEdge(int& edge_prev_dir) {
 			}
 			break;
 		case down_left:
-			if (size > 3 && SobelEdgeDetection(x - 1, y + 1) < edge_threshold) {
+			if (SobelEdgeDetection(x - 1, y + 1) < edge_threshold) {
 				edge_coor.x = x - 1;
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
@@ -224,14 +224,14 @@ bool FindRightEdge(int& edge_prev_dir) {
 			}
 			break;
 		case down:
-			if (size > 3 && SobelEdgeDetection(x, y + 1) < edge_threshold) {
+			if (SobelEdgeDetection(x, y + 1) < edge_threshold) {
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
 				return true;
 			}
 			break;
 		case down_right:
-			if (size > 3 && SobelEdgeDetection(x + 1, y + 1) < edge_threshold) {
+			if (SobelEdgeDetection(x + 1, y + 1) < edge_threshold) {
 				edge_coor.x = x + 1;
 				edge_coor.y = y + 1;
 				right_edge.push_back(edge_coor);
@@ -504,8 +504,10 @@ void RightEdge(coor start_point, int& edge_prev_dir, bool append) {
 void RightLoopEdgeL(coor start_point, int& edge_prev_dir, coor& rightmostP, bool append) {
 	if (!append) {
 		empty_right();
-		right_edge.push_back(start_point);
 	}
+	right_edge.push_back(start_point);
+	if (right_edge[0].x > rightmostP.x)
+			rightmostP = right_edge[0];
 	if (right_edge.size() && right_edge[right_edge.size() - 1].y != start_point.y && right_edge[right_edge.size() - 1].x != start_point.x)
 		right_edge.push_back(start_point);
 	while (FindRightEdge(edge_prev_dir) && (right_edge[right_edge.size() - 1].x - start_point.x > -20)) {
@@ -519,8 +521,12 @@ void RightLoopEdgeR(coor start_point, int& edge_prev_dir, coor& leftmostP, bool 
 		empty_right();
 		right_edge.push_back(start_point);
 	}
-	if (right_edge.size() && right_edge[right_edge.size() - 1].y != start_point.y && right_edge[right_edge.size() - 1].x != start_point.x)
+//	if (right_edge.size() && right_edge[right_edge.size() - 1].y != start_point.y && right_edge[right_edge.size() - 1].x != start_point.x){
+//
+//	}
 		right_edge.push_back(start_point);
+		if (right_edge[0].x < leftmostP.x)
+				leftmostP = right_edge[0];
 	while (FindRightEdge(edge_prev_dir) && (right_edge[right_edge.size() - 1].x - start_point.x > -20)) {
 		if (right_edge[right_edge.size() - 1].x < leftmostP.x)
 			leftmostP = right_edge[right_edge.size() - 1];
@@ -529,8 +535,10 @@ void RightLoopEdgeR(coor start_point, int& edge_prev_dir, coor& leftmostP, bool 
 //for right loop
 void LeftLoopEdgeR(coor start_point, int& edge_prev_dir, coor& leftmostP, bool append) {
 	if (!append)
-		empty_right();
+		empty_left();
 	left_edge.push_back(start_point);
+	if (left_edge[0].x < leftmostP.x)
+		leftmostP = left_edge[0];
 	while (FindLeftEdge(edge_prev_dir) && (left_edge[left_edge.size() - 1].x - start_point.x < 20)) {
 		if (left_edge[left_edge.size() - 1].x < leftmostP.x)
 			leftmostP = left_edge[left_edge.size() - 1];
@@ -539,9 +547,11 @@ void LeftLoopEdgeR(coor start_point, int& edge_prev_dir, coor& leftmostP, bool a
 //for left loop
 void LeftLoopEdgeL(coor start_point, int& edge_prev_dir, coor& rightmostP, bool append) {
 	if (!append)
-		empty_right();
-	if (left_edge.size() && left_edge[left_edge.size() - 1].y != start_point.y && left_edge[left_edge.size() - 1].x != start_point.x)
-		left_edge.push_back(start_point);
+		empty_left();
+	//if (left_edge.size() && left_edge[left_edge.size() - 1].y != start_point.y && left_edge[left_edge.size() - 1].x != start_point.x)
+	left_edge.push_back(start_point);
+	if (left_edge[0].x > rightmostP.x)
+		rightmostP = left_edge[0];
 	while (FindLeftEdge(edge_prev_dir) && (left_edge[left_edge.size() - 1].x - start_point.x < 20)) {
 		if (left_edge[left_edge.size() - 1].x > rightmostP.x)
 			rightmostP = left_edge[left_edge.size() - 1];
@@ -972,10 +982,12 @@ void algo() {
 						//as the direction is down, use rightedge function
 						//and the left edge will be stored in right_edge
 						RightEdge(left_start, left_edge_prev_dir, false);
+						//LeftEdge(left_start, left_edge_prev_dir, false);
 					}
 					if (right_start_point(midpoint, right_start, edge_threshold)) {
 						//opposite as well
 						LeftLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, false);
+					//	RightLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, false);
 					}
 					midpoint = {leftmostP.x-10,leftmostP.y};
 					align = right_align;
