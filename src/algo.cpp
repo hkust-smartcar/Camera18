@@ -259,6 +259,132 @@ bool FindRightEdge(int& edge_prev_dir) {
 	return false;
 }
 
+void FindJumpStart(std::vector<coor>& edge, int& prev_edge_dir) {
+	int x = edge.back().x;
+	int y = edge.back().y;
+	bool prev_white = SobelEdgeDetection(x + 1, y - 1) < edge_threshold;
+	std::vector<coor> point;
+	std::vector<uint8_t> dir;
+	coor temp;
+	for (int i = 0; i < 8; i++) {
+		switch (i) {
+		case up:
+			if (prev_white != (SobelEdgeDetection(x, y - 1) < edge_threshold)) {
+				if (prev_white) {
+					temp= {x+1,y-1};
+				} else {
+					temp= {x,y-1};
+				}
+				point.push_back(temp);
+				dir.push_back(i);
+				prev_white=!prev_white;
+			}
+			break;
+		case up_left:
+			if (prev_white!=(SobelEdgeDetection(x - 1, y - 1) < edge_threshold)) {
+				if(prev_white) {
+					temp= {x,y-1};
+				} else {
+					temp= {x-1,y-1};
+				}
+				point.push_back(temp);
+				dir.push_back(i);
+				prev_white=!prev_white;
+			}
+			break;
+		case left:
+			if (prev_white!=(SobelEdgeDetection(x - 1, y) < edge_threshold)) {
+				if(prev_white) {
+					temp= {x-1,y-1};
+				} else {
+					temp= {x-1,y};
+				}
+				point.push_back(temp);
+				dir.push_back(i);
+				prev_white=!prev_white;
+			}
+			break;
+		case down_left:
+			if (prev_white!=(SobelEdgeDetection(x - 1, y + 1) < edge_threshold)) {
+				if(prev_white) {
+					temp= {x-1,y};
+				} else {
+					temp= {x-1,y+1};
+				}
+				point.push_back(temp);
+				dir.push_back(i);
+				prev_white=!prev_white;
+			}
+			break;
+		case down:
+			if (prev_white!=(SobelEdgeDetection(x, y + 1) < edge_threshold)) {
+				if(prev_white) {
+					temp= {x-1,y+1};
+				} else {
+					temp= {x,y+1};
+				}
+				point.push_back(temp);
+				dir.push_back(i);
+				prev_white=!prev_white;
+			}
+			break;
+		case down_right:
+			if (prev_white!=(SobelEdgeDetection(x + 1, y + 1) < edge_threshold)) {
+				if(prev_white) {
+					temp= {x,y+1};
+				} else {
+					temp= {x+1,y+1};
+				}
+				point.push_back(temp);
+				dir.push_back(i);
+				prev_white=!prev_white;
+			}
+			break;
+		case right:
+			if (prev_white!=(SobelEdgeDetection(x + 1, y) < edge_threshold)) {
+				if(prev_white) {
+					temp= {x+1,y+1};
+				} else {
+					temp= {x+1,y};
+				}
+				point.push_back(temp);
+				dir.push_back(i);
+				prev_white=!prev_white;
+			}
+			break;
+		case up_right:
+			if (prev_white!=(SobelEdgeDetection(x + 1, y - 1) < edge_threshold)) {
+				if(prev_white) {
+					temp= {x+1,y};
+				} else {
+					temp= {x+1,y-1};
+				}
+				point.push_back(temp);
+				dir.push_back(i);
+				prev_white=!prev_white;
+			}
+			break;
+		}
+	}
+	if (prev_edge_dir == left) {
+		if (point.front().x > point.back().x) {
+			edge.push_back(point.front());
+			prev_edge_dir = dir.front();
+		} else {
+			edge.push_back(point.back());
+			prev_edge_dir = dir.back();
+		}
+	} else if (prev_edge_dir == right) {
+		if (point.front().x < point.back().x) {
+			edge.push_back(point.front());
+			prev_edge_dir = dir.front();
+		} else {
+			edge.push_back(point.back());
+			prev_edge_dir = dir.back();
+		}
+	}
+}
+
 bool FAST(int x, int y) {
 	if (x < 4 || x > 184 || y < 4 || y > 116)
 		return false;
