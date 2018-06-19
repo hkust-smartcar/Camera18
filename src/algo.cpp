@@ -744,8 +744,10 @@ void normal_left_corner_fsm(Tstate& track_state, coor& final_point, coor& midpoi
 		point1 = left_edge[0];
 	coor new_start = { 0, 0 };
 	if (jump(point1, left_edge[left_edge_corner[0] + 2], new_start, edge_threshold, false)) {
-		left_edge_prev_dir = right;
-		LeftEdge(new_start, left_edge_prev_dir, true);
+		left_edge_prev_dir = left;
+		left_edge.push_back(new_start);
+		FindJumpStart(left_edge_prev_dir);
+		LeftEdge(left_edge[left_edge.size() - 1], left_edge_prev_dir, true);
 		if (left_edge_corner.size() == 2) {
 			track_state = Crossroad;
 		} else {
@@ -767,7 +769,9 @@ void normal_right_corner_fsm(Tstate& track_state, coor& final_point, coor& midpo
 		point1 = right_edge[0];
 	coor new_start = { 0, 0 };
 	if (jump(point1, right_edge[right_edge_corner[0] + 2], new_start, edge_threshold, true)) {
-		right_edge_prev_dir = left;
+		right_edge_prev_dir = right;
+		right_edge.push_back(new_start);
+		FindJumpStart(right_edge_prev_dir);
 		RightEdge(new_start, right_edge_prev_dir, true);
 		if (right_edge_corner.size() == 2) {
 			track_state = Crossroad;
@@ -950,16 +954,20 @@ void algo() {
 							point1 = right_edge[0];
 						coor new_start = { 0, 0 };
 						jump(point1, right_edge[right_edge_corner[0] + 2], new_start, edge_threshold, true);
-						right_edge_prev_dir = left;
-						RightEdge(new_start, right_edge_prev_dir, true);
+						right_edge_prev_dir = right;
+						right_edge.push_back(new_start);
+						FindJumpStart(right_edge_prev_dir);
+						RightEdge(right_edge[right_edge.size() - 1], right_edge_prev_dir, true);
 
 						if (left_edge_corner[0] > 10)
 							point1 = left_edge[left_edge_corner[0] - 10];
 						else
 							point1 = left_edge[0];
 						jump(point1, left_edge[left_edge_corner[0] + 2], new_start, edge_threshold, false);
-						left_edge_prev_dir = right;
-						LeftEdge(new_start, left_edge_prev_dir, true);
+						left_edge_prev_dir = left;
+						left_edge.push_back(new_start);
+						FindJumpStart(left_edge_prev_dir);
+						LeftEdge(left_edge[left_edge.size() - 1], left_edge_prev_dir, true);
 						if (left_edge_corner.size() == 2 && right_edge_corner.size() == 2) {
 							align = center_align;
 							final_point= {(left_edge[left_edge_corner[1]].x + right_edge[right_edge_corner[1]].x) / 2,
@@ -997,8 +1005,10 @@ void algo() {
 							point1 = left_edge[0];
 							coor new_start = {0, 0};
 							jump(point1, left_edge[left_edge_corner[0] + 2], new_start, edge_threshold, false);
-							left_edge_prev_dir = right;
-							LeftEdge(new_start, left_edge_prev_dir, true);
+							left_edge_prev_dir = left;
+							left_edge.push_back(new_start);
+							FindJumpStart(left_edge_prev_dir);
+							LeftEdge(left_edge[left_edge.size()-1], left_edge_prev_dir, true);
 						}
 						final_point = left_edge[left_edge_corner[1]];
 						midpoint= {left_edge[left_edge.size() - 1].x + 10, left_edge[left_edge.size() - 1].y};
@@ -1021,8 +1031,10 @@ void algo() {
 							point1 = right_edge[0];
 							coor new_start = {0, 0};
 							jump(point1, right_edge[right_edge_corner[0] + 2], new_start, edge_threshold, true);
-							right_edge_prev_dir = left;
-							RightEdge(new_start, right_edge_prev_dir, true);
+							right_edge_prev_dir = right;
+							right_edge.push_back(new_start);
+							FindJumpStart(right_edge_prev_dir);
+							RightEdge(right_edge[right_edge.size()-1], right_edge_prev_dir, true);
 						}
 						final_point = right_edge[right_edge_corner[1]];
 						midpoint= {right_edge[right_edge.size()-1].x - 10,right_edge[right_edge.size()-1].y};
