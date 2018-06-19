@@ -684,10 +684,10 @@ void algo() {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
 			camera->UnlockBuffer();
 		}
-//		for (uint16_t i = 0; i < height; i++) {
-//			lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
-//			lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
-//		}
+		for (uint16_t i = 0; i < height; i++) {
+			lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
+			lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
+		}
 		motor->SetPower(200);
 		motor->SetClockwise(false);
 
@@ -1256,7 +1256,7 @@ void algo() {
 		int prev_servo_angle = servo->GetDegree();
 		int servo_angle;
 		coor destination;
-		if (track_state == Tstate::Normal) {
+		if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In)) {
 			switch (align) {
 			case 0:
 				if (left_edge.size()) {
@@ -1352,6 +1352,29 @@ void algo() {
 				servo->SetDegree(servo_angle);
 				break;
 			}
+		} else if(track_state==Tstate::RightLoop) {
+			switch(loop_state) {
+				case Lstate::Entering:
+				destination=right_end_point;
+				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
+				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+				servo->SetDegree(servo_angle);
+				break;
+				case Lstate::Leaving:
+				destination=right_end_point;
+				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
+				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+				servo->SetDegree(servo_angle);
+				break;
+				case Lstate::Finished:
+				destination=left_edge.back();
+				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
+				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+				servo->SetDegree(servo_angle);
+				break;
+			}
+		} else if(track_state==Tstate::LeftLoop) {
+
 		}
 		prev_track_state = track_state;
 	}
