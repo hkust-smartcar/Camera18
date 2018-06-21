@@ -1314,6 +1314,7 @@ void algo() {
 //			}
 		int prev_servo_angle = servo->GetDegree();
 		int servo_angle;
+		int add;
 		coor destination;
 		if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In)) {
 			switch (align) {
