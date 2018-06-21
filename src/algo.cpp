@@ -474,8 +474,11 @@ void RightEdge(coor start_point, int& edge_prev_dir, bool append) {
             (direction == left && right_edge[right_edge.size() - 1].x > start_point.x + 10) ||
             (direction == right && right_edge[right_edge.size() - 1].x < start_point.x - 10))
             break;
-        if (right_edge.size()>15 && right_edge[right_edge.size() - 11].y > 30 && check_corner(right_edge[right_edge.size()-11],right_edge[right_edge.size()-1],right_edge[right_edge.size()-16]))
+        if (right_edge.size()>15 && right_edge[right_edge.size() - 11].y > 30 &&
+            check_corner(right_edge[right_edge.size()-11],right_edge[right_edge.size()-1],right_edge[right_edge.size()-16])) {
+            right_edge_corner.push_back(right_edge.size()-11);
             break;
+        }
     }
 }
 
@@ -496,8 +499,11 @@ void LeftEdge(coor start_point, int& edge_prev_dir, bool append) {
             (direction == left && left_edge.back().x > start_point.x + 10) ||
             (direction == right && left_edge.back().x < start_point.x - 10))
             break;
-        if (left_edge.size()>15 && left_edge[left_edge.size() - 11].y > 30 && check_corner(left_edge[left_edge.size()-11],left_edge[left_edge.size()-1],left_edge[left_edge.size()-16]))
+        if (left_edge.size() > 15 && left_edge[left_edge.size() - 11].y > 30 &&
+            check_corner(left_edge[left_edge.size() - 11], left_edge[left_edge.size() - 1], left_edge[left_edge.size() - 16])) {
+            left_edge_corner.push_back(right_edge.size()-11);
             break;
+        }
     }
 }
 
