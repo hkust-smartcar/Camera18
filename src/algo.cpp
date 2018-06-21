@@ -15,20 +15,20 @@ struct coor {
 
 const Byte* buffer;
 
+bool debug = false;
+
 //inline Byte GetPoint(uint8_t x, uint8_t y) {
 //	return buffer[x + y * 189];
 //}
-
+//
 //inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
-////	return std::abs(GetPoint(x, y) - GetPoint(x + 1, y + 1)) + std::abs(GetPoint(x + 1, y) - GetPoint(x, y + 1));
 //	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
 //}
 
 #define GetPoint(x, y) buffer[(x) + (y) * 189]
 #define SobelEdgeDetection(x, y) std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y)+1) + GetPoint((x) + 1, (y)-1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y)+1)) + std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x), (y)-1) - GetPoint((x) + 1, (y)-1) + GetPoint((x) - 1, (y)+1) + 2 * GetPoint((x), (y)+1) + GetPoint((x) + 1, (y)+1))
 
-
-float search_distance = 400;
+float search_distance = 700;
 float search_m;
 float search_c;
 float search_slope;
@@ -82,12 +82,12 @@ bool FindLeftEdge(int& edge_prev_dir) {
 	int y = edge_coor.y;
 	if (x < 4 || x > 184 || y < 4 || y > 116)
 		return false;
-//	if (!left_end_point_found && size % 5 == 0) {
-//		if (FindEndPoint(x, y)) {
-//			left_end_point_found = true;
-//			left_end_point= {x,y};
-//		}
-//	}
+	if (!left_end_point_found && size % 5 == 0) {
+		if (FindEndPoint(x, y)) {
+			left_end_point_found = true;
+			left_end_point= {x,y};
+		}
+	}
 	edge_prev_dir += 2;
 	for (int i = 0; i < 5; i++) {
 		edge_prev_dir = edge_prev_dir < 0 ? 8 + edge_prev_dir : edge_prev_dir > up_right ? edge_prev_dir - 8 : edge_prev_dir;
@@ -167,12 +167,12 @@ bool FindRightEdge(int& edge_prev_dir) {
 	int y = edge_coor.y;
 	if (x < 4 || x > 184 || y < 4 || y > 116)
 		return false;
-//	if (!right_end_point_found && size % 5 == 0) {
-//		if (FindEndPoint(x, y)) {
-//			right_end_point_found = true;
-//			right_end_point= {x,y};
-//		}
-//	}
+	if (!right_end_point_found && size % 5 == 0) {
+		if (FindEndPoint(x, y)) {
+			right_end_point_found = true;
+			right_end_point= {x,y};
+		}
+	}
 	edge_prev_dir -= 2;
 	for (int i = 0; i < 5; i++) {
 		edge_prev_dir = edge_prev_dir < 0 ? 8 + edge_prev_dir : edge_prev_dir > up_right ? edge_prev_dir - 8 : edge_prev_dir;
@@ -246,7 +246,7 @@ bool FindRightEdge(int& edge_prev_dir) {
 bool FAST(int x, int y) {
 	if (x < 4 || x > 184 || y < 4 || y > 116)
 		return false;
-	Byte center = GetPoint(x, y) - fast_threshold;
+	Byte center = GetPoint(x, y)- fast_threshold;
 	Byte point;
 	int temp = 0;
 	point = GetPoint(x, y - 3);
@@ -361,7 +361,7 @@ bool check_corner(coor pivot, coor m, coor n) {
 //}
 
 bool jump(coor point1, coor point2, coor& new_start) { //jump from the corner to new edge. returns true if a edge is found.
-	float slope = (point1.x - point2.x) / (point1.y - point2.y);
+	float slope = (float) (point1.x - point2.x) / (point1.y - point2.y);
 	float constant = point2.x - slope * point2.y;
 	new_start.y = point2.y - 3;
 	new_start.x = (int16_t) (new_start.y * slope + constant);
@@ -376,6 +376,8 @@ bool jump(coor point1, coor point2, coor& new_start) { //jump from the corner to
 }
 
 void algo() {
+	motor->SetPower(250);
+	motor->SetClockwise(false);
 	libsc::System::DelayMs(100);
 	libsc::Timer::TimerInt time_now = 0;
 	camera->Start();
@@ -390,14 +392,15 @@ void algo() {
 
 	int mode = 0;	//0: normal 1: crossroad 2: left circle 3: right circle
 
-	InitSearchDistance(0);
-
 	while (1) {
 		if (camera->IsAvailable()) {
 			buffer = camera->LockBuffer();
-			for (uint16_t i = 0; i < height; i++) {
-				lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
-				lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
+			InitSearchDistance(0);
+			if (debug) {
+				for (uint16_t i = 0; i < height; i++) {
+					lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
+					lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
+				}
 			}
 			time_now = libsc::System::Time();
 			left_edge.clear();
@@ -421,30 +424,38 @@ void algo() {
 			if (left_edge.size() && right_edge.size()) {
 				midpoint.x = (left_start.x + right_start.x) / 2;
 			}
-			int prev_left_edge_dir = up;
-			int prev_right_edge_dir = up;
+			left_edge_prev_dir = up;
+			right_edge_prev_dir = up;
 			if (left_edge.size()) {
 				while (FindLeftEdge(left_edge_prev_dir)) {
-					lcd->SetRegion(libsc::Lcd::Rect(left_edge.back().x, left_edge.back().y, 1, 1));
-					lcd->FillColor(lcd->kRed);
+					if (debug) {
+						lcd->SetRegion(libsc::Lcd::Rect(left_edge.back().x, left_edge.back().y, 1, 1));
+						lcd->FillColor(lcd->kRed);
+					}
 					if (left_edge.size() > 15 && left_edge[left_edge.size() - 6].y > 30 && check_corner(left_edge[left_edge.size() - 11], left_edge[left_edge.size() - 1], left_edge[left_edge.size() - 16])) { //&& FAST(left_edge.back().x, left_edge.back().y)) {	//
 						left_corner_found = true;
 						left_corner_coor = left_edge[left_edge.size() - 11];
-						lcd->SetRegion(libsc::Lcd::Rect(left_corner_coor.x - 2, left_corner_coor.y - 2, 5, 5));
-						lcd->FillColor(lcd->kGreen);
+						if (debug) {
+							lcd->SetRegion(libsc::Lcd::Rect(left_corner_coor.x - 2, left_corner_coor.y - 2, 5, 5));
+							lcd->FillColor(lcd->kGreen);
+						}
 						break;
 					}
 				}
 			}
 			if (right_edge.size()) {
 				while (FindRightEdge(right_edge_prev_dir)) {
-					lcd->SetRegion(libsc::Lcd::Rect(right_edge.back().x, right_edge.back().y, 1, 1));
-					lcd->FillColor(lcd->kRed);
+					if (debug) {
+						lcd->SetRegion(libsc::Lcd::Rect(right_edge.back().x, right_edge.back().y, 1, 1));
+						lcd->FillColor(lcd->kRed);
+					}
 					if (right_edge.size() > 15 && right_edge[right_edge.size() - 6].y > 30 && check_corner(right_edge[right_edge.size() - 11], right_edge[right_edge.size() - 1], right_edge[right_edge.size() - 16])) {  //&& FAST(right_edge.back().x, right_edge.back().y)) {	//
 						right_corner_found = true;
 						right_corner_coor = right_edge[right_edge.size() - 11];
-						lcd->SetRegion(libsc::Lcd::Rect(right_corner_coor.x - 2, right_corner_coor.y - 2, 5, 5));
-						lcd->FillColor(lcd->kGreen);
+						if (debug) {
+							lcd->SetRegion(libsc::Lcd::Rect(right_corner_coor.x - 2, right_corner_coor.y - 2, 5, 5));
+							lcd->FillColor(lcd->kGreen);
+						}
 						break;
 					}
 				}
@@ -452,21 +463,95 @@ void algo() {
 			if (left_corner_found && right_corner_found) {
 				coor left_new;
 				coor right_new;
-				if (jump(left_edge[left_edge.size() - 16], left_edge[left_edge.size() - 11], left_new) && jump(right_edge[right_edge.size() - 16], right_edge[right_edge.size() - 11], right_new)) {
+				coor left_point;
+				coor right_point;
+				if ((left_edge.size() - 11) > 10)
+					left_point = left_edge[left_edge.size() - 21];
+				else
+					left_point = left_corner_coor;
+				if ((right_edge.size() - 11) > 10)
+					right_point = right_edge[right_edge.size() - 21];
+				else
+					right_point = right_corner_coor;
+				if (jump(left_point, left_edge[left_edge.size() - 7], left_new) && jump(right_point, right_edge[right_edge.size() - 7], right_new)) {
 					float down_m = -1.0 * (left_corner_coor.x - right_corner_coor.x) / (left_corner_coor.y - right_corner_coor.y);
 					float up_m = -1.0 * (left_new.y - right_new.y) / (left_new.x - right_new.x);
-					float x = down_m * ((left_corner_coor.x + right_corner_coor.x) / 2) - (left_corner_coor.y + right_corner_coor.y) / 2 + up_m * left_new.x + left_new.y;
-					float y = down_m * (x - (left_corner_coor.x + right_corner_coor.x) / 2) + (left_corner_coor.y + right_corner_coor.y) / 2;
-					if (x > 4 && x < 184 && y > 4 && y < 116 && FindEndPoint(x, y)) {
-						midpoint= {x,y};
+					float x = (down_m * ((float) (left_corner_coor.x + right_corner_coor.x) / 2) - (float) (left_corner_coor.y + right_corner_coor.y) / 2 + up_m * left_new.x + left_new.y) / (down_m + up_m);
+					float y = down_m * (x - (float) (left_corner_coor.x + right_corner_coor.x) / 2) + (float) (left_corner_coor.y + right_corner_coor.y) / 2;
+					if (debug) {
+						lcd->SetRegion(libsc::Lcd::Rect(left_new.x - 2, left_new.y - 2, 5, 5));
+						lcd->FillColor(lcd->kRed);
+						lcd->SetRegion(libsc::Lcd::Rect(right_new.x - 2, right_new.y - 2, 5, 5));
+						lcd->FillColor(lcd->kRed);
 						lcd->SetRegion(libsc::Lcd::Rect(x - 2, y - 2, 5, 5));
-						lcd->FillColor(lcd->kGreen);
+						lcd->FillColor(lcd->kBlue);
+					}
+					if (x > 4 && x < 184 && y > 4 && y < 116 && !FindEndPoint(x, y)) {
+						midpoint= {x,y};
+						mode = 1;
+						if(debug) {
+							lcd->SetRegion(libsc::Lcd::Rect(x - 2, y - 2, 5, 5));
+							lcd->FillColor(lcd->kGreen);
+						}
 					}
 				}
 			} else if (left_corner_found) {
 
 			} else if (right_corner_found) {
 
+			} else {
+
+			}
+
+			//Control
+			coor destination;
+			int servo_angle, prev_servo_angle = servo->GetDegree();
+			switch (mode) {
+			case 0:
+				if (left_end_point_found && right_end_point_found) {
+					destination= {(left_end_point.x+right_end_point.x)/2,(left_end_point.y+right_end_point.y)/2};
+					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[97][118][0]) / (img2world[destination.x][destination.y][1] - img2world[97][118][1])) * 1800 / 3.14;
+					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+					servo->SetDegree(servo_angle);
+				} else if (left_end_point_found) {
+					destination=left_end_point;
+					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
+					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+					servo->SetDegree(servo_angle);
+				} else if (right_end_point_found) {
+					destination=right_end_point;
+					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
+					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+					servo->SetDegree(servo_angle);
+				} else if(left_corner_found&&right_corner_found) {
+					destination= {(left_corner_coor.x+right_corner_coor.x)/2,(left_corner_coor.y+right_corner_coor.y)/2};
+					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[97][118][0]) / (img2world[destination.x][destination.y][1] - img2world[97][118][1])) * 1800 / 3.14;
+					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+					servo->SetDegree(servo_angle);
+				} else if(left_corner_found) {
+					destination=left_corner_coor;
+					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
+					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+					servo->SetDegree(servo_angle);
+				} else if(right_corner_found) {
+					destination=right_corner_coor;
+					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
+					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+					servo->SetDegree(servo_angle);
+				} else if (left_edge.size() > right_edge.size()) {
+					destination=left_edge.back();
+					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
+					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+					servo->SetDegree(servo_angle);
+				} else if(right_edge.size()) {
+					destination=right_edge.back();
+					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
+					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+					servo->SetDegree(servo_angle);
+				}
+				break;
+				case 1:
+				break;
 			}
 			time_now = libsc::System::Time() - time_now;
 			camera->UnlockBuffer();
