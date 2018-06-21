@@ -86,6 +86,10 @@ bool FindLeftEdge(int& edge_prev_dir) {
 		if (FindEndPoint(x, y)) {
 			left_end_point_found = true;
 			left_end_point= {x,y};
+			if (debug) {
+				lcd->SetRegion(libsc::Lcd::Rect(x - 1, y - 1, 3, 3));
+				lcd->FillColor(libsc::Lcd::kBlue);
+			}
 		}
 	}
 	edge_prev_dir += 2;
@@ -171,6 +175,10 @@ bool FindRightEdge(int& edge_prev_dir) {
 		if (FindEndPoint(x, y)) {
 			right_end_point_found = true;
 			right_end_point= {x,y};
+			if (debug) {
+				lcd->SetRegion(libsc::Lcd::Rect(x - 1, y - 1, 3, 3));
+				lcd->FillColor(libsc::Lcd::kBlue);
+			}
 		}
 	}
 	edge_prev_dir -= 2;
@@ -381,7 +389,7 @@ void algo() {
 	libsc::System::DelayMs(100);
 	libsc::Timer::TimerInt time_now = 0;
 	camera->Start();
-	coor midpoint = { 92, 115 };
+	coor midpoint = { 97, 115 };
 
 	coor left_start = { 0, 0 };
 	coor right_start = { 0, 0 };
@@ -407,18 +415,71 @@ void algo() {
 			right_edge.clear();
 			bool left_corner_found = false;
 			bool right_corner_found = false;
-			for (int x = midpoint.x; x > 4; x--) {
-				if (SobelEdgeDetection(x, midpoint.y) > edge_threshold) {
-					left_start= {x,midpoint.y};
-					left_edge.push_back(left_start);
-					break;
+			if (mode == 1) {
+				for (; midpoint.y > 4; midpoint.y--) {
+					for (int x = midpoint.x; x > 4; x--) {
+						if (SobelEdgeDetection(x, midpoint.y) > edge_threshold) {
+							left_start= {x,midpoint.y};
+							left_edge.push_back(left_start);
+							break;
+						}
+					}
+					for (int x = midpoint.x; x < 184; x++) {
+						if (SobelEdgeDetection(x, midpoint.y) > edge_threshold) {
+							right_start= {x,midpoint.y};
+							right_edge.push_back(right_start);
+							break;
+						}
+					}
+					if(left_edge.size()&&right_edge.size()) {
+						break;
+					}
+					left_edge.clear();
+					right_edge.clear();
 				}
-			}
-			for (int x = midpoint.x; x < 184; x++) {
-				if (SobelEdgeDetection(x, midpoint.y) > edge_threshold) {
-					right_start= {x,midpoint.y};
-					right_edge.push_back(right_start);
-					break;
+				if(left_edge.size()&&right_edge.size()) {
+					if(FindEndPoint(left_start.x,left_start.y)&&FindEndPoint(right_start.x,right_start.y)) {
+						right_edge.push_back(left_start);
+						left_edge.push_back(right_start);
+						int left_prev_dir=down;
+						int right_prev_dir=down;
+						while(FindRightEdge(left_prev_dir)&&right_edge.size()<10) {
+							if(FAST(right_edge.back().x,right_edge.back().y)) {
+								break;
+							}
+						}
+						left_start=right_edge.back();
+						while(FindLeftEdge(right_prev_dir)&&left_edge.size()<10) {
+							if(FAST(left_edge.back().x,left_edge.back().y)) {
+								break;
+							}
+						}
+						right_start=left_edge.back();
+						left_edge.clear();
+						right_edge.clear();
+						midpoint= {(left_start.x+right_start.y)/2,(left_start.y+right_start.y)/2};
+						if(midpoint.y>114) {
+							midpoint= {97,115};
+							mode=0;
+						}
+						left_end_point_found=false;
+						right_end_point_found=false;
+					}
+				}
+			} else if(mode==0) {
+				for (int x = midpoint.x; x > 4; x--) {
+					if (SobelEdgeDetection(x, midpoint.y) > edge_threshold) {
+						left_start= {x,midpoint.y};
+						left_edge.push_back(left_start);
+						break;
+					}
+				}
+				for (int x = midpoint.x; x < 184; x++) {
+					if (SobelEdgeDetection(x, midpoint.y) > edge_threshold) {
+						right_start= {x,midpoint.y};
+						right_edge.push_back(right_start);
+						break;
+					}
 				}
 			}
 			if (left_edge.size() && right_edge.size()) {
@@ -460,7 +521,7 @@ void algo() {
 					}
 				}
 			}
-			if (left_corner_found && right_corner_found) {
+			if (mode == 0 && left_corner_found && right_corner_found && !FindEndPoint((left_corner_coor.x + right_corner_coor.x) / 2, (left_corner_coor.y + right_corner_coor.y) / 2)) {
 				coor left_new;
 				coor right_new;
 				coor left_point;
@@ -486,8 +547,12 @@ void algo() {
 						lcd->SetRegion(libsc::Lcd::Rect(x - 2, y - 2, 5, 5));
 						lcd->FillColor(lcd->kBlue);
 					}
-					if (x > 4 && x < 184 && y > 4 && y < 116 && !FindEndPoint(x, y)) {
+					if (x > 4 && x < 184 && y > 4 && y < 116) {
 						midpoint= {x,y};
+						left_end_point_found=true;
+						right_end_point_found=true;
+						left_end_point=midpoint;
+						right_end_point=midpoint;
 						mode = 1;
 						if(debug) {
 							lcd->SetRegion(libsc::Lcd::Rect(x - 2, y - 2, 5, 5));
@@ -506,8 +571,7 @@ void algo() {
 			//Control
 			coor destination;
 			int servo_angle, prev_servo_angle = servo->GetDegree();
-			switch (mode) {
-			case 0:
+			if (!mode && mode == 1) {
 				if (left_end_point_found && right_end_point_found) {
 					destination= {(left_end_point.x+right_end_point.x)/2,(left_end_point.y+right_end_point.y)/2};
 					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[97][118][0]) / (img2world[destination.x][destination.y][1] - img2world[97][118][1])) * 1800 / 3.14;
@@ -549,9 +613,6 @@ void algo() {
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
 					servo->SetDegree(servo_angle);
 				}
-				break;
-				case 1:
-				break;
 			}
 			time_now = libsc::System::Time() - time_now;
 			camera->UnlockBuffer();
