@@ -592,12 +592,12 @@ void LeftLoopEdgeL(coor start_point, int& edge_prev_dir, coor& rightmostP, bool 
     }
 }
 
-bool jump(coor point1, coor point2, coor& new_start, int threshold, bool direction) { //jump from the corner to new edge. returns true if a edge is found.
-    float slope = (point1.x - point2.x) / (point1.y - point2.y);
+bool jump(coor corner, coor point1, coor point2, coor& new_start, bool direction) { //jump from the corner to new edge. returns true if a edge is found.
+    float slope = (float)(point1.x - corner.x) / (point1.y - corner.y);
     float constant = point2.x - slope * point2.y;
-    new_start.y = point2.y - 3;
+    new_start.y = point2.y-3;
     new_start.x = (int16_t) (new_start.y * slope + constant);
-    while (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3 && SobelEdgeDetection(new_start.x, new_start.y) < threshold) {
+    while (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3 && SobelEdgeDetection(new_start.x, new_start.y) < edge_threshold) {
         new_start.y--;
         new_start.x = (new_start.y * slope + constant);
     }
@@ -621,7 +621,7 @@ bool Ljump(coor& new_start){
     int i=left_edge_corner[0];
     for(;FindLeftEdge(left_edge_prev_dir) && value_corner(left_edge[left_edge.size()-11],left_edge[left_edge.size()-1],left_edge[left_edge.size()-16])<0.07;i++);
     point2 = left_edge[i+1];
-    return jump(point1,point2,new_start,edge_threshold,false);
+    return jump(left_edge[left_edge_corner[0]],point1,point2,new_start,false);
 }
 
 bool Rjump(coor& new_start){
@@ -634,7 +634,7 @@ bool Rjump(coor& new_start){
     int i=right_edge_corner[0];
     for(;FindRightEdge(right_edge_prev_dir) && value_corner(right_edge[right_edge.size()-11],right_edge[right_edge.size()-1],right_edge[right_edge.size()-16])<0.07;i++);
     point2 = right_edge[i+1];
-    return jump(point1,point2,new_start,edge_threshold,true);
+    return jump(right_edge[right_edge_corner[0]],point1,point2,new_start,true);
 }
 
 bool right_start_point(coor midpoint, coor& right_start, int threshold) {
