@@ -18,7 +18,7 @@ enum Tstate {
 };
 
 enum Cstate {
-    Detected, Inside,
+    Detected, L_inside, C_inside, R_inside, Outside
 };
 
 enum Lstate {
@@ -91,7 +91,7 @@ Align align = center_align;
 
 bool FindLeftEdge(int& edge_prev_dir) {
     int size = left_edge.size();
-    if (size > 100 || !size)
+    if (size > 120 || !size)
         return false;
     coor edge_coor = left_edge.back();
     int x = edge_coor.x;
@@ -176,7 +176,7 @@ bool FindLeftEdge(int& edge_prev_dir) {
 
 bool FindRightEdge(int& edge_prev_dir) {
     int size = right_edge.size();
-    if (size > 100 || !size)
+    if (size > 120 || !size)
         return false;
     coor edge_coor = right_edge.back();
     int x = edge_coor.x;
@@ -411,7 +411,7 @@ bool check_corner(coor pivot, coor m, coor n) {
     if(left_jump || right_jump) {
         int a2 = (img2world[pivot.x][pivot.y][0] - img2world[m.x][m.y][0]) * (img2world[pivot.x][pivot.y][0] - img2world[m.x][m.y][0]) +
                  (img2world[pivot.x][pivot.y][1] - img2world[m.x][m.y][1]) * (img2world[pivot.x][pivot.y][1] - img2world[m.x][m.y][1]);
-      a2/=100;
+        a2/=100;
         int b2 = (img2world[pivot.x][pivot.y][0] - img2world[n.x][n.y][0]) * (img2world[pivot.x][pivot.y][0] - img2world[n.x][n.y][0]) +
                  (img2world[pivot.x][pivot.y][1] - img2world[n.x][n.y][1]) * (img2world[pivot.x][pivot.y][1] - img2world[n.x][n.y][1]);
 	    b2/=100;
@@ -666,7 +666,7 @@ void normal_left_corner_fsm(Tstate& track_state, coor& final_point, coor& midpoi
         FindJumpStart(edge_prev_dir);
         LeftEdge(left_edge.back(), left_edge_prev_dir, false);
         if (left_edge_corner.size() == 1) {
-//			track_state = Crossroad;
+			track_state = Crossroad;
         } else {
 //			track_state = LeftLoop;
         }
@@ -686,7 +686,7 @@ void normal_right_corner_fsm(Tstate& track_state, coor& final_point, coor& midpo
         FindJumpStart(edge_prev_dir);
         RightEdge(new_start, right_edge_prev_dir, false);
         if (right_edge_corner.size() == 1) {
-//			track_state = Crossroad;
+			track_state = Crossroad;
         } else {
 //			track_state = RightLoop;
         }
@@ -777,8 +777,8 @@ void algo() {
             if (left_edge.size() && right_edge.size()) {
                 if (left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
                     if (dist_corners(left_edge[left_edge_corner[0]], right_edge[right_edge_corner[0]])) {
-                        if ((right_edge[right_edge_corner[0]].y > 85) || left_edge[left_edge_corner[0]].y > 85) {
-//							track_state = Crossroad;
+                        if ((right_edge[right_edge_corner[0]].y > 90) || left_edge[left_edge_corner[0]].y > 90) {
+							track_state = Crossroad;
                         }
                         else {
                             final_point = {(left_edge[left_edge_corner[0]].x+right_edge[right_edge_corner[0]].x)/2,
@@ -787,7 +787,7 @@ void algo() {
                             midpoint= {(left_start.x+right_start.x)/2,115};
                         }
                     } else if (left_edge[left_edge_corner[0]].y > right_edge[right_edge_corner[0]].y) {
-                        if(left_edge[left_edge_corner[0]].y>85)
+                        if(left_edge[left_edge_corner[0]].y>90)
                             normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start, left_edge_prev_dir);
                         else {
                             final_point = left_end_point.y>left_edge[left_edge_corner[0]].y ? left_edge[left_edge_corner[0]] : left_end_point;
@@ -795,7 +795,7 @@ void algo() {
                             midpoint= {(left_start.x+right_start.x)/2,115};
                         }
                     } else if (left_edge[left_edge_corner[0]].y < right_edge[right_edge_corner[0]].y) {
-                        if(right_edge[right_edge_corner[0]].y > 85)
+                        if(right_edge[right_edge_corner[0]].y > 90)
                             normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start, right_edge_prev_dir);
                         else {
                             final_point = right_end_point.y>right_edge[right_edge_corner[0]].y ? right_edge[right_edge_corner[0]] : right_end_point;
@@ -804,23 +804,23 @@ void algo() {
                         }
                     }
                 }
-//                else if (left_edge_corner.size() == 1 && right_edge_corner.size() == 0) {
-//                    if(left_edge[left_edge_corner[0]].y>85)
-//                        normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start, left_edge_prev_dir);
-//                    else {
-//                        final_point = left_end_point.y>left_edge[left_edge_corner[0]].y ? left_edge[left_edge_corner[0]] : left_end_point;
-//                        align = left_align;
-//                        midpoint= {(left_start.x+right_start.x)/2,115};
-//                    }
-//                } else if (left_edge_corner.size() == 0 && right_edge_corner.size() == 1) {
-//                    if(right_edge[right_edge_corner[0]].y > 85)
-//                        normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start, right_edge_prev_dir);
-//                    else {
-//                        final_point = right_end_point.y>right_edge[right_edge_corner[0]].y ? right_edge[right_edge_corner[0]] : right_end_point;
-//                        align = right_align;
-//                        midpoint= {(left_start.x+right_start.x)/2,115};
-//                    }
-//                }
+                else if (left_edge_corner.size() == 1 && right_edge_corner.size() == 0) {
+                    if(left_edge[left_edge_corner[0]].y>90)
+                        normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start, left_edge_prev_dir);
+                    else {
+                        final_point = left_end_point.y>left_edge[left_edge_corner[0]].y ? left_edge[left_edge_corner[0]] : left_end_point;
+                        align = left_align;
+                        midpoint= {(left_start.x+right_start.x)/2,115};
+                    }
+                } else if (left_edge_corner.size() == 0 && right_edge_corner.size() == 1) {
+                    if(right_edge[right_edge_corner[0]].y > 90)
+                        normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start, right_edge_prev_dir);
+                    else {
+                        final_point = right_end_point.y>right_edge[right_edge_corner[0]].y ? right_edge[right_edge_corner[0]] : right_end_point;
+                        align = right_align;
+                        midpoint= {(left_start.x+right_start.x)/2,115};
+                    }
+                }
                 else {
                     align = center_align;
                     final_point = {(left_end_point.x + right_end_point.x)/2,
@@ -829,20 +829,20 @@ void algo() {
                 }
             }
             else if(right_edge.size()) {
-                if(right_edge_corner.size() == 1) {
+                if(right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 90) {
                     normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start, right_edge_prev_dir);
                 }
-                else if(right_edge_corner.size() == 0) {
+                else {
                     align = right_align;
                     final_point = right_end_point;
                     midpoint= {(left_start.x+right_start.x)/2,115};
                 }
             }
             else if(left_edge.size()) {
-                if(left_edge_corner.size() == 1) {
+                if(left_edge_corner.size() == 1 && left_edge[left_edge_corner[0]].y>90) {
                     normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start, right_edge_prev_dir);
                 }
-                else if(left_edge_corner.size() == 0) {
+                else {
                     align = left_align;
                     final_point = left_end_point;
                     midpoint= {(left_start.x+right_start.x)/2,115};
@@ -852,421 +852,417 @@ void algo() {
         if (track_state == Crossroad) {
             if (crossroad_state == Detected) {
                 if (left_edge.size() && right_edge.size()) {
-                    if (left_edge[left_edge_corner[0]].y > 85 || right_edge[right_edge_corner[0]].y > 85) {
-                        crossroad_state = Inside;
-                        coor new_start = { 0, 0 };
-						Rjump(new_start);
-						right_edge_prev_dir = right;
-						right_edge.push_back(new_start);
-						FindJumpStart(right_edge_prev_dir);
-						RightEdge(right_edge.back(), right_edge_prev_dir, false);
+                    coor new_start = {0, 0};
+                    Rjump(new_start);
+                    right_edge_prev_dir = right;
+                    right_edge.push_back(new_start);
+                    FindJumpStart(right_edge_prev_dir);
+                    RightEdge(right_edge.back(), right_edge_prev_dir, false);
 
-						Ljump(new_start);
-						left_edge_prev_dir = left;
-						left_edge.push_back(new_start);
-						FindJumpStart(left_edge_prev_dir);
-						LeftEdge(left_edge.back(), left_edge_prev_dir, false);
+                    Ljump(new_start);
+                    left_edge_prev_dir = left;
+                    left_edge.push_back(new_start);
+                    FindJumpStart(left_edge_prev_dir);
+                    LeftEdge(left_edge.back(), left_edge_prev_dir, false);
 
-						if (left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
-							align = center_align;
-							final_point= {(left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
-										  (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
-							midpoint= {(left_start.x+right_start.x)/2,115};
-						}
-						else if(left_edge_corner.size() == 1) {
-							final_point = left_edge[left_edge_corner[0]];
-							align = left_align;
-							midpoint= {(left_start.x+right_start.x)/2,115};
-						}
-						else if(right_edge_corner.size() == 1) {
-							final_point = right_edge[right_edge_corner[0]];
-							align = right_align;
-							midpoint= {(left_start.x+right_start.x)/2,115};
-						}
-                    } else {
+                    if (left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
                         align = center_align;
-                        crossroad_state = Detected;
+                        crossroad_state = C_inside;
+                        right_start = {right_edge[right_edge_corner[0]].x + 10,
+                                       right_edge[right_edge_corner[0]].y + 15};
+                        left_start = {left_edge[left_edge_corner[0]].x - 10, left_edge[left_edge_corner[0]].y + 15};
                         final_point = {(left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
                                        (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
-                        midpoint= {(left_start.x+right_start.x)/2,115};
-                    }
-                }
-                else if(left_edge.size()) {
-                    align = left_align;
-                    if (left_edge[left_edge_corner[0]].y > 85) {
-                        crossroad_state = Inside;
-                        if (prev_track_state != Normal) {
-                            coor new_start = {0, 0};
-                            Ljump(new_start);
-                            left_edge_prev_dir = left;
-                            left_edge.push_back(new_start);
-                            FindJumpStart(left_edge_prev_dir);
-                            LeftEdge(left_edge[left_edge.size()-1], left_edge_prev_dir, false);
+                        else if (left_edge_corner.size() == 1) {
+                            align = left_align;
+                            crossroad_state = L_inside;
+                            left_start = {left_edge[left_edge_corner[0]].x - 10, left_edge[left_edge_corner[0]].y + 15};
+                            final_point = left_edge[left_edge_corner[0]];
+                        } else if (right_edge_corner.size() == 1) {
+                            align = right_align;
+                            crossroad_state = R_inside;
+                            right_start = {right_edge[right_edge_corner[0]].x + 10,
+                                           right_edge[right_edge_corner[0]].y + 15};
+                            final_point = right_edge[right_edge_corner[0]];
                         }
+                    } else if (left_edge.size()) {
+                        align = left_align;
+                        crossroad_state = L_inside;
+                        left_start = {left_edge[left_edge_corner[0]].x - 10, left_edge[left_edge_corner[0]].y + 15};
                         final_point = left_edge[left_edge_corner[0]];
-                        midpoint= {left_edge.back().x + 10, left_edge.back().y};
-                    }
-                    else {
-                        crossroad_state = Detected;
-                        final_point = left_edge[left_edge_corner[0]];
-                        midpoint= {(left_start.x+right_start.x)/2,115};
-                    }
-                }
-                else if(right_edge.size()) {
-                    align = right_align;
-                    if (right_edge[right_edge_corner[0]].y > 85) {
-                        crossroad_state = Inside;
-                        if(prev_track_state != Normal) {
-                            coor new_start = {0, 0};
-                            Rjump(new_start);
-                            right_edge_prev_dir = right;
-                            right_edge.push_back(new_start);
-                            FindJumpStart(right_edge_prev_dir);
-                            RightEdge(right_edge[right_edge.size()-1], right_edge_prev_dir, false);
-                        }
+                    } else if (right_edge.size()) {
+                        align = right_align;
+                        crossroad_state = R_inside;
+                        right_start = {right_edge[right_edge_corner[0]].x + 10,
+                                       right_edge[right_edge_corner[0]].y + 15};
                         final_point = right_edge[right_edge_corner[0]];
-                        midpoint= {right_edge.back().x - 10,right_edge.back().y};
-                    }
-                    else {
-                        crossroad_state = Detected;
-                        final_point = right_edge[right_edge_corner[0]];
-                        midpoint= {(left_start.x+right_start.x)/2,115};
                     }
                 }
             }
-            else if(crossroad_state == Inside) {
+            else if(crossroad_state == C_inside) {
+                right_jump = true;
+                while (SobelEdgeDetection(right_start.x, right_start.y) < edge_threshold && right_start.y > 10)
+                    right_start.y--;
+                right_edge_prev_dir = right;
+                right_edge.push_back(right_start);
+                FindJumpStart(right_edge_prev_dir);
+                RightEdge(right_edge.back(), right_edge_prev_dir, false);
+
+                left_jump = true;
+                while (SobelEdgeDetection(left_start.x, left_start.y) < edge_threshold && left_start.y > 10)
+                    left_start.y--;
+                left_edge_prev_dir = left;
+                left_edge.push_back(left_start);
+                FindJumpStart(left_edge_prev_dir);
+                LeftEdge(left_edge.back(), left_edge_prev_dir, false);
+
+                align = center_align;
+                right_start = {right_edge[right_edge_corner[0]].x + 10, right_edge[right_edge_corner[0]].y + 15};
+                left_start = {left_edge[left_edge_corner[0]].x - 10, left_edge[left_edge_corner[0]].y + 15};
+                final_point = {(left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
+                               (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
+
+                if(right_start.y>110 || left_start.y>110){
+                    crossroad_state = Outside;
+                    midpoint = {(left_edge.back().x+right_edge.back().x)/2,(left_edge.back().y+right_edge.back().y)/2};
+                }
+            }
+            else if(crossroad_state == L_inside){
+                left_jump = true;
+                while (SobelEdgeDetection(left_start.x, left_start.y) < edge_threshold && left_start.y > 10)
+                    left_start.y--;
+                left_edge_prev_dir = left;
+                left_edge.push_back(left_start);
+                FindJumpStart(left_edge_prev_dir);
+                LeftEdge(left_edge.back(), left_edge_prev_dir, false);
+
+                align = left_align;
+                left_start = {left_edge[left_edge_corner[0]].x - 10, left_edge[left_edge_corner[0]].y + 15};
+                final_point = left_edge[left_edge_corner[0]];
+
+                if{left_start.y>110}{
+                    crossroad_state = Outside;
+                    midpoint = {final_point.x+15,final_point.y-10};
+                }
+            }
+            else if(crossroad_state == R_inside){
+                right_jump = true;
+                while (SobelEdgeDetection(right_start.x, right_start.y) < edge_threshold && right_start.y > 10)
+                    right_start.y--;
+                right_edge_prev_dir = right;
+                right_edge.push_back(right_start);
+                FindJumpStart(right_edge_prev_dir);
+                RightEdge(right_edge.back(), right_edge_prev_dir, false);
+
+                align = right_align;
+                right_start = {right_edge[right_edge_corner[0]].x + 10, right_edge[right_edge_corner[0]].y + 15};
+                final_point = right_edge[right_edge_corner[0]];
+
+                if{right_start.y>110}{
+                    crossroad_state = Outside;
+                    midpoint = {final_point.x-15,final_point.y-10};
+                }
+            }
+            else if(crossroad_state == Outside){
                 left_edge_prev_dir = down;
                 right_edge_prev_dir = down;
+                left_jump = true;
+                right_jump = true;
                 if(left_start_point(midpoint,left_start,edge_threshold))
                     RightEdge(left_start,right_edge_prev_dir,false);
                 if(right_start_point(midpoint,right_start,edge_threshold))
                     LeftEdge(right_start,left_edge_prev_dir,false);
 
-                if(left_edge.back().y<113 && right_edge[right_edge.size()-1].y<113) {
-                    if(left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
-                        align = center_align;
-                        final_point = {(right_edge[right_edge_corner[0]].x+left_edge[left_edge_corner[0]].x)/2,
-                                       (right_edge[right_edge_corner[0]].y+left_edge[left_edge_corner[0]].y)/2};
-                        midpoint = {final_point.x,final_point.y-5};
-                    }
-                    else if(left_edge_corner.size() == 1) {
-                        align = right_align;
-                        final_point = left_edge[left_edge_corner[0]];
-                        midpoint = {final_point.x-15,final_point.y-5};
-                    }
-                    else if(right_edge_corner.size() == 1) {
-                        align = left_align;
-                        final_point = right_edge[right_edge_corner[0]];
-                        midpoint = {final_point.x+15,final_point.y-5};
-                    }
-                    else {
-                        align = center_align;
-                        final_point = midpoint;
-                    }
-                }
-                else {
+                align = center_align;
+                final_point = {(right_edge[right_edge_corner[0]].x+left_edge[left_edge_corner[0]].x)/2,
+                               (right_edge[right_edge_corner[0]].y+left_edge[left_edge_corner[0]].y)/2};
+                midpoint = {final_point.x,final_point.y-10};
+
+                if(left_edge[left_edge_corner[0]].y>105 || right_edge[right_edge_corner[0]].y>105){
                     track_state = Normal;
                     crossroad_state = Detected;
-                    left_edge_prev_dir = up;
-                    right_edge_prev_dir = up;
-                    LeftEdge(left_start,left_edge_prev_dir,false);
-                    RightEdge(right_start,right_edge_prev_dir,false);
-                    if(left_edge.size() && right_edge.size()) {
-                        align=center_align;
-                        final_point = {(left_end_point.x + right_end_point.x)/2,
-                                       (left_end_point.y + right_end_point.y)/2};
-                    }
-                    else if(left_edge.size()) {
-                        align = left_align;
-                        final_point = left_end_point;
-                    }
-                    else if(right_edge.size()) {
-                        align = right_align;
-                        final_point = right_end_point;
-                    }
-                    midpoint= {(left_start.x+right_start.x)/2,115};
-                }
-            }
-
-        }
-        if (track_state == RightLoop) {
-            //follow the right edge when Entering
-            //right align
-            if (loop_state == Entering) {
-                if (prev_track_state == Normal) {
-                    for (int i = right_edge.size() - 1; i > right_edge_corner[0] + 10; i--) {
-
-                        if (right_edge[i].x < leftmostP.x)
-                            leftmostP = right_edge[i];
-                    }
-                    final_point = {leftmostP.x,leftmostP.y};
-                    align = right_align;
-                    midpoint = {leftmostP.x-10,leftmostP.y};
-
-//					right_edge_prev_dir = up;
-//					if (right_start_point(midpoint, right_start, edge_threshold))
-//						RightEdge(right_start, right_edge_prev_dir, edge_threshold, false);
-
-                    //set control
-                    right_end_point = leftmostP;
-                    right_end_point_found = true;
-                    align = right_align;
-                } else if (prev_track_state == RightLoop) {
-                    left_edge_prev_dir = down;
-                    right_edge_prev_dir = down;
-                    if (left_start_point(midpoint, left_start, edge_threshold)) {
-                        //as the direction is down, use rightedge function
-                        //and the left edge will be stored in right_edge
-                        RightEdge(left_start, left_edge_prev_dir, false);
-                        //LeftEdge(left_start, left_edge_prev_dir, false);
-                    }
-                    if (right_start_point(midpoint, right_start, edge_threshold)) {
-                        //opposite as well
-                        LeftLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, false);
-                        //	RightLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, false);
-                    }
-                    midpoint = {leftmostP.x-10,leftmostP.y};
-                    align = right_align;
-                    final_point = {leftmostP.x,leftmostP.y};
-
-//					left_edge = right_edge;
-//					left_edge_corner = right_edge_corner;
-
-//					right_edge_prev_dir = up;
-//					if (right_start_point(midpoint, right_start, edge_threshold))
-//						RightEdge(right_start, right_edge_prev_dir,  false);
-//					if(right_edge_corner.size()==1){
-//						char buffer[50];
-//						sprintf(buffer, "%d", right_edge[right_edge_corner[0]].y);
-//						lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
-//						writerP->WriteString(buffer);
-//					}
-
-                    if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y>80) {
-                        loop_state = In;
-                        midpoint = {(left_start.x+right_start.x)/2,100};
-                    }
-                    else {
-                        if(leftmostP.y>90) {
-                            midpoint = {midpoint.x-10,90};
-                            right_edge_prev_dir = up;
-                            if (right_start_point(midpoint, right_start, edge_threshold))
-                                RightEdge(right_start, right_edge_prev_dir, false);
-
-                            //set control
-                            //if the bottom exist, then we find the farthest point as end point
-                            if(right_edge.size()>0) {
-                                right_end_point = right_edge.back();
-                                right_end_point_found = true;
-                            }
-                            else {
-                                right_end_point_found = false;
-                            }
-                            align = right_align;
-                        }
-                        else {
-                            //set control
-                            //if the bottom still not exist, then the car is just entering the loop
-                            //then we find the leftmostP on the inner loop
-                            right_end_point = leftmostP;
-                            right_end_point_found = true;
-                            align = right_align;
-                        }
-                    }
-
-                }
-            }
-                //follow the normal way when In
-            else if(loop_state == In) {
-                left_edge_prev_dir = up;
-                right_edge_prev_dir = up;
-                if(left_start_point(midpoint,left_start,edge_threshold))
-                    LeftEdge(left_start,left_edge_prev_dir,false);
-                if(right_start_point(midpoint,right_start,edge_threshold))
-                    RightEdge(right_start,right_edge_prev_dir,false);
-                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-                if(left_edge.size() && right_edge.size())
-                    align = center_align;
-                else if(left_edge.size())
-                    align = left_align;
-                else if(right_edge.size())
-                    align = right_align;
-                //&& left_edge[left_edge_corner[0]].y>100
-                if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0  && left_edge[left_edge_corner[0]].y>90) {
-                    loop_state = Leaving;
-                }
-
-                //set control
-                //TODO
-                //as normal way
-            }
-                //follow the right edges when Leaving
-            else if(loop_state == Leaving) {
-                midpoint = {(left_start.x+right_start.x)/2,90};
-                left_edge_prev_dir = up;
-                right_edge_prev_dir = up;
-                if(left_start_point(midpoint,left_start,edge_threshold))
-                    LeftEdge(left_start,left_edge_prev_dir,false);
-                if(right_start_point(midpoint,right_start,edge_threshold))
-                    RightEdge(right_start,right_edge_prev_dir,false);
-                midpoint = {(left_start.x+right_start.x)/2,90};
-                char buffer[50];
-                sprintf(buffer, "%d", left_edge.size());
-                lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
-                writerP->WriteString(buffer);
-                if(left_edge.size()>110 && left_edge_corner.size()==0) {
-                    loop_state = Finished;
-                }
-                else {
-                    //set control
-                    right_end_point_found = true;
-                    if(right_edge.size()>0)
-                        right_end_point = right_edge[right_edge.size()-1];
-                    else
-                        right_end_point_found = false;//follow previous direction
-                    align = right_align;
-                }
-            }
-                //follow the left edges when Finished
-            else if(loop_state == Finished) {
-                //increase the midpoint height for detecting the corner?
-                midpoint = {midpoint.x,90};
-                left_edge_prev_dir = up;
-                right_edge_prev_dir = down;
-                std::vector<coor> temp_edge;
-                std::vector<int> temp_edge_corner;
-                if(left_start_point(midpoint,left_start,edge_threshold)) {
-                    LeftEdge(left_start,left_edge_prev_dir,false);
-                    temp_edge = left_edge;
-                    temp_edge_corner = left_edge_corner;
-                }
-                if(right_start_point(midpoint,right_start,edge_threshold))
-                    LeftEdge(right_start,right_edge_prev_dir,false);
-                else{
-
-                    left_edge_corner.clear();
-                    left_edge.clear();
-                }
-
-                right_edge = left_edge;
-                right_edge_corner = left_edge_corner;
-                left_edge = temp_edge;
-                left_edge_corner = temp_edge_corner;
-                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-//				char buffer[50];
-//				sprintf(buffer, "%d %d", right_edge_corner.size(),left_edge_corner.size());
-//				lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
-//				writerP->WriteString(buffer);
-                if(right_edge_corner.size()==1) {
-                    track_state = Normal;
-                    loop_state = Entering;
-                    midpoint = {midpoint.x,115};
-                }
-                else {
-                    //set control
-                    left_end_point_found = true;
-                    if(left_edge.size()>11)
-                        left_end_point = left_edge[left_edge.size()-11];
-                    else if(left_edge.size()>0)
-                        left_end_point = left_edge[left_edge.size()-1];
-                    else
-                        left_end_point_found = false;
-                    align = left_align;
-
+                    midpoint.y = 115;
                 }
             }
         }
-        if (track_state == LeftLoop) {
-            //follow the right edge when Entering
-            if (loop_state == Entering) {
-                if (prev_track_state == Normal) {
-                    for (int i = 0; i < left_edge.size(); i++) {
-                        if (left_edge[i].x < rightmostP.x)
-                            rightmostP = left_edge[i];
-                    }
-                    midpoint = {rightmostP.x-10,rightmostP.y};
-                    left_edge_prev_dir = up;
-                    if (left_start_point(midpoint, left_start, edge_threshold))
-                        LeftEdge(left_start, left_edge_prev_dir, false);
-                } else if (prev_track_state == LeftLoop) {
-                    right_edge_prev_dir = down;
-                    left_edge_prev_dir = down_left;
-                    if (right_start_point(midpoint, right_start, edge_threshold)) {
-                        //as the direction is down, use rightedge function
-                        //and the left edge will be stored in right_edge
-                        LeftEdge(right_start, right_edge_prev_dir, false);
-                    }
-                    if (left_start_point(midpoint, left_start, edge_threshold)) {
-                        //opposite as well
-                        RightLoopEdgeL(right_start, right_edge_prev_dir, rightmostP, true);
-                    }
-                    midpoint = {rightmostP.x-10,rightmostP.y};
-
-                    right_edge = left_edge;
-                    right_edge_corner = left_edge_corner;
-
-                    left_edge_prev_dir = up;
-                    if (left_start_point(midpoint, left_start, edge_threshold))
-                        LeftEdge(left_start, left_edge_prev_dir, false);
-
-                    if (right_edge_corner.size() == 1) {
-                        loop_state = In;
-                        midpoint = {(left_start.x+right_start.x)/2,115};
-                    }
-                }
-            }
-                //follow the normal way when In
-            else if(loop_state == In) {
-                left_edge_prev_dir = up;
-                right_edge_prev_dir = up;
-                if(left_start_point(midpoint,left_start,edge_threshold))
-                    LeftEdge(left_start,left_edge_prev_dir,false);
-                if(right_start_point(midpoint,right_start,edge_threshold))
-                    RightEdge(right_start,right_edge_prev_dir,false);
-                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-                if(right_edge_corner.size() == 1 && left_edge_corner.size() == 0) {
-                    loop_state = Leaving;
-                }
-            }
-                //follow the right edges when Leaving
-            else if(loop_state == Leaving) {
-                left_edge_prev_dir = up;
-                right_edge_prev_dir = up;
-                if(left_start_point(midpoint,left_start,edge_threshold))
-                    LeftEdge(left_start,left_edge_prev_dir,false);
-                if(right_start_point(midpoint,right_start,edge_threshold))
-                    RightEdge(right_start,right_edge_prev_dir,false);
-                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-                if(right_edge.size()>0 && right_edge_corner.size()==0) {
-                    loop_state = Finished;
-                }
-            }
-                //follow the left edges when Finished
-            else if(loop_state == Finished) {
-                //increase the midpoint height for detecting the corner?
-                midpoint = {midpoint.x,100};
-                right_edge_prev_dir = up;
-                left_edge_prev_dir = down;
-                std::vector<coor> temp_edge;
-                std::vector<int> temp_edge_corner;
-                if(right_start_point(midpoint,right_start,edge_threshold)) {
-                    RightEdge(right_start,right_edge_prev_dir,false);
-                    temp_edge = right_edge;
-                    temp_edge_corner = right_edge_corner;
-                }
-                if(left_start_point(midpoint,left_start,edge_threshold))
-                    RightEdge(left_start,left_edge_prev_dir,false);
-                left_edge = right_edge;
-                left_edge_corner = right_edge_corner;
-                right_edge = temp_edge;
-                right_edge_corner = temp_edge_corner;
-                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-                if(left_edge_corner.size()==1) {
-                    track_state = Normal;
-                    loop_state = Entering;
-                }
-            }
-        }
+//        if (track_state == RightLoop) {
+//            //follow the right edge when Entering
+//            //right align
+//            if (loop_state == Entering) {
+//                if (prev_track_state == Normal) {
+//                    for (int i = right_edge.size() - 1; i > right_edge_corner[0] + 10; i--) {
+//
+//                        if (right_edge[i].x < leftmostP.x)
+//                            leftmostP = right_edge[i];
+//                    }
+//                    final_point = {leftmostP.x,leftmostP.y};
+//                    align = right_align;
+//                    midpoint = {leftmostP.x-10,leftmostP.y};
+//
+////					right_edge_prev_dir = up;
+////					if (right_start_point(midpoint, right_start, edge_threshold))
+////						RightEdge(right_start, right_edge_prev_dir, edge_threshold, false);
+//
+//                    //set control
+//                    right_end_point = leftmostP;
+//                    right_end_point_found = true;
+//                    align = right_align;
+//                } else if (prev_track_state == RightLoop) {
+//                    left_edge_prev_dir = down;
+//                    right_edge_prev_dir = down;
+//                    if (left_start_point(midpoint, left_start, edge_threshold)) {
+//                        //as the direction is down, use rightedge function
+//                        //and the left edge will be stored in right_edge
+//                        RightEdge(left_start, left_edge_prev_dir, false);
+//                        //LeftEdge(left_start, left_edge_prev_dir, false);
+//                    }
+//                    if (right_start_point(midpoint, right_start, edge_threshold)) {
+//                        //opposite as well
+//                        LeftLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, false);
+//                        //	RightLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, false);
+//                    }
+//                    midpoint = {leftmostP.x-10,leftmostP.y};
+//                    align = right_align;
+//                    final_point = {leftmostP.x,leftmostP.y};
+//
+////					left_edge = right_edge;
+////					left_edge_corner = right_edge_corner;
+//
+////					right_edge_prev_dir = up;
+////					if (right_start_point(midpoint, right_start, edge_threshold))
+////						RightEdge(right_start, right_edge_prev_dir,  false);
+////					if(right_edge_corner.size()==1){
+////						char buffer[50];
+////						sprintf(buffer, "%d", right_edge[right_edge_corner[0]].y);
+////						lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
+////						writerP->WriteString(buffer);
+////					}
+//
+//                    if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y>80) {
+//                        loop_state = In;
+//                        midpoint = {(left_start.x+right_start.x)/2,100};
+//                    }
+//                    else {
+//                        if(leftmostP.y>90) {
+//                            midpoint = {midpoint.x-10,90};
+//                            right_edge_prev_dir = up;
+//                            if (right_start_point(midpoint, right_start, edge_threshold))
+//                                RightEdge(right_start, right_edge_prev_dir, false);
+//
+//                            //set control
+//                            //if the bottom exist, then we find the farthest point as end point
+//                            if(right_edge.size()>0) {
+//                                right_end_point = right_edge.back();
+//                                right_end_point_found = true;
+//                            }
+//                            else {
+//                                right_end_point_found = false;
+//                            }
+//                            align = right_align;
+//                        }
+//                        else {
+//                            //set control
+//                            //if the bottom still not exist, then the car is just entering the loop
+//                            //then we find the leftmostP on the inner loop
+//                            right_end_point = leftmostP;
+//                            right_end_point_found = true;
+//                            align = right_align;
+//                        }
+//                    }
+//
+//                }
+//            }
+//                //follow the normal way when In
+//            else if(loop_state == In) {
+//                left_edge_prev_dir = up;
+//                right_edge_prev_dir = up;
+//                if(left_start_point(midpoint,left_start,edge_threshold))
+//                    LeftEdge(left_start,left_edge_prev_dir,false);
+//                if(right_start_point(midpoint,right_start,edge_threshold))
+//                    RightEdge(right_start,right_edge_prev_dir,false);
+//                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+//                if(left_edge.size() && right_edge.size())
+//                    align = center_align;
+//                else if(left_edge.size())
+//                    align = left_align;
+//                else if(right_edge.size())
+//                    align = right_align;
+//                //&& left_edge[left_edge_corner[0]].y>100
+//                if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0  && left_edge[left_edge_corner[0]].y>90) {
+//                    loop_state = Leaving;
+//                }
+//
+//                //set control
+//                //TODO
+//                //as normal way
+//            }
+//                //follow the right edges when Leaving
+//            else if(loop_state == Leaving) {
+//                midpoint = {(left_start.x+right_start.x)/2,90};
+//                left_edge_prev_dir = up;
+//                right_edge_prev_dir = up;
+//                if(left_start_point(midpoint,left_start,edge_threshold))
+//                    LeftEdge(left_start,left_edge_prev_dir,false);
+//                if(right_start_point(midpoint,right_start,edge_threshold))
+//                    RightEdge(right_start,right_edge_prev_dir,false);
+//                midpoint = {(left_start.x+right_start.x)/2,90};
+//                char buffer[50];
+//                sprintf(buffer, "%d", left_edge.size());
+//                lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
+//                writerP->WriteString(buffer);
+//                if(left_edge.size()>110 && left_edge_corner.size()==0) {
+//                    loop_state = Finished;
+//                }
+//                else {
+//                    //set control
+//                    right_end_point_found = true;
+//                    if(right_edge.size()>0)
+//                        right_end_point = right_edge[right_edge.size()-1];
+//                    else
+//                        right_end_point_found = false;//follow previous direction
+//                    align = right_align;
+//                }
+//            }
+//                //follow the left edges when Finished
+//            else if(loop_state == Finished) {
+//                //increase the midpoint height for detecting the corner?
+//                midpoint = {midpoint.x,90};
+//                left_edge_prev_dir = up;
+//                right_edge_prev_dir = down;
+//                std::vector<coor> temp_edge;
+//                std::vector<int> temp_edge_corner;
+//                if(left_start_point(midpoint,left_start,edge_threshold)) {
+//                    LeftEdge(left_start,left_edge_prev_dir,false);
+//                    temp_edge = left_edge;
+//                    temp_edge_corner = left_edge_corner;
+//                }
+//                if(right_start_point(midpoint,right_start,edge_threshold))
+//                    LeftEdge(right_start,right_edge_prev_dir,false);
+//                else{
+//
+//                    left_edge_corner.clear();
+//                    left_edge.clear();
+//                }
+//
+//                right_edge = left_edge;
+//                right_edge_corner = left_edge_corner;
+//                left_edge = temp_edge;
+//                left_edge_corner = temp_edge_corner;
+//                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+////				char buffer[50];
+////				sprintf(buffer, "%d %d", right_edge_corner.size(),left_edge_corner.size());
+////				lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
+////				writerP->WriteString(buffer);
+//                if(right_edge_corner.size()==1) {
+//                    track_state = Normal;
+//                    loop_state = Entering;
+//                    midpoint = {midpoint.x,115};
+//                }
+//                else {
+//                    //set control
+//                    left_end_point_found = true;
+//                    if(left_edge.size()>11)
+//                        left_end_point = left_edge[left_edge.size()-11];
+//                    else if(left_edge.size()>0)
+//                        left_end_point = left_edge[left_edge.size()-1];
+//                    else
+//                        left_end_point_found = false;
+//                    align = left_align;
+//
+//                }
+//            }
+//        }
+//        if (track_state == LeftLoop) {
+//            //follow the right edge when Entering
+//            if (loop_state == Entering) {
+//                if (prev_track_state == Normal) {
+//                    for (int i = 0; i < left_edge.size(); i++) {
+//                        if (left_edge[i].x < rightmostP.x)
+//                            rightmostP = left_edge[i];
+//                    }
+//                    midpoint = {rightmostP.x-10,rightmostP.y};
+//                    left_edge_prev_dir = up;
+//                    if (left_start_point(midpoint, left_start, edge_threshold))
+//                        LeftEdge(left_start, left_edge_prev_dir, false);
+//                } else if (prev_track_state == LeftLoop) {
+//                    right_edge_prev_dir = down;
+//                    left_edge_prev_dir = down_left;
+//                    if (right_start_point(midpoint, right_start, edge_threshold)) {
+//                        //as the direction is down, use rightedge function
+//                        //and the left edge will be stored in right_edge
+//                        LeftEdge(right_start, right_edge_prev_dir, false);
+//                    }
+//                    if (left_start_point(midpoint, left_start, edge_threshold)) {
+//                        //opposite as well
+//                        RightLoopEdgeL(right_start, right_edge_prev_dir, rightmostP, true);
+//                    }
+//                    midpoint = {rightmostP.x-10,rightmostP.y};
+//
+//                    right_edge = left_edge;
+//                    right_edge_corner = left_edge_corner;
+//
+//                    left_edge_prev_dir = up;
+//                    if (left_start_point(midpoint, left_start, edge_threshold))
+//                        LeftEdge(left_start, left_edge_prev_dir, false);
+//
+//                    if (right_edge_corner.size() == 1) {
+//                        loop_state = In;
+//                        midpoint = {(left_start.x+right_start.x)/2,115};
+//                    }
+//                }
+//            }
+//                //follow the normal way when In
+//            else if(loop_state == In) {
+//                left_edge_prev_dir = up;
+//                right_edge_prev_dir = up;
+//                if(left_start_point(midpoint,left_start,edge_threshold))
+//                    LeftEdge(left_start,left_edge_prev_dir,false);
+//                if(right_start_point(midpoint,right_start,edge_threshold))
+//                    RightEdge(right_start,right_edge_prev_dir,false);
+//                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+//                if(right_edge_corner.size() == 1 && left_edge_corner.size() == 0) {
+//                    loop_state = Leaving;
+//                }
+//            }
+//                //follow the right edges when Leaving
+//            else if(loop_state == Leaving) {
+//                left_edge_prev_dir = up;
+//                right_edge_prev_dir = up;
+//                if(left_start_point(midpoint,left_start,edge_threshold))
+//                    LeftEdge(left_start,left_edge_prev_dir,false);
+//                if(right_start_point(midpoint,right_start,edge_threshold))
+//                    RightEdge(right_start,right_edge_prev_dir,false);
+//                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+//                if(right_edge.size()>0 && right_edge_corner.size()==0) {
+//                    loop_state = Finished;
+//                }
+//            }
+//                //follow the left edges when Finished
+//            else if(loop_state == Finished) {
+//                //increase the midpoint height for detecting the corner?
+//                midpoint = {midpoint.x,100};
+//                right_edge_prev_dir = up;
+//                left_edge_prev_dir = down;
+//                std::vector<coor> temp_edge;
+//                std::vector<int> temp_edge_corner;
+//                if(right_start_point(midpoint,right_start,edge_threshold)) {
+//                    RightEdge(right_start,right_edge_prev_dir,false);
+//                    temp_edge = right_edge;
+//                    temp_edge_corner = right_edge_corner;
+//                }
+//                if(left_start_point(midpoint,left_start,edge_threshold))
+//                    RightEdge(left_start,left_edge_prev_dir,false);
+//                left_edge = right_edge;
+//                left_edge_corner = right_edge_corner;
+//                right_edge = temp_edge;
+//                right_edge_corner = temp_edge_corner;
+//                midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+//                if(left_edge_corner.size()==1) {
+//                    track_state = Normal;
+//                    loop_state = Entering;
+//                }
+//            }
+//        }
 
         for (int i = 0; i < left_edge.size(); i++) {
 
