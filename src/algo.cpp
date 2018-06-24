@@ -411,13 +411,13 @@ bool check_corner(coor pivot, coor m, coor n) {
     if(left_jump || right_jump) {
         int a2 = (img2world[pivot.x][pivot.y][0] - img2world[m.x][m.y][0]) * (img2world[pivot.x][pivot.y][0] - img2world[m.x][m.y][0]) +
                  (img2world[pivot.x][pivot.y][1] - img2world[m.x][m.y][1]) * (img2world[pivot.x][pivot.y][1] - img2world[m.x][m.y][1]);
-//      a2/=100;
+        a2/=100;
         int b2 = (img2world[pivot.x][pivot.y][0] - img2world[n.x][n.y][0]) * (img2world[pivot.x][pivot.y][0] - img2world[n.x][n.y][0]) +
                  (img2world[pivot.x][pivot.y][1] - img2world[n.x][n.y][1]) * (img2world[pivot.x][pivot.y][1] - img2world[n.x][n.y][1]);
-//	    b2/=100;
+        b2/=100;
         int c2 = (img2world[m.x][m.y][0] - img2world[n.x][n.y][0]) * (img2world[m.x][m.y][0] - img2world[n.x][n.y][0]) +
                  (img2world[m.x][m.y][1] - img2world[n.x][n.y][1]) * (img2world[m.x][m.y][1] - img2world[n.x][n.y][1]);
-//	    c2/=100;
+        c2/=100;
         int pythagoras = a2 + b2 - c2;
         if (pythagoras >= 0)
             return true;
@@ -438,28 +438,36 @@ bool check_corner(coor pivot, coor m, coor n) {
         if (pythagoras >= 0)
             return true;
         float value = (float) (pythagoras * pythagoras) / (4 * a2 * b2);
-        if(value<0.06)
+        if(value<0.07)
             return true;
     }
-	return false;
+    return false;
+}
+float value_corner(coor pivot, coor m, coor n){
+    int c2 = (m.x - n.x) * (m.x - n.x) + (m.y - n.y) * (m.y - n.y);
+    int a2 = (pivot.x - m.x) * (pivot.x - m.x) + (pivot.y - m.y) * (pivot.y - m.y);
+    int b2 = (pivot.x - n.x) * (pivot.x - n.x) + (pivot.y - n.y) * (pivot.y - n.y);
+    int pythagoras = a2 + b2 - c2;
+    return (float) (pythagoras * pythagoras) / (4 * a2 * b2);
 }
 
 void empty_left() {
-	left_edge.clear();
-	left_edge_corner.clear();
-	left_jump = false;
+    left_edge.clear();
+    left_edge_corner.clear();
+    left_jump = false;
 }
 
 void empty_right() {
-	right_edge.clear();
-	right_edge_corner.clear();
-	right_jump = false;
+    right_edge.clear();
+    right_edge_corner.clear();
+    right_jump = false;
 }
 
 void LeftEdge(coor start_point, int& edge_prev_dir, bool append) {
 	 int direction = edge_prev_dir;
 	if (!append) {
-		empty_left();
+        left_edge.clear();
+        left_edge_corner.clear();
 		left_edge.push_back(start_point);
 	}
 	if (left_edge.size() && left_edge.back().y != start_point.y && left_edge.back().x != start_point.x)
@@ -482,27 +490,27 @@ void LeftEdge(coor start_point, int& edge_prev_dir, bool append) {
 
 void RightEdge(coor start_point, int& edge_prev_dir, bool append) {
 	 int direction = edge_prev_dir;
-	    if (!append) {
-	        empty_right();
-	        right_edge.push_back(start_point);
-	    }
-	    if (right_edge.size() && right_edge[right_edge.size() - 1].y != start_point.y && right_edge[right_edge.size() - 1].x != start_point.x)
-	        right_edge.push_back(start_point);
-	    else if (!right_edge.size())
-	        right_edge.push_back(start_point);
+    if (!append) {
+        right_edge.clear();
+        right_edge_corner.clear();
+        right_edge.push_back(start_point);
+    }
+    if (right_edge.size() && right_edge[right_edge.size() - 1].y != start_point.y && right_edge[right_edge.size() - 1].x != start_point.x)
+        right_edge.push_back(start_point);
+    else if (!right_edge.size())
+        right_edge.push_back(start_point);
 
-	    while (FindRightEdge(edge_prev_dir)) {
-	        if ((direction == up && right_edge[right_edge.size() - 1].y > start_point.y + 10) ||
-	            (direction == down && right_edge[right_edge.size() - 1].y < start_point.y - 10) ||
-	            (direction == left && right_edge[right_edge.size() - 1].x > start_point.x + 10) ||
-	            (direction == right && right_edge[right_edge.size() - 1].x < start_point.x - 10))
-	            break;
-	        if (right_edge.size()>15 && right_edge[right_edge.size() - 11].y > 30 && check_corner(right_edge[right_edge.size()-11],right_edge[right_edge.size()-1],right_edge[right_edge.size()-16])){
-	        	right_edge_corner.push_back(right_edge.size()-11);
-	        	break;
-	        }
-
-	    }
+    while (FindRightEdge(edge_prev_dir)) {
+        if ((direction == up && right_edge[right_edge.size() - 1].y > start_point.y + 10) ||
+            (direction == down && right_edge[right_edge.size() - 1].y < start_point.y - 10) ||
+            (direction == left && right_edge[right_edge.size() - 1].x > start_point.x + 10) ||
+            (direction == right && right_edge[right_edge.size() - 1].x < start_point.x - 10))
+            break;
+        if (right_edge.size()>15 && right_edge[right_edge.size() - 11].y > 30 && check_corner(right_edge[right_edge.size()-11],right_edge[right_edge.size()-1],right_edge[right_edge.size()-16])){
+            right_edge_corner.push_back(right_edge.size()-11);
+            break;
+        }
+    }
 }
 
 //for left loop
@@ -558,23 +566,51 @@ void LeftLoopEdgeL(coor start_point, int& edge_prev_dir, coor& rightmostP, bool 
 	}
 }
 
-bool jump(coor point1, coor point2, coor& new_start, int threshold, bool direction) { //jump from the corner to new edge. returns true if a edge is found.
-	float slope = (float)(point1.x - point2.x) / (point1.y - point2.y);
-	float constant = point2.x - slope * point2.y;
-	new_start.y = point2.y - 3;
-	new_start.x = (int16_t) (new_start.y * slope + constant);
-	while (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3 && SobelEdgeDetection(new_start.x, new_start.y) < threshold) {
-		new_start.y--;
-		new_start.x = (new_start.y * slope + constant);
-	}
-	if (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3) {
-	    if(direction)
-	        right_jump = true;
+bool jump(coor corner, coor point1, coor point2, coor& new_start, bool direction) { //jump from the corner to new edge. returns true if a edge is found.
+    float slope = (float)(point1.x - corner.x) / (point1.y - corner.y);
+    float constant = point2.x - slope * point2.y;
+    new_start.y = point2.y-15;
+    new_start.x = (int16_t) (new_start.y * slope + constant);
+    while (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3 && SobelEdgeDetection(new_start.x, new_start.y) < edge_threshold) {
+        lcd->SetRegion(libsc::St7735r::Lcd::Rect(new_start.x, new_start.y, 1, 1));
+        lcd->FillColor(lcd->kBlue);
+        new_start.y--;
+        new_start.x = (new_start.y * slope + constant);
+    }
+    if (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3) {
+        if(direction)
+            right_jump = true;
         else
             left_jump = true;
-		return true;
-	}
-	return false;
+        return true;
+    }
+    return false;
+}
+
+bool Ljump(coor& new_start){
+    coor point1 = {0,0};
+    coor point2 = {0,0};
+    if (left_edge_corner[0] > 10)
+        point1 = left_edge[left_edge_corner[0] - 10];
+    else
+        point1 = left_edge[0];
+    int i=left_edge_corner[0];
+    for(;FindLeftEdge(left_edge_prev_dir) && value_corner(left_edge[left_edge.size()-11],left_edge[left_edge.size()-1],left_edge[left_edge.size()-16])<0.9;i++);
+    point2 = left_edge[i+3];
+    return jump(left_edge[left_edge_corner[0]],point1,point2,new_start,false);
+}
+
+bool Rjump(coor& new_start){
+    coor point1 = {0,0};
+    coor point2 = {0,0};
+    if (right_edge_corner[0] > 10)
+        point1 = right_edge[right_edge_corner[0] - 10];
+    else
+        point1 = right_edge[0];
+    int i=right_edge_corner[0];
+    for(;FindRightEdge(right_edge_prev_dir) && value_corner(right_edge[right_edge.size()-11],right_edge[right_edge.size()-1],right_edge[right_edge.size()-16])<0.9;i++);
+    point2 = right_edge[i+3];
+    return jump(right_edge[right_edge_corner[0]],point1,point2,new_start,true);
 }
 
 bool right_start_point(coor midpoint, coor& right_start, int threshold) {
@@ -595,53 +631,43 @@ bool left_start_point(coor midpoint, coor& left_start, int threshold) {
 	return false;
 }
 
-void normal_left_corner_fsm(Tstate& track_state, coor& final_point, coor& midpoint, coor left_start, coor right_start) {
-	align = left_align;
-	coor point1;
-	if (left_edge_corner[0] > 10)
-		point1 = left_edge[left_edge_corner[0] - 10];
-	else
-		point1 = left_edge[0];
-	coor new_start = { 0, 0 };
-	if (jump(point1, left_edge[left_edge_corner[0] + 5], new_start, edge_threshold, false)) {
-		left_edge_prev_dir = left;
-		left_edge.push_back(new_start);
-		FindJumpStart(left_edge_prev_dir);
-		LeftEdge(left_edge[left_edge.size() - 1], left_edge_prev_dir, false);
-		if (left_edge_corner.size() == 1) {
-			track_state = Crossroad;
-		} else {
-//			track_state = LeftLoop;
-		}
-	} else {
-		track_state = Normal;
-		final_point = new_start;
-		midpoint= {(left_start.x+right_start.x)/2,115};
-	}
+void normal_left_corner_fsm(Tstate& track_state, coor& final_point, coor& midpoint, coor left_start, coor right_start, int& edge_prev_dir) {
+    align = left_align;
+    coor new_start = { 0, 0 };
+    if (Ljump(new_start)) {
+        left_edge_prev_dir = left;
+        left_edge.push_back(new_start);
+        FindJumpStart(edge_prev_dir);
+        LeftEdge(left_edge.back(), left_edge_prev_dir, false);
+        if (left_edge_corner.size() == 1) {
+//            track_state = Crossroad;
+        } else {
+			track_state = LeftLoop;
+        }
+    } else {
+        track_state = Normal;
+        final_point = new_start;
+        midpoint= {(left_start.x+right_start.x)/2,115};
+    }
 }
 
-void normal_right_corner_fsm(Tstate& track_state, coor& final_point, coor& midpoint, coor left_start, coor right_start) {
-	align = right_align;
-	coor point1;
-	if (right_edge_corner[0] > 10)
-		point1 = right_edge[right_edge_corner[0] - 10];
-	else
-		point1 = right_edge[0];
-	coor new_start = { 0, 0 };
-	if (jump(point1, right_edge[right_edge_corner[0] + 5], new_start, edge_threshold, true)) {
-		right_edge_prev_dir = right;
-		right_edge.push_back(new_start);
-		FindJumpStart(right_edge_prev_dir);
-		RightEdge(new_start, right_edge_prev_dir, false);
-		if (right_edge_corner.size() == 1) {
-			track_state = Crossroad;
-		} else {
-//			track_state = RightLoop;
-		}
-	} else {
-		final_point = new_start;
-		midpoint= {(left_start.x+right_start.x)/2,115};
-	}
+void normal_right_corner_fsm(Tstate& track_state, coor& final_point, coor& midpoint, coor left_start, coor right_start, int& edge_prev_dir) {
+    align = right_align;
+    coor new_start = { 0, 0 };
+    if (Rjump(new_start)) {
+        right_edge_prev_dir = right;
+        right_edge.push_back(new_start);
+        FindJumpStart(edge_prev_dir);
+        RightEdge(new_start, right_edge_prev_dir, false);
+        if (right_edge_corner.size() == 1) {
+//            track_state = Crossroad;
+        } else {
+			track_state = RightLoop;
+        }
+    } else {
+        final_point = new_start;
+        midpoint= {(left_start.x+right_start.x)/2,115};
+    }
 }
 
 bool isLeftBottomExist(coor midpoint, int threshold) {
@@ -710,128 +736,86 @@ void algo() {
 		empty_left();
 		empty_right();
 
-		coor leftmostP = { 188, 120 };
-		coor rightmostP = { 0, 120 };
+		coor leftmostP = { 188, 120 }; //sure this is right? it resets leftmostP in every new frame
+		coor rightmostP = { 0, 120 };  //sure this shouldn't be outside while loop?
 
-		if (track_state == Normal) {
+        if (track_state == Normal) {
 
-			left_edge_prev_dir = up;
-			right_edge_prev_dir = up;
-			if (left_start_point(midpoint, left_start, edge_threshold))
-				LeftEdge(left_start, left_edge_prev_dir, false);
-			if (right_start_point(midpoint, right_start, edge_threshold))
-				RightEdge(right_start, right_edge_prev_dir, false);
+            left_edge_prev_dir = up;
+            right_edge_prev_dir = up;
+            if (left_start_point(midpoint, left_start, edge_threshold))
+                LeftEdge(left_start, left_edge_prev_dir, false);
+            if (right_start_point(midpoint, right_start, edge_threshold))
+                RightEdge(right_start, right_edge_prev_dir, false);
 
-			if (left_edge.size() && right_edge.size()) {
-				if (left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
-					if (dist_corners(left_edge[left_edge_corner[0]], right_edge[right_edge_corner[0]])) {
-						if ((right_edge[right_edge_corner[0]].y > 85) || left_edge[left_edge_corner[0]].y > 85) {
-//							track_state = Crossroad;
-                            coor point1;
-                            if (right_edge_corner[0] > 10)
-                                point1 = right_edge[right_edge_corner[0] - 10];
-                            else
-                                point1 = right_edge[0];
-                            coor new_start = { 0, 0 };
-                            jump(point1, right_edge[right_edge_corner[0] + 2], new_start, edge_threshold, true);
-                            right_edge_prev_dir = right;
-                            right_edge.push_back(new_start);
-                            FindJumpStart(right_edge_prev_dir);
-                            RightEdge(right_edge.back(), right_edge_prev_dir, false);
-
-                            if (left_edge_corner[0] > 10)
-                                point1 = left_edge[left_edge_corner[0] - 10];
-                            else
-                                point1 = left_edge[0];
-                            jump(point1, left_edge[left_edge_corner[0] + 2], new_start, edge_threshold, false);
-                            left_edge_prev_dir = left;
-                            left_edge.push_back(new_start);
-                            FindJumpStart(left_edge_prev_dir);
-                            LeftEdge(left_edge.back(), left_edge_prev_dir, false);
-                            if (left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
-                                align = center_align;
-                                final_point= {(left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
-                                              (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
-                                midpoint= {(left_start.x+right_start.x)/2,115};
-                            }
-                            else if(left_edge_corner.size() == 1) {
-                                final_point = left_edge[left_edge_corner[0]];
-                                align = left_align;
-                                midpoint= {(left_start.x+right_start.x)/2,115};
-                            }
-                            else if(right_edge_corner.size() == 1) {
-                                final_point = right_edge[right_edge_corner[0]];
-                                align = right_align;
-                                midpoint= {(left_start.x+right_start.x)/2,115};
-                            }
+            if (left_edge.size() && right_edge.size()) {
+                if (left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
+                    if (dist_corners(left_edge[left_edge_corner[0]], right_edge[right_edge_corner[0]])) {
+                        if ((right_edge[right_edge_corner[0]].y > 90) || left_edge[left_edge_corner[0]].y > 90) {
+//                            track_state = Crossroad;
+                        } else {
+                            final_point = {(left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
+                                           (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
+                            align = center_align;
+                            midpoint = {(left_start.x + right_start.x) / 2, 115};
                         }
-						else {
-							final_point = {(left_edge[left_edge_corner[0]].x+right_edge[right_edge_corner[0]].x)/2,
-								(left_edge[left_edge_corner[0]].y+right_edge[right_edge_corner[0]].y)/2};
-							align = center_align;
-							midpoint= {(left_start.x+right_start.x)/2,115};
-						}
-					} else if (left_edge[left_edge_corner[0]].y > right_edge[right_edge_corner[0]].y) {
-						if(left_edge[left_edge_corner[0]].y>85)
-						normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start);
-						else {
-							final_point = left_end_point.y>left_edge[left_edge_corner[0]].y ? left_edge[left_edge_corner[0]] : left_end_point;
-							align = left_align;
-							midpoint= {(left_start.x+right_start.x)/2,115};
-						}
-					} else if (left_edge[left_edge_corner[0]].y < right_edge[right_edge_corner[0]].y) {
-						if(right_edge[right_edge_corner[0]].y > 85)
-						normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start);
-						else {
-							final_point = right_end_point.y>right_edge[right_edge_corner[0]].y ? right_edge[right_edge_corner[0]] : right_end_point;
-							align = right_align;
-							midpoint= {(left_start.x+right_start.x)/2,115};
-						}
-					}
-				} else if (left_edge_corner.size() == 1 && right_edge_corner.size() == 0) {
-					if(left_edge[left_edge_corner[0]].y>85)
-					normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start);
-					else {
-						final_point = left_end_point.y>left_edge[left_edge_corner[0]].y ? left_edge[left_edge_corner[0]] : left_end_point;
-						align = left_align;
-						midpoint= {(left_start.x+right_start.x)/2,115};
-					}
-				} else if (left_edge_corner.size() == 0 && right_edge_corner.size() == 1) {
-					if(right_edge[right_edge_corner[0]].y > 85)
-					normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start);
-					else {
-						final_point = right_end_point.y>right_edge[right_edge_corner[0]].y ? right_edge[right_edge_corner[0]] : right_end_point;
-						align = right_align;
-						midpoint= {(left_start.x+right_start.x)/2,115};
-					}
-				} else {
-					align = center_align;
-					final_point = {(left_end_point.x + right_end_point.x)/2,
-						(left_end_point.y + right_end_point.y)/2};
-					midpoint= {(left_start.x+right_start.x)/2,115};
-				}
-			}
-			else if(right_edge.size()) {
-				if(right_edge_corner.size() == 1) {
-					normal_right_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
-				}
-				else if(right_edge_corner.size() == 0) {
-					align = right_align;
-					final_point = right_end_point;
-					midpoint= {(left_start.x+right_start.x)/2,115};
-				}
-			}
-			else if(left_edge.size()) {
-				if(left_edge_corner.size() == 1) {
-					normal_left_corner_fsm(track_state,final_point,midpoint,left_start,right_start);
-				}
-				else if(left_edge_corner.size() == 0) {
-					align = left_align;
-					final_point = left_end_point;
-					midpoint= {(left_start.x+right_start.x)/2,115};
-				}
-			}
-		}
+                    } else if (left_edge[left_edge_corner[0]].y > right_edge[right_edge_corner[0]].y) {
+                        if (left_edge[left_edge_corner[0]].y > 90)
+                            normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start, left_edge_prev_dir);
+                        else {
+                            final_point = left_end_point.y > left_edge[left_edge_corner[0]].y ? left_edge[left_edge_corner[0]] : left_end_point;
+                            align = left_align;
+                            midpoint = {(left_start.x + right_start.x) / 2, 115};
+                        }
+                    } else if (left_edge[left_edge_corner[0]].y < right_edge[right_edge_corner[0]].y) {
+                        if (right_edge[right_edge_corner[0]].y > 90)
+                            normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start, right_edge_prev_dir);
+                        else {
+                            final_point = right_end_point.y > right_edge[right_edge_corner[0]].y ? right_edge[right_edge_corner[0]] : right_end_point;
+                            align = right_align;
+                            midpoint = {(left_start.x + right_start.x) / 2, 115};
+                        }
+                    }
+                } else if (left_edge_corner.size() == 1 && right_edge_corner.size() == 0) {
+                    if (left_edge[left_edge_corner[0]].y > 90)
+                        normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start, left_edge_prev_dir);
+                    else {
+                        final_point =
+                                left_end_point.y > left_edge[left_edge_corner[0]].y ? left_edge[left_edge_corner[0]] : left_end_point;
+                        align = left_align;
+                        midpoint = {(left_start.x + right_start.x) / 2, 115};
+                    }
+                } else if (left_edge_corner.size() == 0 && right_edge_corner.size() == 1) {
+                    if (right_edge[right_edge_corner[0]].y > 90)
+                        normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start, right_edge_prev_dir);
+                    else {
+                        final_point = right_end_point.y > right_edge[right_edge_corner[0]].y ? right_edge[right_edge_corner[0]] : right_end_point;
+                        align = right_align;
+                        midpoint = {(left_start.x + right_start.x) / 2, 115};
+                    }
+                } else {
+                    align = center_align;
+                    final_point = {(left_end_point.x + right_end_point.x) / 2, (left_end_point.y + right_end_point.y) / 2};
+                    midpoint = {(left_start.x + right_start.x) / 2, 115};
+                }
+            } else if (right_edge.size()) {
+                if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 90) {
+                    normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start, right_edge_prev_dir);
+                } else {
+                    align = right_align;
+                    final_point = right_end_point;
+                    midpoint = {(left_start.x + right_start.x) / 2, 115};
+                }
+            } else if (left_edge.size()) {
+                if (left_edge_corner.size() == 1 && left_edge[left_edge_corner[0]].y > 90) {
+                    normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start, right_edge_prev_dir);
+                } else {
+                    align = left_align;
+                    final_point = left_end_point;
+                    midpoint = {(left_start.x + right_start.x) / 2, 115};
+                }
+            }
+        }
 		if (track_state == Crossroad) {
             // TODO: integrate with amrut's code later
 		}
@@ -840,7 +824,7 @@ void algo() {
 			//right align
 			if (loop_state == Entering) {
 				if (prev_track_state == Normal) {
-					for (int i = right_edge.size() - 1; i > right_edge_corner[0] + 10; i--) {
+					for (int i = right_edge.size() - 1; i > 0; i--) {
 						if (right_edge[i].x < leftmostP.x && right_edge[i].y >30)
 							leftmostP = right_edge[i];
 					}
@@ -1023,7 +1007,7 @@ void algo() {
 			//follow the right edge when Entering
 			if (loop_state == Entering) {
 				if (prev_track_state == Normal) {
-					for (int i = left_edge.size()-1; i >left_edge_corner[0]+10;i--) {
+					for (int i = left_edge.size()-1; i >0;i--) {
 						if (left_edge[i].x > rightmostP.x && left_edge[i].y>30)
 							rightmostP = left_edge[i];
 					}
