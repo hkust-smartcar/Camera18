@@ -120,12 +120,12 @@ int main() {
 	writerP = &writer;
 
 	//MPU6050 Init
-//	libsc::Mpu6050::Config mpu_config;
-//	mpu_config.accel_range = mpu_config.Range::kSmall;
-//	mpu_config.gyro_range = mpu_config.Range::kSmall;
-//	mpu_config.cal_drift = true;
-//	libsc::Mpu6050 mpu_(mpu_config);
-//	mpu = &mpu_;
+	libsc::Mpu6050::Config mpu_config;
+	mpu_config.accel_range = mpu_config.Range::kSmall;
+	mpu_config.gyro_range = mpu_config.Range::kSmall;
+	mpu_config.cal_drift = true;
+	libsc::Mpu6050 mpu_(mpu_config);
+	mpu = &mpu_;
 
 //    CameraMenu::show();
 
