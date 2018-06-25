@@ -24,9 +24,9 @@ void adapters::ScreenAdapter::fill(uint16_t rgb565) {
 }
 
 uint16_t adapters::ScreenAdapter::getWidth() {
-    return 128;
+    return width.get();
 }
 
 uint16_t adapters::ScreenAdapter::getHeight() {
-    return 160;
+    return height.get();
 }

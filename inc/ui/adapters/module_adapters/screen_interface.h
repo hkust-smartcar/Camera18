@@ -7,6 +7,7 @@
 
 #include <ui/graphics.h>
 #include <ui/color_util.h>
+#include <ui/reactive/reactive.h>
 
 namespace ui {
     namespace adapters {

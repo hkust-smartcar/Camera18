@@ -85,12 +85,6 @@ void CameraMenu::start() {
             screen_ptr->setRegion(0, 0, screen_ptr->getWidth(), screen_ptr->getHeight());
             screen_ptr->fill(ui::Context::color_scheme.GRAY_DARKER);
 
-            ui::Toolbar toolbar;
-            toolbar.setHasBackArrow(false);
-            toolbar.setName("Camera Preview");
-            toolbar.setRegion(0, 0, 128, 16); //actual viewport 128x*120y
-            toolbar.render();
-
             //Render loop
             Timer::TimerInt time = System::Time();
 
@@ -106,7 +100,7 @@ void CameraMenu::start() {
                 } else if (e.JOYSTICK_STATE == ui::JoystickState::LEFT) {
                     offset_x = (uint16_t) std::max(0, offset_x - 10);
                 } else if (e.JOYSTICK_STATE == ui::JoystickState::RIGHT) {
-                    offset_x = (uint16_t) std::min(189 - 128, offset_x + 10);
+                    offset_x = (uint16_t) std::min(189 - 160, offset_x + 10);
                 }
                 e.consume();
             };
@@ -123,18 +117,18 @@ void CameraMenu::start() {
                         buffer = camera->LockBuffer();
 
                         //Construct viewport array
-                        uint8_t viewport[128*144];
+                        uint8_t viewport[160*120];
 
                         uint16_t i = 0;
 
                         for (uint16_t y = 0; y < 120; y++) {
-                            for (uint16_t x = 0; x < 128; x++) {
+                            for (uint16_t x = 0; x < 160; x++) {
                                 viewport[i] = getXY(x + offset_x, y);
                             }
                         }
 
-                        lcd->SetRegion({0, 18, 128, 120});
-                        lcd->FillGrayscalePixel(viewport, 128*120);
+                        lcd->SetRegion({0, 0, 160, 120});
+                        lcd->FillGrayscalePixel(viewport, 160*120);
                     }
                 }
             }
