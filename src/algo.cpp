@@ -572,8 +572,8 @@ bool jump(coor corner, coor point1, coor point2, coor& new_start, bool direction
     new_start.y = point2.y-15;
     new_start.x = (int16_t) (new_start.y * slope + constant);
     while (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3 && SobelEdgeDetection(new_start.x, new_start.y) < edge_threshold) {
-        lcd->SetRegion(libsc::St7735r::Lcd::Rect(new_start.x, new_start.y, 1, 1));
-        lcd->FillColor(lcd->kBlue);
+//        lcd->SetRegion(libsc::St7735r::Lcd::Rect(new_start.x, new_start.y, 1, 1));
+//        lcd->FillColor(lcd->kBlue);
         new_start.y--;
         new_start.x = (new_start.y * slope + constant);
     }
@@ -724,10 +724,10 @@ void algo() {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
 			camera->UnlockBuffer();
 		}
-		for (uint16_t i = 0; i < height; i++) {
-			lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
-			lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
-		}
+//		for (uint16_t i = 0; i < height; i++) {
+//			lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
+//			lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
+//		}
 		motor->SetPower(200);
 		motor->SetClockwise(false);
 
@@ -951,7 +951,11 @@ void algo() {
 				if(right_start_point({midpoint.x,115},right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,false);
 				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-				if(left_edge.size()>110 && left_edge_corner.size()==0) {
+//				char buffer[50];
+//				sprintf(buffer, "%d %d", right_edge_corner.size(),left_edge_corner.size());
+//				lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
+//				writerP->WriteString(buffer);
+				if(left_edge.size()>80 && left_edge_corner.size()==0) {
 					loop_state = Finished;
 				}
 				else {
@@ -1132,7 +1136,7 @@ void algo() {
 				if(right_start_point(midpoint,right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,false);
 				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-				if(right_edge.size()>110 && right_edge_corner.size()==0) {
+				if(right_edge.size()>80 && right_edge_corner.size()==0) {
 					loop_state = Finished;
 				}
 				else {
@@ -1182,32 +1186,32 @@ void algo() {
 			}
 		}
 
-		for (int i = 0; i < left_edge.size(); i++) {
-
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[i].x, left_edge[i].y, 1, 1));
-			lcd->FillColor(lcd->kPurple);
-		}
-		for (int i = 0; i < right_edge.size(); i++) {
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[i].x, right_edge[i].y, 1, 1));
-			lcd->FillColor(lcd->kRed);
-		}
-
-		for (int i = 0; i < left_edge_corner.size(); i++) {
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[left_edge_corner[i]].x, left_edge[left_edge_corner[i]].y, 5, 5));
-			lcd->FillColor(lcd->kPurple);
-		}
-		for (int i = 0; i < right_edge_corner.size(); i++) {
-
-			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[right_edge_corner[i]].x, right_edge[right_edge_corner[i]].y, 5, 5));
-			lcd->FillColor(lcd->kRed);
-		}
-
-		lcd->SetRegion(libsc::St7735r::Lcd::Rect(midpoint.x, midpoint.y, 4, 4));
-		lcd->FillColor(lcd->kBlue);
-		char buffer[50];
-		sprintf(buffer, "t %d l %d %d %d \n %d %d", track_state, loop_state,right_edge.size(),left_edge.size(),final_point.x,final_point.y);
-		lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
-		writerP->WriteString(buffer);
+//		for (int i = 0; i < left_edge.size(); i++) {
+//
+//			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[i].x, left_edge[i].y, 1, 1));
+//			lcd->FillColor(lcd->kPurple);
+//		}
+//		for (int i = 0; i < right_edge.size(); i++) {
+//			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[i].x, right_edge[i].y, 1, 1));
+//			lcd->FillColor(lcd->kRed);
+//		}
+//
+//		for (int i = 0; i < left_edge_corner.size(); i++) {
+//			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[left_edge_corner[i]].x, left_edge[left_edge_corner[i]].y, 5, 5));
+//			lcd->FillColor(lcd->kPurple);
+//		}
+//		for (int i = 0; i < right_edge_corner.size(); i++) {
+//
+//			lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[right_edge_corner[i]].x, right_edge[right_edge_corner[i]].y, 5, 5));
+//			lcd->FillColor(lcd->kRed);
+//		}
+//
+//		lcd->SetRegion(libsc::St7735r::Lcd::Rect(midpoint.x, midpoint.y, 4, 4));
+//		lcd->FillColor(lcd->kBlue);
+//		char buffer[50];
+//		sprintf(buffer, "t %d l %d %d %d \n %d %d", track_state, loop_state,right_edge.size(),left_edge.size(),final_point.x,final_point.y);
+//		lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
+//		writerP->WriteString(buffer);
 
 //			lcd->Clear();
 //			if (left_end_point_found) {
@@ -1232,13 +1236,6 @@ void algo() {
 					}
 					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-//					if(servo_angle>1500){
-//						servo_angle = 1500;
-//					}
-//					else if(servo_angle<300){
-//						servo_angle = 300;
-//					}
-					servo->SetDegree(servo_angle);
 				}
 				break;
 			case 1:
@@ -1246,17 +1243,14 @@ void algo() {
 					destination= {(left_end_point.x+right_end_point.x)/2,(left_end_point.y+right_end_point.y)/2};
 					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[97][118][0]) / (img2world[destination.x][destination.y][1] - img2world[97][118][1])) * 1800 / 3.14;
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-					servo->SetDegree(servo_angle);
 				} else if (left_end_point_found) {
 					destination=left_end_point;
 					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-					servo->SetDegree(servo_angle);
 				} else if (right_end_point_found) {
 					destination=right_end_point;
 					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-					servo->SetDegree(servo_angle);
 				} else if(left_edge_corner.size()||right_edge_corner.size()) {
 //					lcd->SetRegion(libsc::Lcd::Rect(final_point.x-1,final_point.y-1,3,3));
 //					lcd->FillColor(libsc::Lcd::kRed);
@@ -1265,43 +1259,26 @@ void algo() {
 						destination=final_point;
 						servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
 						servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-						servo->SetDegree(servo_angle);
 						break;
 						case 1:
 						destination=final_point;
 						servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[97][118][0]) / (img2world[destination.x][destination.y][1] - img2world[97][118][1])) * 1800 / 3.14;
 						servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-						servo->SetDegree(servo_angle);
 						break;
 						case 2:
 						destination=final_point;
 						servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
 						servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-						servo->SetDegree(servo_angle);
 						break;
 					}
 				} else if (left_edge.size() > right_edge.size()) {
 					destination=left_edge.back();
 					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-//					if(servo_angle>1500){
-//										servo_angle = 1500;
-//									}
-//									else if(servo_angle<300){
-//										servo_angle = 300;
-//									}
-					servo->SetDegree(servo_angle);
 				} else if(right_edge.size()) {
 					destination=right_edge.back();
 					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-//					if(servo_angle>1500){
-//										servo_angle = 1500;
-//									}
-//									else if(servo_angle<300){
-//										servo_angle = 300;
-//									}
-					servo->SetDegree(servo_angle);
 				}
 				break;
 				case 2:
@@ -1313,13 +1290,6 @@ void algo() {
 					}
 					servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
 					servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-//					if(servo_angle>1500){
-//										servo_angle = 1500;
-//									}
-//									else if(servo_angle<300){
-//										servo_angle = 300;
-//									}
-					servo->SetDegree(servo_angle);
 					break;
 				}
 			}
@@ -1328,23 +1298,14 @@ void algo() {
 				case 0:
 				servo_angle = 1120 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[46][118][0]) / (img2world[final_point.x][final_point.y][1] - img2world[46][118][1])) * 1800 / 3.14;
 				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-				servo->SetDegree(servo_angle);
 				break;
 				case 1:
 				servo_angle = 1120 + std::atan(1.0*(img2world[final_point.x][final_point.y][0] - img2world[97][118][0]) / (img2world[final_point.x][final_point.y][1] - img2world[97][118][1])) * 1800 / 3.14;
 				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-//				if(servo_angle>1500){
-//					servo_angle = 1500;
-//				}
-//				else if(servo_angle<300){
-//					servo_angle = 300;
-//				}
-				servo->SetDegree(servo_angle);
 				break;
 				case 2:
 				servo_angle = 1120 + std::atan(1.0*(img2world[final_point.x][final_point.y][0] - img2world[149][118][0]) / (img2world[final_point.x][final_point.y][1] - img2world[149][118][1])) * 1800 / 3.14;
 				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-				servo->SetDegree(servo_angle);
 				break;
 			}
 		} else if(track_state==Tstate::RightLoop) {
@@ -1353,30 +1314,50 @@ void algo() {
 				destination=final_point;
 				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
 				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-				servo->SetDegree(servo_angle);
+
 				break;
 				case Lstate::Leaving:
 				destination=final_point;
 				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
 				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-				servo->SetDegree(servo_angle);
+
+
 				break;
 				case Lstate::Finished:
 				destination=left_end_point_found?left_end_point:left_edge.back();
 				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
 				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
-				servo->SetDegree(servo_angle);
+
 				break;
 			}
 		} else if(track_state==Tstate::LeftLoop) {
+			switch(loop_state) {
+				case Lstate::Entering:
+				destination=final_point;
+				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
+				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+
+				break;
+				case Lstate::Leaving:
+				destination=final_point;
+				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[46][118][0]) / (img2world[destination.x][destination.y][1] - img2world[46][118][1])) * 1800 / 3.14;
+				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+
+				break;
+				case Lstate::Finished:
+				destination=right_end_point_found?right_end_point:right_edge.back();
+				servo_angle = 1120 + std::atan(1.0*(img2world[destination.x][destination.y][0] - img2world[149][118][0]) / (img2world[destination.x][destination.y][1] - img2world[149][118][1])) * 1800 / 3.14;
+				servo_angle += 0.4 * (servo_angle - prev_servo_angle);
+
+				break;
+			}
 
 		}
+		servo->SetDegree(libutil::Clamp(700,servo_angle,1500));
 
-//		sprintf(buffer, "des %d %d", destination.x,destination.y);
-//		lcd->SetRegion(libsc::Lcd::Rect(0, 60, 160, 40));
-//		writerP->WriteString(buffer);
+//
 		prev_track_state = track_state;
-		motor->SetPower(150);
+		motor->SetPower(200);
 	}
 //	}
 }
