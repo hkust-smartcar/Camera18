@@ -16,6 +16,8 @@
 #include <libsc/system.h>
 #include <functional>
 #include <vector>
+#include <math.h>
+
 
 //RGB LED Header File
 #include <libsc/rgb_led.h>
@@ -59,12 +61,6 @@
 //Algo Header File
 #include <algo.h>
 
-//Global Type
-struct coor {
-	uint8_t x;
-	uint8_t y;
-};
-
 //Global Pointers
 extern libbase::k60::Flash* flash;
 extern libsc::RGBLed* led0;
@@ -81,9 +77,11 @@ extern libsc::AlternateMotor* motor;
 extern libsc::Joystick* joystick;
 extern libsc::AbEncoder* encoder;
 extern libsc::k60::MT9V034* camera;
+extern libsc::LcdTypewriter* writerP;
 extern libsc::Mpu6050* mpu;
 
 //Global Variables
 extern int edge_threshold;
+extern const int img2world[189][120][2];
 
 #endif /* INC_GLOBAL_H_ */

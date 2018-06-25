@@ -84,12 +84,12 @@ int main() {
 	servo_config.max_pos_width = 2000;
 	servo_config.min_pos_width = 1000;
 	libsc::Servo servo_(servo_config);
+	servo = &servo_;
 
 	//Bluetooth Init
 	libsc::k60::JyMcuBt106::Config bt_config;
 	bt_config.baud_rate = libbase::k60::Uart::Config::BaudRate::k115200;
 	bt_config.id = 0;
-	bt_config.tx_dma_channel = 2;
 	libsc::k60::JyMcuBt106 bt_(bt_config);
 	bt = &bt_;
 
@@ -112,13 +112,19 @@ int main() {
 	libsc::AbEncoder encoder_(encoder_config);
 	encoder = &encoder_;
 
+	//initialize lcd typewriter
+	libsc::LcdTypewriter::Config typeconfig;
+	typeconfig.lcd = &lcd_;
+	libsc::LcdTypewriter writer(typeconfig);
+	writerP = &writer;
+
 	//MPU6050 Init
-	libsc::Mpu6050::Config mpu_config;
-	mpu_config.accel_range = mpu_config.Range::kSmall;
-	mpu_config.gyro_range = mpu_config.Range::kSmall;
-	mpu_config.cal_drift = true;
-	libsc::Mpu6050 mpu_(mpu_config);
-	mpu = &mpu_;
+//	libsc::Mpu6050::Config mpu_config;
+//	mpu_config.accel_range = mpu_config.Range::kSmall;
+//	mpu_config.gyro_range = mpu_config.Range::kSmall;
+//	mpu_config.cal_drift = true;
+//	libsc::Mpu6050 mpu_(mpu_config);
+//	mpu = &mpu_;
 
 	algo();
 }
