@@ -84,4 +84,9 @@ extern libsc::Mpu6050* mpu;
 extern int edge_threshold;
 extern const int img2world[189][120][2];
 
+struct coor {
+	int16_t x;
+	int16_t y;
+};
+
 #endif /* INC_GLOBAL_H_ */

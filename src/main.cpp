@@ -101,11 +101,11 @@ int main() {
 	motor = &motor_;
 
 	//Joystick Init
-//	libsc::Joystick::Config joystick_config;
-//	joystick_config.id = 0;
-//	joystick_config.is_active_low = true;
-//	libsc::Joystick joystick_(joystick_config);
-//	joystick = &joystick_;
+	libsc::Joystick::Config joystick_config;
+	joystick_config.id = 0;
+	joystick_config.is_active_low = true;
+	libsc::Joystick joystick_(joystick_config);
+	joystick = &joystick_;
 
 	//Encoder Init
 	libsc::AbEncoder::Config encoder_config;
@@ -127,7 +127,7 @@ int main() {
 //	libsc::Mpu6050 mpu_(mpu_config);
 //	mpu = &mpu_;
 
-    CameraMenu::show();
+//    CameraMenu::show();
 
 	algo();
 }

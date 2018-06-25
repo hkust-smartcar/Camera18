@@ -8,11 +8,6 @@
 
 #include <algo.h>
 
-struct coor {
-	int16_t x;
-	int16_t y;
-};
-
 enum Tstate {
 	Normal, Crossroad, RightLoop, LeftLoop
 };
@@ -38,6 +33,8 @@ inline Byte GetPoint(uint8_t x, uint8_t y) {
 inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
 	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
 }
+
+
 
 float search_distance = 400;
 float search_m;
@@ -719,15 +716,22 @@ void algo() {
 	coor right_start = { 0, 0 };
 	coor final_point = { 0, 0 };
 
+	bool debug=true;
+
 	while (1) {
 		if (camera->IsAvailable()) {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
 			camera->UnlockBuffer();
-		}
-//		for (uint16_t i = 0; i < height; i++) {
-//			lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
-//			lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
-//		}
+			if(debug){
+				if(joystick->GetState()==libsc::Joystick::State::kSelect)
+					debug=false;
+			}
+			if(debug){
+				for (uint16_t i = 0; i < height; i++) {
+					lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
+					lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
+				}
+			}
 		motor->SetPower(200);
 		motor->SetClockwise(false);
 
@@ -909,7 +913,7 @@ void algo() {
 				//&& left_edge[left_edge_corner[0]].y>100
 				if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0  && left_edge[left_edge_corner[0]].y>100) {
 					loop_state = Leaving;
-					midpoint = {(left_start.x+right_start.x)/2,90};
+					midpoint = {(left_start.x+right_start.x)/2,70};
 				}
 				else{
 					if(left_edge.size() && right_edge.size()){
@@ -951,17 +955,16 @@ void algo() {
 				if(right_start_point({midpoint.x,115},right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,false);
 				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-//				char buffer[50];
-//				sprintf(buffer, "%d %d", right_edge_corner.size(),left_edge_corner.size());
-//				lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
-//				writerP->WriteString(buffer);
+//
 				if(left_edge.size()>80 && left_edge_corner.size()==0) {
 					loop_state = Finished;
 				}
 				else {
 					//set control
 					align = right_align;
-					if(right_edge.size())
+					if(right_end_point_found)
+						final_point = right_end_point;//right_edge.back();
+					else if(right_edge.size())
 						final_point = right_edge.back();
 				}
 			}
@@ -990,10 +993,7 @@ void algo() {
 				left_edge = temp_edge;
 				left_edge_corner = temp_edge_corner;
 				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
-//				char buffer[50];
-//				sprintf(buffer, "%d %d", right_edge_corner.size(),left_edge_corner.size());
-//				lcd->SetRegion(libsc::Lcd::Rect(0, 80, 160, 40));
-//				writerP->WriteString(buffer);
+//
 				if(right_edge_corner.size()==1 && right_edge[right_edge_corner[0]].y>100) {
 					track_state = Normal;
 					loop_state = Entering;
@@ -1097,7 +1097,7 @@ void algo() {
 
 				if(right_edge_corner.size() == 1 && left_edge_corner.size() == 0  &&  right_edge[right_edge_corner[0]].y>100) {
 					loop_state = Leaving;
-					midpoint = {(left_start.x+right_start.x)/2,90};
+					midpoint = {(left_start.x+right_start.x)/2,70};
 				}
 				else{
 					if(left_edge.size() && right_edge.size()){
@@ -1142,7 +1142,9 @@ void algo() {
 				else {
 					//set control
 					align = left_align;
-					if(left_edge.size())
+					if(left_end_point_found)
+						final_point = left_end_point;//right_edge.back();
+					else if(left_edge.size())
 						final_point = left_edge.back();
 				}
 
@@ -1185,7 +1187,7 @@ void algo() {
 				}
 			}
 		}
-
+		if(debug){
 //		for (int i = 0; i < left_edge.size(); i++) {
 //
 //			lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[i].x, left_edge[i].y, 1, 1));
@@ -1208,11 +1210,11 @@ void algo() {
 //
 //		lcd->SetRegion(libsc::St7735r::Lcd::Rect(midpoint.x, midpoint.y, 4, 4));
 //		lcd->FillColor(lcd->kBlue);
-//		char buffer[50];
-//		sprintf(buffer, "t %d l %d %d %d \n %d %d", track_state, loop_state,right_edge.size(),left_edge.size(),final_point.x,final_point.y);
-//		lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
-//		writerP->WriteString(buffer);
-
+		char buffer[50];
+		sprintf(buffer, "t %d l %d %d %d \n %d %d", track_state, loop_state,right_edge.size(),left_edge.size(),final_point.x,final_point.y);
+		lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
+		writerP->WriteString(buffer);
+		}
 //			lcd->Clear();
 //			if (left_end_point_found) {
 //				lcd->SetRegion(libsc::St7735r::Rect(left_end_point.x, left_end_point.y, 1, 1));
@@ -1357,7 +1359,8 @@ void algo() {
 
 //
 		prev_track_state = track_state;
-		motor->SetPower(200);
+		motor->SetPower(150);
 	}
 //	}
+	}
 }

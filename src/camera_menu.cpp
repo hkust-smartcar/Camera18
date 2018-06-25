@@ -92,8 +92,6 @@ void CameraMenu::start() {
             const Byte* buffer = camera->LockBuffer();
             uint16_t offset_x = 0;
 
-            inline Byte getXY(uint16_t x, uint16_t y) {return buffer[(x) + (y) * 189];};
-
             std::function<void(ui::E&)> joystick_handler = [&](ui::E& e){
                 if (e.JOYSTICK_STATE == ui::JoystickState::SELECT) {
                     is_exit = true;
@@ -123,7 +121,7 @@ void CameraMenu::start() {
 
                         for (uint16_t y = 0; y < 120; y++) {
                             for (uint16_t x = 0; x < 160; x++) {
-                                viewport[i] = getXY(x + offset_x, y);
+                                viewport[i] = buffer[(x + offset_x) + (y) * 189];
                             }
                         }
 
