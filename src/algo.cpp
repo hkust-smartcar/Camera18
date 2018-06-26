@@ -17,16 +17,16 @@ const Byte* buffer;
 
 bool debug = true;
 
-//inline Byte GetPoint(uint8_t x, uint8_t y) {
-//	return buffer[x + y * 189];
-//}
-//
-//inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
-//	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
-//}
+inline Byte GetPoint(uint8_t x, uint8_t y) {
+	return buffer[x + y * 189];
+}
 
-#define GetPoint(x, y) buffer[(x) + (y) * 189]
-#define SobelEdgeDetection(x, y) std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y)+1) + GetPoint((x) + 1, (y)-1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y)+1)) + std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x), (y)-1) - GetPoint((x) + 1, (y)-1) + GetPoint((x) - 1, (y)+1) + 2 * GetPoint((x), (y)+1) + GetPoint((x) + 1, (y)+1))
+inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
+	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
+}
+
+//#define GetPoint(x, y) buffer[(x) + (y) * 189]
+//#define SobelEdgeDetection(x, y) std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y)+1) + GetPoint((x) + 1, (y)-1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y)+1)) + std::abs(-GetPoint((x) - 1, (y)-1) - 2 * GetPoint((x), (y)-1) - GetPoint((x) + 1, (y)-1) + GetPoint((x) - 1, (y)+1) + 2 * GetPoint((x), (y)+1) + GetPoint((x) + 1, (y)+1))
 
 float search_distance = 400;
 float search_m;
@@ -462,24 +462,31 @@ void algo() {
 				}
 				int prev_left_dir = down;
 				int prev_right_dir = down;
-				while (FindRightEdge(prev_left_dir) && right_edge.size() < 10) {
-
+				while (FindRightEdge(prev_left_dir) && right_edge.size() < 20) {
+					if (debug) {
+						lcd->SetRegion(libsc::Lcd::Rect(right_edge.back().x, right_edge.back().y, 1, 1));
+						lcd->FillColor(lcd->kRed);
+					}
 				}
-				left_start = right_edge.back();
+				coor left_temp = right_edge[right_edge.size() - 2];
 				right_edge.clear();
-				while (FindLeftEdge(prev_right_dir) && left_edge.size() < 10) {
-
+				while (FindLeftEdge(prev_right_dir) && left_edge.size() < 20) {
+					if (debug) {
+						lcd->SetRegion(libsc::Lcd::Rect(left_edge.back().x, left_edge.back().y, 1, 1));
+						lcd->FillColor(lcd->kRed);
+					}
 				}
-				right_start = left_edge.back();
+				coor right_temp = left_edge[left_edge.size() - 2];
 				left_edge.clear();
-				left_edge.push_back(left_start);
-				right_edge.push_back(right_start);
+				left_edge.push_back(left_temp);
+				right_edge.push_back(right_temp);
 				prev_left_dir = up;
 				prev_right_dir = up;
 				while (FindLeftEdge(prev_left_dir)) {
 					if (left_edge.size() > 15 && left_edge[left_edge.size() - 6].y > 30 && check_corner(left_edge[left_edge.size() - 11], left_edge[left_edge.size() - 1], left_edge[left_edge.size() - 16])) {
 						left_start = left_edge[left_edge.size() - 11];
 						left_start.x += 7;
+						left_start.y -= 2;
 						if (debug) {
 							lcd->SetRegion(libsc::Lcd::Rect(left_start.x - 2, left_start.y - 2, 5, 5));
 							lcd->FillColor(lcd->kRed);
@@ -491,6 +498,7 @@ void algo() {
 					if (right_edge.size() > 15 && right_edge[right_edge.size() - 6].y > 30 && check_corner(right_edge[right_edge.size() - 11], right_edge[right_edge.size() - 1], right_edge[right_edge.size() - 16])) {
 						right_start = right_edge[right_edge.size() - 11];
 						right_start.x -= 7;
+						right_start.y -= 2;
 						if (debug) {
 							lcd->SetRegion(libsc::Lcd::Rect(right_start.x - 2, right_start.y - 2, 5, 5));
 							lcd->FillColor(lcd->kRed);
@@ -498,7 +506,12 @@ void algo() {
 						break;
 					}
 				}
-				midpoint= {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+				if (left_edge.back().y > 114 || right_edge.back().y > 114) {
+					midpoint= {97,115};
+					mode=0;
+				} else {
+					midpoint= {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
+				}
 				if (debug) {
 					lcd->SetRegion(libsc::Lcd::Rect((left_start.x + right_start.x) / 2 - 2, (left_start.y + right_start.y) / 2 - 2, 5, 5));
 					lcd->FillColor(lcd->kGreen);
@@ -595,7 +608,7 @@ void algo() {
 					int start_x = ((y - left_corner_coor.y) / l_slope) + left_corner_coor.x + 7;
 					for (int x = start_x; x > start_x - 15 && x > 4; x--) {
 						if (SobelEdgeDetection(x,y) > edge_threshold) {
-							left_start= {start_x,y};
+							left_start= {start_x,y-1};
 							break;
 						}
 						if(debug) {
@@ -612,7 +625,7 @@ void algo() {
 					int start_x = ((y - right_corner_coor.y) / r_slope) + right_corner_coor.x - 7;
 					for (int x = start_x; x < start_x + 15 && x < 184; x++) {
 						if (SobelEdgeDetection(x,y) > edge_threshold) {
-							right_start= {start_x,y};
+							right_start= {start_x,y-1};
 							break;
 						}
 						if(debug) {
