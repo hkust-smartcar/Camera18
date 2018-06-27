@@ -21,7 +21,6 @@ Mcg::Config Mcg::GetMcgConfig() {
 }
 
 int main() {
-
 	libsc::System::Init();
 
 	//Camera Init

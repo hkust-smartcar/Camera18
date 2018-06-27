@@ -718,7 +718,6 @@ void algo() {
 	coor final_point = { 0, 0 };
 
 	bool debug=true;
-
 	while (1) {
 		if (camera->IsAvailable()) {
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
@@ -733,19 +732,21 @@ void algo() {
 					lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
 				}
 			}
-			motor->SetPower(100);
-			motor->SetClockwise(false);
+			if(!debug){
+				motor->SetPower(100);
+				motor->SetClockwise(false);
+			}
 
 //			mpu->UpdateF();
 
 			InitSearchDistance(0); //-(mpu->GetOmegaF()[2]));
 
 			if(debug){
-				char buff[10]={};
-				sprintf(buff,"%.2f",mpu->GetOmegaF()[2]);
-				console->Clear(false);
-				console->SetCursorRow(4);
-				console->WriteString(buff);
+//				char buff[10]={};
+//				sprintf(buff,"%.2f",mpu->GetOmegaF()[2]);
+//				console->Clear(false);
+//				console->SetCursorRow(4);
+//				console->WriteString(buff);
 			}
 
 			empty_left();
@@ -1019,41 +1020,23 @@ void algo() {
 								final_point = {leftmostP.x,leftmostP.y};
 							}
 							else{
-	//							coor tempmidpoint = {midpoint.x,115};
-	//							if (right_start_point(tempmidpoint, right_start, edge_threshold)){
-	//								right_edge_prev_dir = up;
-	//								RightEdge(right_start, right_edge_prev_dir, false);
-	//								//midpoint.x = right_start.x-20;
-	//								align = right_align;
-	//								if(right_end_point_found)
-	//									final_point = right_end_point;//right_edge.back();
-	//								else if(right_edge.size())
-	//									final_point = right_edge.back();
-	//
-	//								final_point = {final_point.x,final_point.y-10};
-	//								//set midpoint
-	//								if(leftmostP.y>115){
-	//									midpoint = {right_start.x-20,115};
-	//								}
-	//							}
-	//							else{
-									right_edge_prev_dir = up;
-									coor tempmidpoint = {leftmostP.x-10,leftmostP.y};
-									if(leftmostP.y > 115){
-										tempmidpoint.y = 110;
-									}
+								right_edge_prev_dir = up;
+								coor tempmidpoint = {leftmostP.x-10,leftmostP.y};
+								if(leftmostP.y > 115){
+									tempmidpoint.y = 110;
+								}
 
-									if (right_start_point(tempmidpoint, right_start, edge_threshold)){
-										RightLoopEdgeR(right_start, right_edge_prev_dir, leftmostP,false);
-									}
-									midpoint = {leftmostP.x-10,leftmostP.y};
-									align = right_align;
-									if(right_end_point_found)
-										final_point = right_end_point;//right_edge.back();
-									else if(right_edge.size()){
-										final_point = right_edge.back();
-									}
-									final_point = {final_point.x,final_point.y-10};
+								if (right_start_point(tempmidpoint, right_start, edge_threshold)){
+									RightLoopEdgeR(right_start, right_edge_prev_dir, leftmostP,false);
+								}
+								midpoint = {leftmostP.x-10,leftmostP.y};
+								align = right_align;
+								if(right_end_point_found)
+									final_point = right_end_point;//right_edge.back();
+								else if(right_edge.size()){
+									final_point = right_edge.back();
+								}
+								final_point = {final_point.x,final_point.y-10};
 							}
 						}
 
@@ -1536,6 +1519,7 @@ void algo() {
 				lcd->SetRegion(libsc::St7735r::Lcd::Rect(destination.x-2, destination.y-2, 5, 5));
 				lcd->FillColor(lcd->kGreen);
 			}
+
 			prev_track_state = track_state;
 		}
 
