@@ -1081,7 +1081,7 @@ void algo() {
 					//&& left_edge[left_edge_corner[0]].y>100
 					if(left_edge_corner.size() == 1 && right_edge_corner.size() == 0  && left_edge[left_edge_corner[0]].y>100) {
 						loop_state = Leaving;
-						midpoint = {(left_start.x+right_start.x)/2,80};
+						midpoint = {(left_start.x+right_start.x)/2,90};
 					}
 					else{
 						if(left_edge.size() && right_edge.size()){
@@ -1121,9 +1121,9 @@ void algo() {
 						LeftEdge(left_start,left_edge_prev_dir,false);
 					if(right_start_point({midpoint.x,115},right_start,edge_threshold))
 						RightEdge(right_start,right_edge_prev_dir,false);
-					midpoint = {(left_start.x+right_start.x)/2,80};
+					midpoint = {(left_start.x+right_start.x)/2,90};
 	//
-					if(left_edge.size()>80 && left_edge_corner.size()==0) {
+					if(left_edge.size()>80 && left_edge_corner.size()==0 && ((left_edge[10].x-left_edge[0].x)<10)) {
 						loop_state = Finished;
 					}
 					else {
@@ -1138,7 +1138,7 @@ void algo() {
 				//follow the left edges when Finished
 				if(loop_state == Finished) {
 					//increase the midpoint height for detecting the corner?
-					midpoint = {midpoint.x,80};
+					midpoint = {midpoint.x,90};
 					left_edge_prev_dir = up;
 					right_edge_prev_dir = down;
 					std::vector<coor> temp_edge;
@@ -1273,7 +1273,7 @@ void algo() {
 
 					if(right_edge_corner.size() == 1 && left_edge_corner.size() == 0  &&  right_edge[right_edge_corner[0]].y>100) {
 						loop_state = Leaving;
-						midpoint = {(left_start.x+right_start.x)/2,80};
+						midpoint = {(left_start.x+right_start.x)/2,90};
 					}
 					else{
 						if(left_edge.size() && right_edge.size()){
@@ -1311,8 +1311,8 @@ void algo() {
 						LeftEdge(left_start,left_edge_prev_dir,false);
 					if(right_start_point(midpoint,right_start,edge_threshold))
 						RightEdge(right_start,right_edge_prev_dir,false);
-					midpoint = {(left_start.x+right_start.x)/2,80};
-					if(right_edge.size()>80 && right_edge_corner.size()==0) {
+					midpoint = {(left_start.x+right_start.x)/2,90};
+					if(right_edge.size()>80 && right_edge_corner.size()==0 && ((right_edge[10].x - right_edge[0].x) > -10)){
 						loop_state = Finished;
 					}
 					else {
@@ -1328,7 +1328,7 @@ void algo() {
 				//follow the left edges when Finished
 				if(loop_state == Finished) {
 					//increase the midpoint height for detecting the corner?
-					midpoint = {midpoint.x,80};
+					midpoint = {midpoint.x,90};
 					right_edge_prev_dir = up;
 					left_edge_prev_dir = down;
 					std::vector<coor> temp_edge;
