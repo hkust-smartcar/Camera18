@@ -35,7 +35,7 @@ inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
 }
 
 
-#define servo_P 0.4
+#define servo_P 0.6
 float search_distance = 150 * 150;
 float search_m;
 float search_c;
@@ -69,8 +69,8 @@ inline void InitSearchDistance(float mpu_angle) {
 inline bool FindLeftEndPoint(int x, int y) {
 	float rx = img2world[x][y][0] - search_left_align_x;
 	rx *= rx;
-	rx = rx - search_distance;
-	float ry = img2world[x][y][0] - search_left_align_y;
+	rx = search_distance - rx;
+	float ry = img2world[x][y][1] - search_left_align_y;
 	ry *= ry;
 	return rx < ry;
 }
@@ -78,8 +78,8 @@ inline bool FindLeftEndPoint(int x, int y) {
 inline bool FindEndPoint(int x, int y) {
 	float rx = img2world[x][y][0] - search_origin_x;
 	rx *= rx;
-	rx = rx - search_distance;
-	float ry = img2world[x][y][0] - search_origin_y;
+	rx = search_distance - rx;
+	float ry = img2world[x][y][1] - search_origin_y;
 	ry *= ry;
 	return rx < ry;
 }
@@ -87,8 +87,8 @@ inline bool FindEndPoint(int x, int y) {
 inline bool FindRightEndPoint(int x, int y) {
 	float rx = img2world[x][y][0] - search_right_align_x;
 	rx *= rx;
-	rx = rx - search_distance;
-	float ry = img2world[x][y][0] - search_right_align_y;
+	rx = search_distance - rx;
+	float ry = img2world[x][y][1] - search_right_align_y;
 	ry *= ry;
 	return rx < ry;
 }
@@ -1050,6 +1050,8 @@ void algo() {
 							}
 							else{
 								right_edge_prev_dir = up;
+								left_end_point_found=false;
+								right_end_point_found=false;
 								coor tempmidpoint = {leftmostP.x-10,leftmostP.y};
 								if(leftmostP.y > 115){
 									tempmidpoint.y = 110;
@@ -1241,6 +1243,8 @@ void algo() {
 //								}
 //								else{
 									left_edge_prev_dir = up;
+								left_end_point_found=false;
+								right_end_point_found=false;
 									coor tempmidpoint = {rightmostP.x+10,rightmostP.y};
 									if(rightmostP.y>115){
 										tempmidpoint.y = 110;
