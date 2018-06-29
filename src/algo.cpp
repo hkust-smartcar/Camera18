@@ -998,17 +998,28 @@ void algo() {
                     if (midpoint.y < 106) {
                         if (right_edge_corner.size() && left_edge_corner.size()) {
                             align = center_align;
-                            final_point = {(right_edge[right_edge_corner[0]].x + left_edge[left_edge_corner[0]].x) / 2,
+                            midpoint = {(right_edge[right_edge_corner[0]].x + left_edge[left_edge_corner[0]].x) / 2,
                                            (right_edge[right_edge_corner[0]].y + left_edge[left_edge_corner[0]].y) / 2};
-                            midpoint = {final_point.x, final_point.y - 10};
+                            if(left_edge[left_edge_corner[0]].y>110 || right_edge[right_edge_corner[0]].y>110)
+                                final_point = {(right_edge[0].x + left_edge[0].x) / 2, (right_edge[0].y + left_edge[0].y) / 2};
+                            else
+                                final_point = midpoint;
+                            midpoint.y -= 10;
                         } else if (left_edge_corner.size()) {
                             align = right_align;
-                            final_point = left_edge[left_edge_corner[0]];
-                            midpoint = {final_point.x - 40, final_point.y - 10};
+                            midpoint = {left_edge[left_edge_corner[0]].x - 40, left_edge[left_edge_corner[0]].y - 10};
+                            if(left_edge[left_edge_corner[0]].y<110)
+                                final_point = left_edge[left_edge_corner[0]];
+                            else
+                                final_point = left_edge[0];
+
                         } else if (right_edge_corner.size()) {
                             align = left_align;
-                            final_point = right_edge[right_edge_corner[0]];
-                            midpoint = {final_point.x + 40, final_point.y - 10};
+                            midpoint = {right_edge[right_edge_corner[0]].x + 40, right_edge[right_edge_corner[0]].y - 10};
+                            if(left_edge[left_edge_corner[0]].y<110)
+                                final_point = right_edge[right_edge_corner[0]];
+                            else
+                                final_point = right_edge[0];
                         } else {
                             align = center_align;
                             final_point = {(right_edge[0].x + left_edge[0].x) / 2,
