@@ -891,36 +891,50 @@ void algo() {
                         if (left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
                             align = center_align;
                             crossroad_state = C_inside;
-                            right_start = {right_edge[right_edge_corner[0]].x + 15,
-                                           right_edge[right_edge_corner[0]].y + 20};
-                            left_start = {left_edge[left_edge_corner[0]].x - 15,
-                                          left_edge[left_edge_corner[0]].y + 20};
+                            if(right_edge[right_edge_corner[0]].x + 15<185)
+                                right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 20};
+                            else
+                                right_start = {184, right_edge[right_edge_corner[0]].y + 20};
+
+                            if(left_edge[left_edge_corner[0]].x - 15 > 5)
+                                left_start = {left_edge[left_edge_corner[0]].x - 15, left_edge[left_edge_corner[0]].y + 20};
+                            else
+                                left_start = {6, left_edge[left_edge_corner[0]].y + 20};
                             final_point = {
                                     (left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
                                     (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
                         } else if (left_edge_corner.size() == 1) {
                             align = left_align;
                             crossroad_state = L_inside;
-                            left_start = {left_edge[left_edge_corner[0]].x - 15,
-                                          left_edge[left_edge_corner[0]].y + 20};
+                            if(left_edge[left_edge_corner[0]].x - 15 > 5)
+                                left_start = {left_edge[left_edge_corner[0]].x - 15, left_edge[left_edge_corner[0]].y + 20};
+                            else
+                                left_start = {6, left_edge[left_edge_corner[0]].y + 20};
                             final_point = left_edge[left_edge_corner[0]];
                         } else if (right_edge_corner.size() == 1) {
                             align = right_align;
                             crossroad_state = R_inside;
-                            right_start = {right_edge[right_edge_corner[0]].x + 15,
-                                           right_edge[right_edge_corner[0]].y + 20};
+                            if(right_edge[right_edge_corner[0]].x + 15<185)
+                                right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 20};
+                            else
+                                right_start = {184, right_edge[right_edge_corner[0]].y + 20};
                             final_point = right_edge[right_edge_corner[0]];
                         }
                     } else if (left_jump) {
                         align = left_align;
                         crossroad_state = L_inside;
-                        left_start = {left_edge[left_edge_corner[0]].x - 15, left_edge[left_edge_corner[0]].y + 20};
+                        if(left_edge[left_edge_corner[0]].x - 15 > 5)
+                            left_start = {left_edge[left_edge_corner[0]].x - 15, left_edge[left_edge_corner[0]].y + 20};
+                        else
+                            left_start = {6, left_edge[left_edge_corner[0]].y + 20};
                         final_point = left_edge[left_edge_corner[0]];
                     } else if (right_jump) {
                         align = right_align;
                         crossroad_state = R_inside;
-                        right_start = {right_edge[right_edge_corner[0]].x + 15,
-                                       right_edge[right_edge_corner[0]].y + 20};
+                        if(right_edge[right_edge_corner[0]].x + 15<185)
+                            right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 20};
+                        else
+                            right_start = {184, right_edge[right_edge_corner[0]].y + 20};
                         final_point = right_edge[right_edge_corner[0]];
                     }
                 } else if (crossroad_state == C_inside) {
@@ -941,8 +955,15 @@ void algo() {
                     LeftEdge(left_edge.back(), left_edge_prev_dir, false);
 
                     align = center_align;
-                    right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 20};
-                    left_start = {left_edge[left_edge_corner[0]].x - 15, left_edge[left_edge_corner[0]].y + 20};
+                    if(right_edge[right_edge_corner[0]].x + 15<185)
+                        right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 20};
+                    else
+                        right_start = {184, right_edge[right_edge_corner[0]].y + 20};
+
+                    if(left_edge[left_edge_corner[0]].x - 15 > 5)
+                        left_start = {left_edge[left_edge_corner[0]].x - 15, left_edge[left_edge_corner[0]].y + 20};
+                    else
+                        left_start = {6, left_edge[left_edge_corner[0]].y + 20};
                     final_point = {(left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
                                    (left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
 
@@ -961,12 +982,18 @@ void algo() {
                     LeftEdge(left_edge.back(), left_edge_prev_dir, false);
 
                     align = left_align;
-                    left_start = {left_edge[left_edge_corner[0]].x - 15, left_edge[left_edge_corner[0]].y + 20};
+                    if(left_edge[left_edge_corner[0]].x - 15 > 5)
+                        left_start = {left_edge[left_edge_corner[0]].x - 15, left_edge[left_edge_corner[0]].y + 20};
+                    else
+                        left_start = {6, left_edge[left_edge_corner[0]].y + 20};
                     final_point = left_edge[left_edge_corner[0]];
 
                     if (left_start.y > 110) {
                         crossroad_state = Outside;
-                        midpoint = {final_point.x + 20, final_point.y - 10};
+                        if(final_point.x+20<185)
+                            midpoint = {final_point.x + 20, final_point.y - 10};
+                        else
+                            midpoint = {184, final_point.y - 10};
                     }
                 } else if (crossroad_state == R_inside) {
                     right_jump = true;
@@ -978,12 +1005,18 @@ void algo() {
                     RightEdge(right_edge.back(), right_edge_prev_dir, false);
 
                     align = right_align;
-                    right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 20};
+                    if(right_edge[right_edge_corner[0]].x + 15<185)
+                        right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 20};
+                    else
+                        right_start = {184, right_edge[right_edge_corner[0]].y + 20};
                     final_point = right_edge[right_edge_corner[0]];
 
                     if (right_start.y > 110) {
                         crossroad_state = Outside;
-                        midpoint = {final_point.x - 20, final_point.y - 10};
+                        if(final_point.x-20 > 5)
+                            midpoint = {final_point.x - 20, final_point.y - 10};
+                        else
+                            midpoint = {6, final_point.y - 10};
                     }
                 } else if (crossroad_state == Outside) {
                     left_edge_prev_dir = down;
