@@ -1159,10 +1159,20 @@ void algo() {
 					}
 					else{
 						if(left_edge.size() && right_edge.size()){
-							align = center_align;
-
-							final_point = {(left_end_point.x + right_end_point.x)/2,
-										(left_end_point.y + right_end_point.y)/2};
+							if (left_edge_corner.size() == 1 && right_edge_corner.size() == 0 && left_edge[left_edge_corner[0]].y > 90) {
+								align = right_align;
+								if(right_end_point_found){
+									final_point = right_end_point;
+								}
+								else{
+									final_point = right_edge.back();
+								}
+							}
+							else{
+								align = center_align;
+								final_point = {(left_end_point.x + right_end_point.x)/2,
+											(left_end_point.y + right_end_point.y)/2};
+							}
 						}
 						else if(left_edge.size()){
 							align = left_align;
@@ -1284,41 +1294,23 @@ void algo() {
 								final_point = {rightmostP.x,rightmostP.y};
 							}
 							else{
-//								coor tempmidpoint = {midpoint.x,115};
-//								if (left_start_point(tempmidpoint, left_start, edge_threshold)){
-//									left_edge_prev_dir = up;
-//									LeftEdge(left_start, left_edge_prev_dir, false);
-//									//midpoint.x = right_start.x-20;
-//									align = left_align;
-//									if(left_end_point_found)
-//										final_point = left_end_point;
-//									else if(left_edge.size())
-//										final_point = left_edge.back();
-//
-//									final_point = {final_point.x,final_point.y-10};
-//									//set midpoint
-//									if(rightmostP.y>115){
-//										midpoint = {left_start.x+20,115};
-//									}
-//								}
-//								else{
-									left_edge_prev_dir = up;
+								left_edge_prev_dir = up;
 								left_end_point_found=false;
 								right_end_point_found=false;
-									coor tempmidpoint = {rightmostP.x+10,rightmostP.y};
-									if(rightmostP.y>115){
-										tempmidpoint.y = 110;
-									}
-									if (left_start_point(tempmidpoint, left_start, edge_threshold)){
-										LeftLoopEdgeL(left_start, left_edge_prev_dir, rightmostP, false);
-									}
-									align = left_align;
-									midpoint = {rightmostP.x+10,rightmostP.y};
-									if(left_end_point_found)
-										final_point = left_end_point;//right_edge.back();
-									else if(left_edge.size())
-										final_point = left_edge.back();
-									final_point = {final_point.x,final_point.y-10};
+								coor tempmidpoint = {rightmostP.x+10,rightmostP.y};
+								if(rightmostP.y>115){
+									tempmidpoint.y = 110;
+								}
+								if (left_start_point(tempmidpoint, left_start, edge_threshold)){
+									LeftLoopEdgeL(left_start, left_edge_prev_dir, rightmostP, false);
+								}
+								align = left_align;
+								midpoint = {rightmostP.x+10,rightmostP.y};
+								if(left_end_point_found)
+									final_point = left_end_point;//right_edge.back();
+								else if(left_edge.size())
+									final_point = left_edge.back();
+								final_point = {final_point.x,final_point.y-10};
 
 							}
 						}
@@ -1353,10 +1345,22 @@ void algo() {
 					}
 					else{
 						if(left_edge.size() && right_edge.size()){
-							align = center_align;
+							if (left_edge_corner.size() == 0 && right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 90) {
+								align = left_align;
+								if(left_end_point_found){
+									final_point = left_end_point;
+								}
+								else{
+									final_point = left_edge.back();
+								}
+							}
+							else{
+								align = center_align;
+								final_point = {(left_end_point.x + right_end_point.x)/2,
+											(left_end_point.y + right_end_point.y)/2};
+							}
 
-							final_point = {(left_end_point.x + right_end_point.x)/2,
-										(left_end_point.y + right_end_point.y)/2};
+
 						}
 						else if(left_edge.size()){
 							align = left_align;
@@ -1461,10 +1465,7 @@ void algo() {
 				}
 				lcd->SetRegion(libsc::St7735r::Lcd::Rect(midpoint.x, midpoint.y, 4, 4));
 				lcd->FillColor(lcd->kBlue);
-				char buffer[50];
-				sprintf(buffer, "t %d l %d %d %d \n %d %d", track_state, loop_state,right_edge.size(),left_edge.size(),final_point.x,final_point.y);
-				lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
-				writerP->WriteString(buffer);
+
 			}
 	//			lcd->Clear();
 	//			if (left_end_point_found) {
@@ -1621,6 +1622,11 @@ void algo() {
 			if(debug){
 				lcd->SetRegion(libsc::St7735r::Lcd::Rect(destination.x-2, destination.y-2, 5, 5));
 				lcd->FillColor(lcd->kGreen);
+
+				char buffer[50];
+				sprintf(buffer, "t %d l %d %d %d \n %d %d %d", track_state, loop_state,right_edge.size(),left_edge.size(),final_point.x,final_point.y,servo_angle);
+				lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
+				writerP->WriteString(buffer);
 			}
 
 			prev_track_state = track_state;
