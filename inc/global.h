@@ -18,6 +18,10 @@
 #include <vector>
 #include <math.h>
 
+struct coor {
+	int16_t x;
+	int16_t y;
+};
 
 //RGB LED Header File
 #include <libsc/rgb_led.h>
@@ -58,6 +62,9 @@
 //MPU6050 Header File
 #include <libsc/mpu6050.h>
 
+//Bluetooth Debug File
+#include <bluetooth_debug.h>
+
 //Algo Header File
 #include <algo.h>
 
@@ -83,10 +90,5 @@ extern libsc::Mpu6050* mpu;
 //Global Variables
 extern int edge_threshold;
 extern const int img2world[189][120][2];
-
-struct coor {
-	int16_t x;
-	int16_t y;
-};
 
 #endif /* INC_GLOBAL_H_ */
