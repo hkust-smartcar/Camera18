@@ -34,12 +34,13 @@ inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
 	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
 }
 
-float target_speed = 500;
+float target_speed = 520;
 float Kp = 0.015;
 float Ki = 0.001;
 float Kd = 0;
+float servo_P = 0.4;
 float servo_D = 6.0;
-float search_distance = std::pow(target_speed * 0.4, 2);
+float search_distance = std::pow(target_speed * servo_P, 2);
 float search_m;
 float search_c;
 float search_slope;
@@ -678,7 +679,7 @@ void RightLoopEdgeL(coor start_point, int& edge_prev_dir, coor& rightmostP, bool
 	if (right_edge[0].x > rightmostP.x)
 		rightmostP = right_edge[0];
 	while (FindRightEdge(edge_prev_dir) && ((right_edge[right_edge.size() - 1].x - start_point.x) > -20)) {
-		if (right_edge[right_edge.size() - 1].y > 30 && right_edge[right_edge.size() - 1].x > rightmostP.x)
+		if (right_edge[right_edge.size() - 1].y > 35 && right_edge[right_edge.size() - 1].x > rightmostP.x)
 			rightmostP = right_edge[right_edge.size() - 1];
 	}
 }
@@ -692,7 +693,7 @@ void RightLoopEdgeR(coor start_point, int& edge_prev_dir, coor& leftmostP, bool 
 	if (right_edge[0].x < leftmostP.x)
 		leftmostP = right_edge[0];
 	while (FindRightEdge(edge_prev_dir) && ((right_edge[right_edge.size() - 1].x - start_point.x) > -20)) {
-		if (right_edge[right_edge.size() - 1].y > 30 && right_edge[right_edge.size() - 1].x < leftmostP.x)
+		if (right_edge[right_edge.size() - 1].y > 35 && right_edge[right_edge.size() - 1].x < leftmostP.x)
 			leftmostP = right_edge[right_edge.size() - 1];
 	}
 }
@@ -704,7 +705,7 @@ void LeftLoopEdgeR(coor start_point, int& edge_prev_dir, coor& leftmostP, bool a
 	if (left_edge[0].x < leftmostP.x)
 		leftmostP = left_edge[0];
 	while (FindLeftEdge(edge_prev_dir) && (left_edge[left_edge.size() - 1].x - start_point.x < 20)) {
-		if (left_edge[left_edge.size() - 1].x > 30 && left_edge[left_edge.size() - 1].x < leftmostP.x)
+		if (left_edge[left_edge.size() - 1].x > 35 && left_edge[left_edge.size() - 1].x < leftmostP.x)
 			leftmostP = left_edge[left_edge.size() - 1];
 	}
 }
@@ -717,7 +718,7 @@ void LeftLoopEdgeL(coor start_point, int& edge_prev_dir, coor& rightmostP, bool 
 	if (left_edge[0].x > rightmostP.x)
 		rightmostP = left_edge[0];
 	while (FindLeftEdge(edge_prev_dir) && (left_edge[left_edge.size() - 1].x - start_point.x < 20)) {
-		if (left_edge[left_edge.size() - 1].y > 30 && left_edge[left_edge.size() - 1].x > rightmostP.x)
+		if (left_edge[left_edge.size() - 1].y > 35 && left_edge[left_edge.size() - 1].x > rightmostP.x)
 			rightmostP = left_edge[left_edge.size() - 1];
 	}
 }
@@ -903,7 +904,7 @@ void algo() {
 			if (!debug) {
 //				if (target_speed < 610)
 //				target_speed += 0.1;
-				search_distance = std::pow(target_speed * 0.4, 2);
+//				search_distance = std::pow(target_speed * 0.4, 2);
 //				char buffer[100] = { };
 //				sprintf(buffer, "%.2f,%.2f\n", target_speed, search_distance);
 //				bt->SendStr(buffer);
@@ -923,7 +924,7 @@ void algo() {
 			if (debug) {
 				for (uint16_t i = 0; i < height; i++) {
 					lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
-					lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
+					lcd->FillGrayscalePixel(26 + buffer + camera->GetW() * i, 160);
 				}
 			}
 //			encoder->Update();
@@ -1932,6 +1933,78 @@ void algo() {
 //			char buffer[100] = { };
 //			sprintf(buffer, "%d\n", libsc::System::Time() - time_now);
 //			bt->SendStr(buffer);
+//			float first_pt_x;
+//			float first_pt_y;
+//			float second_pt_x;
+//			float second_pt_y;
+//			float third_pt_x;
+//			float third_pt_y;
+//			float left_curvature = 1;
+//			float right_curvature = 1;
+//			if (left_edge.size()) {
+//				if (left_edge_corner.size()) {
+//					first_pt_x = img2world[left_edge.front().x][left_edge.front().y][0];
+//					first_pt_y = img2world[left_edge.front().x][left_edge.front().y][1];
+//					second_pt_x = img2world[left_edge[left_edge_corner.front() / 2].x][left_edge[left_edge_corner.front() / 2].y][0];
+//					second_pt_y = img2world[left_edge[left_edge_corner.front() / 2].x][left_edge[left_edge_corner.front() / 2].y][1];
+//					third_pt_x = img2world[left_edge[left_edge_corner.front()].x][left_edge[left_edge_corner.front()].y][0];
+//					third_pt_y = img2world[left_edge[left_edge_corner.front()].x][left_edge[left_edge_corner.front()].y][1];
+//				} else {
+//					first_pt_x = img2world[left_edge.front().x][left_edge.front().y][0];
+//					first_pt_y = img2world[left_edge.front().x][left_edge.front().y][1];
+//					second_pt_x = img2world[left_edge[left_edge.size() / 2 - 1].x][left_edge[left_edge.size() / 2].y][0];
+//					second_pt_y = img2world[left_edge[left_edge.size() / 2 - 1].x][left_edge[left_edge.size() / 2].y][1];
+//					third_pt_x = img2world[left_edge.back().x][left_edge.back().y][0];
+//					third_pt_y = img2world[left_edge.back().x][left_edge.back().y][1];
+//				}
+//				float temp = first_pt_x - second_pt_x;
+//				float temp2 = first_pt_y - second_pt_y;
+//				float multi_length = temp * temp + temp2 * temp2;
+//				temp = third_pt_x - second_pt_x;
+//				temp2 = third_pt_y - second_pt_y;
+//				multi_length *= temp * temp + temp2 * temp2;
+//				temp = third_pt_x - first_pt_x;
+//				temp2 = third_pt_y - first_pt_y;
+//				multi_length *= temp * temp + temp2 * temp2;
+//				left_curvature = 2 * ((second_pt_x - first_pt_x) * (third_pt_y - first_pt_y) - (second_pt_y - first_pt_y) * (third_pt_x - first_pt_x)) / multi_length;
+//			}
+//			if (right_edge.size()) {
+//				if (right_edge_corner.size()) {
+//					first_pt_x = img2world[right_edge.front().x][right_edge.front().y][0];
+//					first_pt_y = img2world[right_edge.front().x][right_edge.front().y][1];
+//					second_pt_x = img2world[right_edge[right_edge_corner.front() / 2].x][right_edge[right_edge_corner.front() / 2].y][0];
+//					second_pt_y = img2world[right_edge[right_edge_corner.front() / 2].x][right_edge[right_edge_corner.front() / 2].y][1];
+//					third_pt_x = img2world[right_edge[right_edge_corner.front()].x][right_edge[right_edge_corner.front()].y][0];
+//					third_pt_y = img2world[right_edge[right_edge_corner.front()].x][right_edge[right_edge_corner.front()].y][1];
+//				} else {
+//					first_pt_x = img2world[right_edge.front().x][right_edge.front().y][0];
+//					first_pt_y = img2world[right_edge.front().x][right_edge.front().y][1];
+//					second_pt_x = img2world[right_edge[right_edge.size() / 2 - 1].x][right_edge[right_edge.size() / 2].y][0];
+//					second_pt_y = img2world[right_edge[right_edge.size() / 2 - 1].x][right_edge[right_edge.size() / 2].y][1];
+//					third_pt_x = img2world[right_edge.back().x][right_edge.back().y][0];
+//					third_pt_y = img2world[right_edge.back().x][right_edge.back().y][1];
+//				}
+//				float temp = first_pt_x - second_pt_x;
+//				float temp2 = first_pt_y - second_pt_y;
+//				float multi_length = temp * temp + temp2 * temp2;
+//				temp = third_pt_x - second_pt_x;
+//				temp2 = third_pt_y - second_pt_y;
+//				multi_length *= temp * temp + temp2 * temp2;
+//				temp = third_pt_x - first_pt_x;
+//				temp2 = third_pt_y - first_pt_y;
+//				multi_length *= temp * temp + temp2 * temp2;
+//				right_curvature = 2 * ((second_pt_x - first_pt_x) * (third_pt_y - first_pt_y) - (second_pt_y - first_pt_y) * (third_pt_x - first_pt_x)) / multi_length;
+//			}
+//			left_curvature = std::abs(left_curvature);
+//			right_curvature = std::abs(right_curvature);
+//			target_speed = 1000 * std::exp(-485 * (left_curvature < right_curvature ? left_curvature : right_curvature));
+//			target_speed = libutil::Clamp((float) 500.0, target_speed, (float) 800.0);
+//			search_distance = std::pow(target_speed * servo_P, 2);
+			if (track_state == LeftLoop && loop_state == Lstate::Finished) {
+				buzzer->SetBeep(true);
+			} else {
+				buzzer->SetBeep(false);
+			}
 			prev_track_state = track_state;
 		}
 
