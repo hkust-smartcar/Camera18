@@ -38,7 +38,7 @@ float target_speed = 530;
 float Kp = 0.015;
 float Ki = 0.001;
 float Kd = 0;
-float servo_P = 0.4;
+float servo_P = 0.6;
 float servo_D = 6.0;
 float search_distance = std::pow(target_speed * servo_P, 2);
 float search_m;
@@ -2001,21 +2001,23 @@ void algo() {
 //				} else {
 //					first_pt_x = img2world[left_edge.front().x][left_edge.front().y][0];
 //					first_pt_y = img2world[left_edge.front().x][left_edge.front().y][1];
-//					second_pt_x = img2world[left_edge[left_edge.size() / 2 - 1].x][left_edge[left_edge.size() / 2].y][0];
-//					second_pt_y = img2world[left_edge[left_edge.size() / 2 - 1].x][left_edge[left_edge.size() / 2].y][1];
+//					second_pt_x = img2world[left_edge[left_edge.size() / 2 - 1].x][left_edge[left_edge.size() / 2 - 1].y][0];
+//					second_pt_y = img2world[left_edge[left_edge.size() / 2 - 1].x][left_edge[left_edge.size() / 2 - 1].y][1];
 //					third_pt_x = img2world[left_edge.back().x][left_edge.back().y][0];
 //					third_pt_y = img2world[left_edge.back().x][left_edge.back().y][1];
 //				}
 //				float temp = first_pt_x - second_pt_x;
 //				float temp2 = first_pt_y - second_pt_y;
-//				float multi_length = temp * temp + temp2 * temp2;
+//				float a = std::sqrt(temp * temp + temp2 * temp2);
 //				temp = third_pt_x - second_pt_x;
 //				temp2 = third_pt_y - second_pt_y;
-//				multi_length *= temp * temp + temp2 * temp2;
+//				float b = std::sqrt(temp * temp + temp2 * temp2);
 //				temp = third_pt_x - first_pt_x;
 //				temp2 = third_pt_y - first_pt_y;
-//				multi_length *= temp * temp + temp2 * temp2;
-//				left_curvature = 2 * ((second_pt_x - first_pt_x) * (third_pt_y - first_pt_y) - (second_pt_y - first_pt_y) * (third_pt_x - first_pt_x)) / multi_length;
+//				float c = std::sqrt(temp * temp + temp2 * temp2);
+//				float s = 0.5 * (a + b + c);
+//				float K = std::sqrt(s * (s - a) * (s - b) * (s - c));
+//				left_curvature = 4 * K / (a * b * c);
 //			}
 //			if (right_edge.size()) {
 //				if (right_edge_corner.size()) {
@@ -2028,24 +2030,29 @@ void algo() {
 //				} else {
 //					first_pt_x = img2world[right_edge.front().x][right_edge.front().y][0];
 //					first_pt_y = img2world[right_edge.front().x][right_edge.front().y][1];
-//					second_pt_x = img2world[right_edge[right_edge.size() / 2 - 1].x][right_edge[right_edge.size() / 2].y][0];
-//					second_pt_y = img2world[right_edge[right_edge.size() / 2 - 1].x][right_edge[right_edge.size() / 2].y][1];
+//					second_pt_x = img2world[right_edge[right_edge.size() / 2 - 1].x][right_edge[right_edge.size() / 2 - 1].y][0];
+//					second_pt_y = img2world[right_edge[right_edge.size() / 2 - 1].x][right_edge[right_edge.size() / 2 - 1].y][1];
 //					third_pt_x = img2world[right_edge.back().x][right_edge.back().y][0];
 //					third_pt_y = img2world[right_edge.back().x][right_edge.back().y][1];
 //				}
 //				float temp = first_pt_x - second_pt_x;
 //				float temp2 = first_pt_y - second_pt_y;
-//				float multi_length = temp * temp + temp2 * temp2;
+//				float a = std::sqrt(temp * temp + temp2 * temp2);
 //				temp = third_pt_x - second_pt_x;
 //				temp2 = third_pt_y - second_pt_y;
-//				multi_length *= temp * temp + temp2 * temp2;
+//				float b = std::sqrt(temp * temp + temp2 * temp2);
 //				temp = third_pt_x - first_pt_x;
 //				temp2 = third_pt_y - first_pt_y;
-//				multi_length *= temp * temp + temp2 * temp2;
-//				right_curvature = 2 * ((second_pt_x - first_pt_x) * (third_pt_y - first_pt_y) - (second_pt_y - first_pt_y) * (third_pt_x - first_pt_x)) / multi_length;
+//				float c = std::sqrt(temp * temp + temp2 * temp2);
+//				float s = 0.5 * (a + b + c);
+//				float K = std::sqrt(s * (s - a) * (s - b) * (s - c));
+//				right_curvature = 4 * K / (a * b * c);
 //			}
 //			left_curvature = std::abs(left_curvature);
 //			right_curvature = std::abs(right_curvature);
+//			char buffer[100] = { };
+//			sprintf(buffer, "%.4f,%.4f,%.6f,%.6f\n", 1 / left_curvature, 1 / right_curvature, left_curvature, right_curvature);
+//			bt->SendStr(buffer);
 //			target_speed = 1000 * std::exp(-485 * (left_curvature < right_curvature ? left_curvature : right_curvature));
 //			target_speed = libutil::Clamp((float) 500.0, target_speed, (float) 800.0);
 //			search_distance = std::pow(target_speed * servo_P, 2);
