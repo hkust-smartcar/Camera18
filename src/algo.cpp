@@ -34,13 +34,13 @@ inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
 	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
 }
 
-float target_speed = 450;
+float target_speed = 580;
 float Kp = 0.015;
 float Ki = 0.001;
 float Kd = 0.01;
 float servo_P = 0.5;
-float servo_D = 6.5;
-float search_distance = std::pow((int)(target_speed * servo_P), 2);
+float servo_D = 8.0;
+float search_distance = std::pow(target_speed * servo_P, 2);
 float search_m;
 float search_c;
 float search_slope;
@@ -452,7 +452,7 @@ bool check_corner(coor pivot, coor m, coor n) {
 		if (pythagoras >= 0)
 			return true;
 		float value = (float) (pythagoras * pythagoras) / (4 * a2 * b2);
-		if (value < 0.07)
+		if (value < 0.1)
 			return true;
 	}
 	return false;
@@ -756,7 +756,9 @@ void algo() {
 	libsc::Timer::TimerInt motor_start_time = libsc::System::Time();
 	bool motor_start = true; //false;
 	int count_encoder = 0;
-	int tuning_param;
+	int tuning_param = 0;
+	int set_angle = 870;
+	int current_angle = 870;
 //	target_speed = 100;
 	while (1) {
 		if (camera->IsAvailable()) {
@@ -826,6 +828,20 @@ void algo() {
 
 			if (!debug) {
 
+				if (servo->GetDegree() > current_angle)
+					current_angle += std::min(20, servo->GetDegree() - current_angle);
+				else if (servo->GetDegree() < current_angle)
+					current_angle += std::max(-20, servo->GetDegree() - current_angle);
+
+				set_angle += (int) (current_angle - set_angle) * 0.4;
+				double angle_degree = (set_angle - 870) * 0.1;
+				tuning_param = 550 * std::sqrt(std::sin(3.14159265359 * 40 / 180));
+				if (angle_degree != 0)
+					target_speed = std::min((int) (tuning_param / (std::sqrt(std::abs(std::sin(angle_degree * 3.14159265359 / 180))))), 800);
+				else
+					target_speed = 800;
+
+				search_distance = std::pow(target_speed * servo_P, 2);
 				error_1 = error_2;
 				error_2 = error_3;
 				encoder->Update();
@@ -846,8 +862,9 @@ void algo() {
 				cum_error += error;
 				error_3 = error - prev_error;
 				float volt = Kp * error + Ki * cum_error + Kd * (error_3 + error_2 + error_1) / 3.0;
-				int speed_set = -(volt / battery_meter->GetVoltage() * 870);
-				speed_set = (speed_set > -500) ? ((speed_set > 500) ? 500 : speed_set) : -500;
+
+				int speed_set = -(volt / battery_meter->GetVoltage() * 1000);
+				speed_set = (speed_set > -800) ? ((speed_set > 800) ? 800 : speed_set) : -800;
 				if (no_movement_count > 5 || !motor_start) {
 					motor->SetPower(0);
 				} else {
@@ -885,8 +902,8 @@ void algo() {
 			empty_left();
 			empty_right();
 
-			coor leftmostP = { 188, 120 }; //sure this is right? it resets leftmostP in every new frame
-			coor rightmostP = { 0, 120 };  //sure this shouldn't be outside while loop?
+			coor leftmostP = { 188, 120 };
+			coor rightmostP = { 0, 120 };
 			coor upmostP = { 188, 120 };
 			if (track_state == Normal) {
 				left_edge_prev_dir = up;
@@ -1083,7 +1100,8 @@ void algo() {
 					final_point = {(left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
 						(left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
 
-					if (right_start.y > 110 || left_start.y > 110) {
+					if (!FindRightEndPoint(right_edge[right_edge_corner[0]].x,right_edge[right_edge_corner[0]].y) &&
+							!FindLeftEndPoint(left_edge[left_edge_corner[0]].x,left_edge[left_edge_corner[0]].y)) {
 						crossroad_state = Outside;
 						midpoint = {(left_edge.back().x + right_edge.back().x) / 2,
 							((left_edge.back().y + right_edge.back().y) / 2) - 10};
@@ -1103,7 +1121,7 @@ void algo() {
 					left_start = {6, left_edge[left_edge_corner[0]].y + 20};
 					final_point = left_edge[left_edge_corner[0]];
 
-					if (left_start.y > 110) {
+					if (!FindLeftEndPoint(left_edge[left_edge_corner[0]].x,left_edge[left_edge_corner[0]].y)) {
 						crossroad_state = Outside;
 						if(final_point.x+20<185)
 						midpoint = {final_point.x + 20, final_point.y - 10};
@@ -1125,12 +1143,12 @@ void algo() {
 					right_start = {184, right_edge[right_edge_corner[0]].y + 20};
 					final_point = right_edge[right_edge_corner[0]];
 
-					if (right_start.y > 110) {
+					if (!FindRightEndPoint(right_edge[right_edge_corner[0]].x,right_edge[right_edge_corner[0]].y)) {
 						crossroad_state = Outside;
 						if(final_point.x-20 > 5)
 						midpoint = {final_point.x - 20, final_point.y - 10};
 						else
-						midpoint = {6, final_point.y - 10};
+						midpoint = {6, final_point.y - 15};
 					}
 				} else if (crossroad_state == Outside) {
 					left_edge_prev_dir = down;
@@ -1138,42 +1156,26 @@ void algo() {
 					left_jump = true;
 					right_jump = true;
 					if (left_start_point(midpoint, left_start, edge_threshold))
-					RightEdge(left_start, right_edge_prev_dir, false);
+						RightEdge(left_start, right_edge_prev_dir, false);
 					if (right_start_point(midpoint, right_start, edge_threshold))
-					LeftEdge(right_start, left_edge_prev_dir, false);
+						LeftEdge(right_start, left_edge_prev_dir, false);
 
-					if (midpoint.y < 106) {
+					if (midpoint.y < 100) {
 						if (right_edge_corner.size() && left_edge_corner.size()) {
-							align = center_align;
-							midpoint = {(right_edge[right_edge_corner[0]].x + left_edge[left_edge_corner[0]].x) / 2,
-								(right_edge[right_edge_corner[0]].y + left_edge[left_edge_corner[0]].y) / 2};
-							if(left_edge[left_edge_corner[0]].y>110 || right_edge[right_edge_corner[0]].y>110)
-							final_point = {(right_edge[0].x + left_edge[0].x) / 2, (right_edge[0].y + left_edge[0].y) / 2};
-							else
-							final_point = midpoint;
-							midpoint.y -= 10;
+							midpoint = {(right_edge[right_edge_corner[0]].x + left_edge[left_edge_corner[0]].x) / 2,(right_edge[right_edge_corner[0]].y + left_edge[left_edge_corner[0]].y) / 2 - 10};
 						} else if (left_edge_corner.size()) {
-							align = right_align;
 							midpoint = {left_edge[left_edge_corner[0]].x - 40, left_edge[left_edge_corner[0]].y - 10};
-							if(left_edge[left_edge_corner[0]].y<110)
-							final_point = left_edge[left_edge_corner[0]];
-							else
-							final_point = left_edge[0];
-
 						} else if (right_edge_corner.size()) {
-							align = left_align;
 							midpoint = {right_edge[right_edge_corner[0]].x + 40, right_edge[right_edge_corner[0]].y - 10};
-							if(left_edge[left_edge_corner[0]].y<110)
-							final_point = right_edge[right_edge_corner[0]];
-							else
-							final_point = right_edge[0];
 						} else {
-							align = center_align;
-							final_point = {(right_edge[0].x + left_edge[0].x) / 2,
-								((right_edge[0].y + left_edge[0].y) / 2)};
-							midpoint = {(right_edge.back().x + left_edge.back().x) / 2,
-								((right_edge.back().y + left_edge.back().y) / 2 - 10)};
+							midpoint = {(right_edge.back().x + left_edge.back().x) / 2,((right_edge.back().y + left_edge.back().y) / 2 - 10)};
 						}
+						left_jump = false;
+						right_jump = false;
+						left_edge_prev_dir = up;
+						right_edge_prev_dir = up;
+						RightEdge(right_start, right_edge_prev_dir, false);
+						LeftEdge(left_start, left_edge_prev_dir, false);
 					} else {
 						left_edge_prev_dir = up;
 						right_edge_prev_dir = up;
@@ -1672,7 +1674,7 @@ void algo() {
 			degree_2 = degree_3;
 			int servo_angle;			// = prev_angle;
 			coor destination;
-			if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In)) {
+			if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In) || (track_state == Tstate::Crossroad && crossroad_state == Cstate::Outside)) {
 				if (left_edge_corner.size() && right_edge_corner.size() && !FindLeftEndPoint(left_edge[left_edge_corner.front()].x, left_edge[left_edge_corner.front()].y) && !FindRightEndPoint(right_edge[right_edge_corner.front()].x, right_edge[right_edge_corner.front()].y)) {
 					destination = final_point;
 					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[98][115][0]) / (img2world[destination.x][destination.y][1] - img2world[98][115][1])) * 1800 / 3.14;
@@ -1940,7 +1942,7 @@ void algo() {
 				buzzer->SetBeep(false);
 			}
 			char buffer[100] = { };
-			sprintf(buffer, "%d\n", servo_angle);
+			sprintf(buffer, "%d , %d\n", (int) target_speed, (int) servo->GetDegree());
 			bt->SendStr(buffer);
 			prev_track_state = track_state;
 		}
