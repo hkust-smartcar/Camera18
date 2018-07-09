@@ -818,7 +818,7 @@ void algo() {
 //			}
 
 
-//			if(angle_degree == 0)
+//			if(angle_degree != 0)
 //					target_speed = std::min((int)(tuning_param/(std::pow(std::abs(std::sin(angle_degree*PI/180)), 0.5))),800);
 //			else
 //					target_speed = 800;
