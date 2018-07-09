@@ -904,6 +904,8 @@ void algo() {
 	bool motor_start = true; //false;
 	int count_encoder = 0;
 //	target_speed = 100;
+	int cal_servo_angle = 1120;
+	int angle_change_count = 0;
 	while (1) {
 		if (camera->IsAvailable()) {
 			if (!debug) {
@@ -2055,9 +2057,33 @@ void algo() {
 //			} else {
 //				buzzer->SetBeep(false);
 //			}
-			char buffer[100] = { };
-			sprintf(buffer, "%d\n", servo_angle);
-			bt->SendStr(buffer);
+//			char buffer[100] = { };
+//			sprintf(buffer, "%d\n", servo_angle);
+//			bt->SendStr(buffer);
+			servo_angle = servo->GetDegree();
+			int difference = servo->GetDegree() - cal_servo_angle;
+			if (difference > 2.1428) {
+				cal_servo_angle += 2.1428;
+			} else if (difference < -2.1428) {
+				cal_servo_angle -= 2.1428;
+			} else {
+				cal_servo_angle += difference;
+			}
+			if (servo_angle < 950 || servo_angle > 1290) {
+				if (target_speed == 510 && std::abs(cal_servo_angle - servo_angle) < 100) {
+					target_speed = 550;
+				} else {
+					target_speed = 510;
+				}
+			} else {
+				angle_change_count = 0;
+				if (cal_servo_angle > 950 && cal_servo_angle < 1290) {
+					target_speed = 1000;
+				} else {
+					target_speed = 560;
+				}
+			}
+			search_distance = std::pow(target_speed * servo_P, 2);
 			prev_track_state = track_state;
 		}
 
