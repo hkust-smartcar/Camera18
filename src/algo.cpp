@@ -34,12 +34,12 @@ inline int16_t SobelEdgeDetection(uint8_t x, uint8_t y) {
 	return std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x) - 1, (y)) - GetPoint((x) - 1, (y) + 1) + GetPoint((x) + 1, (y) - 1) + 2 * GetPoint((x) + 1, (y)) + GetPoint((x) + 1, (y) + 1)) + std::abs(-GetPoint((x) - 1, (y) - 1) - 2 * GetPoint((x), (y) - 1) - GetPoint((x) + 1, (y) - 1) + GetPoint((x) - 1, (y) + 1) + 2 * GetPoint((x), (y) + 1) + GetPoint((x) + 1, (y) + 1));
 }
 
-float target_speed = 530;
+float target_speed = 580;
 float Kp = 0.015;
 float Ki = 0.001;
 float Kd = 0.01;
 float servo_P = 0.5;
-float servo_D = 6.0;
+float servo_D = 8.0;
 float search_distance = std::pow(target_speed * servo_P, 2);
 float search_m;
 float search_c;
@@ -903,6 +903,9 @@ void algo() {
 	libsc::Timer::TimerInt motor_start_time = libsc::System::Time();
 	bool motor_start = true; //false;
 	int count_encoder = 0;
+	int tuning_param = 0;
+	int set_angle = 870;
+	int current_angle = 870;
 //	target_speed = 100;
 	while (1) {
 		if (camera->IsAvailable()) {
@@ -941,6 +944,20 @@ void algo() {
 //			console->SetCursorRow(4);
 //			console->WriteString(buffer);
 			if (!debug) {
+				if (servo->GetDegree() > current_angle)
+					current_angle += std::min(20, servo->GetDegree() - current_angle);
+				else if (servo->GetDegree() < current_angle)
+					current_angle += std::max(-20, servo->GetDegree() - current_angle);
+
+				set_angle += (int) (current_angle - set_angle) * 0.4;
+				double angle_degree = (set_angle - 870) * 0.1;
+				tuning_param = 550 * std::pow(std::sin(3.14159265359 * 40 / 180), 0.5);
+				if (angle_degree != 0)
+					target_speed = std::min((int) (tuning_param / (std::pow(std::abs(std::sin(angle_degree * 3.14159265359 / 180)), 0.5))), 800);
+				else
+					target_speed = 800;
+//				target_speed = 580;
+				search_distance = std::pow(target_speed * servo_P, 2);
 				error_1 = error_2;
 				error_2 = error_3;
 				encoder->Update();
@@ -961,8 +978,8 @@ void algo() {
 				cum_error += error;
 				error_3 = error - prev_error;
 				float volt = Kp * error + Ki * cum_error + Kd * (error_3 + error_2 + error_1) / 3.0;
-				int speed_set = -(volt / battery->GetVoltage() * 1000);
-				speed_set = (speed_set > -500) ? ((speed_set > 500) ? 500 : speed_set) : -500;
+				int speed_set = -(volt / battery_meter->GetVoltage() * 1000);
+				speed_set = (speed_set > -800) ? ((speed_set > 800) ? 800 : speed_set) : -800;
 				if (no_movement_count > 5 || !motor_start) {
 					motor->SetPower(0);
 				} else {
@@ -1791,21 +1808,21 @@ void algo() {
 			if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In)) {
 				if (left_edge_corner.size() && right_edge_corner.size() && !FindLeftEndPoint(left_edge[left_edge_corner.front()].x, left_edge[left_edge_corner.front()].y) && !FindRightEndPoint(right_edge[right_edge_corner.front()].x, right_edge[right_edge_corner.front()].y)) {
 					destination = final_point;
-					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[98][115][0]) / (img2world[destination.x][destination.y][1] - img2world[98][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[98][115][0]) / (img2world[destination.x][destination.y][1] - img2world[98][115][1])) * 1800 / 3.14;
 				} else if (left_edge_corner.size() && !FindLeftEndPoint(left_edge[left_edge_corner.front()].x, left_edge[left_edge_corner.front()].y)) {
 					destination = left_edge[left_edge_corner.front()];
-					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 				} else if (right_edge_corner.size() && !FindRightEndPoint(right_edge[right_edge_corner.front()].x, right_edge[right_edge_corner.front()].y)) {
 					destination = right_edge[right_edge_corner.front()];
-					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 				} else if (left_target_found || right_target_found) {
-					servo_angle = 1120 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
 				} else if (left_edge.size()) {
 					destination = left_edge.back();
-					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 				} else if (right_edge.size()) {
 					destination = right_edge.back();
-					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 				}
 //				servo_angle += servo_D * (servo_angle - servo->GetDegree());
 //				switch (align) {
@@ -1818,32 +1835,32 @@ void algo() {
 //						} else {
 //							destination = left_edge.back();
 //						}
-//						servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+//						servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 //						servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //					}
 //					break;
 //				case 1:
 //					if (target_found) {
-//						servo_angle = 1120 + std::atan(1.0 * (target.front - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
+//						servo_angle = 870 + std::atan(1.0 * (target.front - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
 //						servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //					}
 ////					if (left_end_point_found && right_end_point_found) {
 ////						if (left_edge.size() > right_edge.size()) {
 ////							destination = left_end_point;
-////							servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+////							servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 ////							servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////						} else {
 ////							destination = right_end_point;
-////							servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+////							servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 ////							servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////						}
 ////					} else if (left_end_point_found) {
 ////						destination = left_end_point;
-////						servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+////						servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 ////						servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////					} else if (right_end_point_found) {
 ////						destination = right_end_point;
-////						servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+////						servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 ////						servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////					} else if (left_edge_corner.size() || right_edge_corner.size()) {
 ////						//					lcd->SetRegion(libsc::Lcd::Rect(final_point.x-1,final_point.y-1,3,3));
@@ -1851,27 +1868,27 @@ void algo() {
 ////						switch (align) {
 ////						case 0:
 ////							destination = final_point;
-////							servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+////							servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 ////							servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////							break;
 ////						case 1:
 ////							destination = final_point;
-////							servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[98][115][0]) / (img2world[destination.x][destination.y][1] - img2world[98][115][1])) * 1800 / 3.14;
+////							servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[98][115][0]) / (img2world[destination.x][destination.y][1] - img2world[98][115][1])) * 1800 / 3.14;
 ////							servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////							break;
 ////						case 2:
 ////							destination = final_point;
-////							servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+////							servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 ////							servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////							break;
 ////						}
 ////					} else if (left_edge.size() > right_edge.size()) {
 ////						destination = left_edge.back();
-////						servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+////						servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 ////						servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////					} else if (right_edge.size()) {
 ////						destination = right_edge.back();
-////						servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+////						servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 ////						servo_angle += servo_D * (servo_angle - prev_servo_angle);
 ////					}
 //					break;
@@ -1884,7 +1901,7 @@ void algo() {
 //						} else {
 //							destination = right_edge.back();
 //						}
-//						servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+//						servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 //						servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //						break;
 //					}
@@ -1892,71 +1909,71 @@ void algo() {
 			} else if (track_state == Tstate::Crossroad) {
 				switch (align) {
 				case 0:
-					servo_angle = 1120 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[48][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[48][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				case 1:
-					servo_angle = 1120 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[98][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[98][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[98][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[98][115][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				case 2:
-					servo_angle = 1120 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[149][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+					servo_angle = 870 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[149][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				}
 			} else if (track_state == Tstate::RightLoop) {
-				servo_angle = 1120 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
+				servo_angle = 870 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
 
 //				switch (loop_state) {
 //				case Lstate::Entering:
-//					servo_angle = 1120 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
+//					servo_angle = 870 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
 ////					if (!FindRightEndPoint(leftmostP.x, leftmostP.y)) {
 ////						destination = final_point;
-////						servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+////						servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 ////
 ////					} else {
-////						servo_angle = 1120 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
+////						servo_angle = 870 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
 ////					}
 ////					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //
 //					break;
 //				case Lstate::Leaving:
 //					destination = final_point;
-//					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+//					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 ////					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //
 //					break;
 //				case Lstate::Finished:
 //					destination = left_end_point_found ? left_end_point : left_edge.back();
-//					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+//					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 ////					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //
 //					break;
 //				}
 			} else if (track_state == Tstate::LeftLoop) {
-				servo_angle = 1120 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
+				servo_angle = 870 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
 
 //				switch (loop_state) {
 //				case Lstate::Entering:
 ////					if (!FindLeftEndPoint(rightmostP.x, rightmostP.y)) {
 ////						destination = final_point;
-////						servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+////						servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 ////					} else {
-////						servo_angle = 1120 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
+////						servo_angle = 870 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
 ////					}
-//				servo_angle = 1120 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
+//				servo_angle = 870 + std::atan(1.0 * (target.first - img2world[98][115][0]) / (target.second - img2world[98][115][1])) * 1800 / 3.14;
 ////					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //
 //					break;
 //				case Lstate::Leaving:
 //					destination = final_point;
-//					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
+//					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][115][0]) / (img2world[destination.x][destination.y][1] - img2world[48][115][1])) * 1800 / 3.14;
 ////					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //
 //					break;
 //				case Lstate::Finished:
 //					destination = right_end_point_found ? right_end_point : right_edge.back();
-//					servo_angle = 1120 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
+//					servo_angle = 870 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[149][115][0]) / (img2world[destination.x][destination.y][1] - img2world[149][115][1])) * 1800 / 3.14;
 ////					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 //
 //					break;
@@ -1966,7 +1983,7 @@ void algo() {
 			degree_3 = servo_angle - prev_angle;
 			prev_angle = servo_angle;
 			servo_angle += servo_D * ((degree_1 + degree_2 + degree_3) / 3.0);
-			servo->SetDegree(libutil::Clamp(700, servo_angle, 1500));
+			servo->SetDegree(libutil::Clamp(300, servo_angle, 1500));
 
 			if (debug) {
 				lcd->SetRegion(libsc::St7735r::Lcd::Rect(destination.x - 2, destination.y - 2, 5, 5));
@@ -2056,7 +2073,7 @@ void algo() {
 //				buzzer->SetBeep(false);
 //			}
 			char buffer[100] = { };
-			sprintf(buffer, "%d\n", servo_angle);
+			sprintf(buffer, "%d , %d\n", (int) target_speed, (int) servo->GetDegree());
 			bt->SendStr(buffer);
 			prev_track_state = track_state;
 		}
