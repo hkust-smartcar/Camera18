@@ -38,8 +38,8 @@ float target_speed = 580;
 float Kp = 0.015;
 float Ki = 0.001;
 float Kd = 0.01;
-float servo_P = 0.5;
-float servo_D = 8.0;
+float servo_P = 0.7;
+float servo_D = 9.5;
 float search_distance = std::pow(target_speed * servo_P, 2);
 float search_m;
 float search_c;
@@ -744,9 +744,6 @@ void algo() {
 
 	bool debug = true;
 
-	int current_angle = 870;
-	int set_angle = 870;
-
 //	float search_const = 0.4;
 	InitBluetoothDebug(&debug);
 //	PushTuneFloat("servo_D\n", (Byte*) &servo_D);
@@ -827,19 +824,19 @@ void algo() {
 
 
 			if (!debug) {
-
-				if (servo->GetDegree() > current_angle)
-					current_angle += std::min(20, servo->GetDegree() - current_angle);
-				else if (servo->GetDegree() < current_angle)
-					current_angle += std::max(-20, servo->GetDegree() - current_angle);
-
-				set_angle += (int) (current_angle - set_angle) * 0.4;
-				double angle_degree = (set_angle - 870) * 0.1;
-				tuning_param = 550 * std::sqrt(std::sin(3.14159265359 * 40 / 180));
-				if (angle_degree != 0)
-					target_speed = std::min((int) (tuning_param / (std::sqrt(std::abs(std::sin(angle_degree * 3.14159265359 / 180))))), 800);
-				else
-					target_speed = 800;
+				target_speed = 650;
+//				if (servo->GetDegree() > current_angle)
+//					current_angle += std::min(20, servo->GetDegree() - current_angle);
+//				else if (servo->GetDegree() < current_angle)
+//					current_angle += std::max(-20, servo->GetDegree() - current_angle);
+//
+//				set_angle += (int) (current_angle - set_angle) * 0.4;
+//				double angle_degree = (current_angle - 870) * 0.1;
+//				tuning_param = 650 * std::sqrt(std::sin(3.14159265359 * 40 / 180));
+//				if (angle_degree != 0)
+//					target_speed = std::min((int) (tuning_param / (std::sqrt(std::abs(std::sin(angle_degree * 3.14159265359 / 180))))), 1100);
+//				else
+//					target_speed = 1100;
 
 				search_distance = std::pow(target_speed * servo_P, 2);
 				error_1 = error_2;
@@ -1852,7 +1849,7 @@ void algo() {
 			degree_3 = servo_angle - prev_angle;
 			prev_angle = servo_angle;
 			servo_angle += servo_D * ((degree_1 + degree_2 + degree_3) / 3.0);
-			servo->SetDegree(libutil::Clamp(470, servo_angle, 1270));
+			servo->SetDegree(libutil::Clamp(500, servo_angle, 1300));
 
 			if (debug) {
 				lcd->SetRegion(libsc::St7735r::Lcd::Rect(destination.x - 2, destination.y - 2, 5, 5));
@@ -1936,11 +1933,11 @@ void algo() {
 //			target_speed = 870 * std::exp(-485 * (left_curvature < right_curvature ? left_curvature : right_curvature));
 //			target_speed = libutil::Clamp((float) 500.0, target_speed, (float) 800.0);
 //			search_distance = std::pow(target_speed * servo_P, 2);
-			if ((track_state == RightLoop||track_state == LeftLoop)) {
-				buzzer->SetBeep(true);
-			} else {
-				buzzer->SetBeep(false);
-			}
+//			if ((track_state == RightLoop||track_state == LeftLoop)) {
+//				buzzer->SetBeep(true);
+//			} else {
+//				buzzer->SetBeep(false);
+//			}
 			char buffer[100] = { };
 			sprintf(buffer, "%d , %d\n", (int) target_speed, (int) servo->GetDegree());
 			bt->SendStr(buffer);
