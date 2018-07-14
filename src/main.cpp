@@ -80,7 +80,7 @@ int main() {
 	//Servo Init
 	libsc::Servo::Config servo_config;
 	servo_config.id = 0;
-	servo_config.period = 3333;
+	servo_config.period = 5000;
 	servo_config.max_pos_width = 2000;
 	servo_config.min_pos_width = 1000;
 	libsc::Servo servo_(servo_config);
