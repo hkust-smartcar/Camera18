@@ -835,45 +835,50 @@ void algo() {
 //				set_angle += (int) (current_angle - set_angle) * 0.4;
 				double angle_degree = (current_angle - 920) * 0.1;
 				int temp;
-//				float tuning_param = 1.6;
-//				int min_speed = angle_degree < 0 ? 700 : 700;
+				float tuning_param = 1.6;
+				int min_speed = angle_degree < 0 ? 730 : 760;
 //				if (angle_degree < 0) {
 //					servo_P = 0.35;
 //				} else {
 //					servo_P = 0.5;
 //				}
-//				if (angle_degree != 0) {
-//					int temp = std::min(((int) (1200 * exp(-1 * tuning_param * std::abs(std::sin(angle_degree * 3.14159265359 / 180)) / 0.2) + min_speed)), 1200);
-//					if (temp > target_speed) {
-//						target_speed = 0.98 * target_speed + 0.02 * temp;
-//					} else {
-//						target_speed = temp;
-//					}
-//				} else
-//					target_speed = 1200;
+				if (angle_degree != 0) {
+					int temp = std::min(((int) (1200 * exp(-1 * tuning_param * std::abs(std::sin(angle_degree * 3.14159265359 / 180)) / 0.2) + min_speed)), 1200);
+					if (temp > target_speed) {
+						target_speed = 0.98 * target_speed + 0.02 * temp;
+					} else {
+						target_speed = temp;
+					}
+				} else
+					target_speed = 1200;
+				if (servo->GetDegree() < 401) {
+					target_speed = 730;
+				} else if (servo->GetDegree() > 1399) {
+					target_speed = 750;
+				}
 //				tuning_param = 700 * std::sqrt(std::sin(3.14159265359 * 40 / 180));
 //				if (angle_degree != 0)
 //					temp = std::min((int) (tuning_param / (std::sqrt(std::abs(std::sin(angle_degree * 3.14159265359 / 180))))), 1210);
 //				else
-//					temp = 1210;
+//					temp = 1200;
 
-				tuning_param = 8;
-				int min_speed = 700;
-				int max_speed = 1200;
-
-				if(angle_degree<0)
-					angle_degree = -angle_degree;
-
-				target_speed = ((max_speed-min_speed) / (1 + exp(tuning_param * ((angle_degree*1.7 / 40) - 0.7)))) +min_speed;
-
-				if(temp>=target_speed)
-					target_speed = target_speed + 0.05 * (temp-target_speed);
-				else{
-					if((target_speed - temp) >200 && target_speed>880)
-						target_speed = target_speed + 1.5 * (temp-target_speed);
-					else
-						target_speed = temp;
-				}
+//				tuning_param = 8;
+//				int min_speed = 700;
+//				int max_speed = 1200;
+//
+//				if(angle_degree<0)
+//					angle_degree = -angle_degree;
+//
+//				target_speed = ((max_speed-min_speed) / (1 + exp(tuning_param * ((angle_degree*1.7 / 40) - 0.7)))) +min_speed;
+//
+//				if(temp>=target_speed)
+//					target_speed = target_speed + 0.05 * (temp-target_speed);
+//				else{
+//					if((target_speed - temp) >200 && target_speed>880)
+//						target_speed = target_speed + 1.5 * (temp-target_speed);
+//					else
+//						target_speed = temp;
+//				}
 
 //				float servo_angle = servo->GetDegree();
 //				int difference = servo->GetDegree() - cal_servo_angle;
@@ -928,7 +933,7 @@ void algo() {
 				}
 				prev_error = error;
 				if (-prev_count > target_speed) {
-					search_distance = std::pow(target_speed * servo_P, 2);
+					search_distance = std::pow(-prev_count * servo_P, 2);
 				}
 
 //				char buffer[50];
@@ -1919,7 +1924,7 @@ void algo() {
 			degree_3 = servo_angle - prev_angle;
 			prev_angle = servo_angle;
 			servo_angle += servo_D * ((degree_1 + degree_2 + degree_3) / 3.0);
-			servo->SetDegree(libutil::Clamp(500, servo_angle, 1340));
+			servo->SetDegree(libutil::Clamp(400, servo_angle, 1400));
 
 			if (debug) {
 				lcd->SetRegion(libsc::St7735r::Lcd::Rect(destination.x - 2, destination.y - 2, 5, 5));
