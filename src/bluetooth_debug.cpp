@@ -16,6 +16,7 @@ std::vector<const char*> var_name;
 bool tuned_var_coming;
 int tuned_var_count;
 int tuned_byte_count;
+bool* car_stop;
 
 bool bluetoothListener(const Byte* data, const size_t size) {
 	if (data[0] == 255 && !tuned_var_coming) {
@@ -25,6 +26,9 @@ bool bluetoothListener(const Byte* data, const size_t size) {
 		tuned_var_coming = true;
 		tuned_var_count = 0;
 		tuned_byte_count = 0;
+	} else if (data[0] == 0 && !tuned_var_coming) {
+		motor->SetPower(0);
+		*car_stop = !(*car_stop);
 	} else if (tuned_var_coming) {
 		*(var_value[tuned_var_count] + tuned_byte_count++) = data[0];
 		switch (var_type[tuned_var_count]) {
@@ -83,6 +87,7 @@ bool bluetoothListener(const Byte* data, const size_t size) {
 	}
 }
 
+
 void PushTuneUint8(const char* name, Byte* var) {
 	var_type.push_back(0);
 	var_value.push_back(var);
@@ -131,7 +136,8 @@ void PushTuneDouble(const char* name, Byte* var) {
 	var_name.push_back(name);
 }
 
-void InitBluetoothDebug() {
+void InitBluetoothDebug(bool* stop) {
+	car_stop = stop;
 	received_ack = true;
 	send_buffer.clear();
 	var_type.clear();
@@ -179,4 +185,46 @@ void InitValueDebug() {
 	}
 	libsc::System::DelayMs(3000);
 	var_name.clear();
+}
+
+bool SendData(std::vector<coor>& left_edge, std::vector<coor>& right_edge, int servo_angle, int mode, bool left_corner_valid, bool right_corner_valid, int car_speed, int left_edge_end_point, int right_edge_end_point, coor left_corner, coor right_corner) {
+	if (!received_ack)
+		return false;
+	received_ack = false;
+	bt->SendBuffer(&camera_data_start_byte, 1);
+//	send_buffer.clear();
+	send_buffer.push_back(6);
+	send_buffer.push_back(left_edge.size());
+	send_buffer.push_back(right_edge.size());
+	send_buffer.push_back(servo_angle + 127);
+	send_buffer.push_back(car_speed && 0b11111111);
+	send_buffer.push_back(0 | (mode << 12) | (left_corner_valid << 3) | (right_corner_valid << 2) | (car_speed && 0b1100000000));
+	if (left_edge.size()) {
+		send_buffer.push_back(left_edge_end_point);
+	}
+	if (right_edge.size()) {
+		send_buffer.push_back(right_edge_end_point);
+	}
+	if (left_edge.size()) {
+		for (int i = 0; i < left_edge.size(); i++) {
+			send_buffer.push_back(left_edge[i].x);
+			send_buffer.push_back(left_edge[i].y);
+		}
+	}
+	if (right_edge.size()) {
+		for (int i = 0; i < right_edge.size(); i++) {
+			send_buffer.push_back(right_edge[i].x);
+			send_buffer.push_back(right_edge[i].y);
+		}
+	}
+	if (left_corner_valid) {
+		send_buffer.push_back(left_corner.x);
+		send_buffer.push_back(left_corner.y);
+	}
+	if (right_corner_valid) {
+		send_buffer.push_back(right_corner.x);
+		send_buffer.push_back(right_corner.y);
+	}
+	bt->SendBuffer(send_buffer);
+	return true;
 }

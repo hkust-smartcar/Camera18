@@ -11,7 +11,7 @@
 #include <global.h>
 
 //Call this function before doing any following operation
-void InitBluetoothDebug();
+void InitBluetoothDebug(bool* stop);
 
 //Parameter format ("var_name\n", (Byte*)&var)
 void PushTuneUint8(const char* name, Byte* var);
