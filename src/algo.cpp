@@ -1287,7 +1287,7 @@ void algo() {
 //				}
 //				target_speed = 750;
 				if (libsc::System::Time() - debug_end_time < 2000) {
-					target_speed = 600;
+					target_speed = 0.5* target_speed;
 				}
 				if (libsc::System::Time() - debug_end_time < 1000) {
 					target_speed = 0;
@@ -1298,7 +1298,7 @@ void algo() {
 				error_2 = error_3;
 				encoder->Update();
 				float curr = encoder->GetCount();
-				if(track_state != StartLine && track_state!=Stop){
+				if(startline_count == 1 && track_state!=Stop){
 					sum_enc -= curr;
 					enc_count++;
 				}
@@ -2491,9 +2491,9 @@ void algo() {
 //			target_speed = libutil::Clamp((float) 500.0, target_speed, (float) 800.0);
 //			search_distance = std::pow(target_speed * servo_P, 2);
 			if (track_state == RightObs) {
-				midpoint_offset = obstacle_state == Ostate::Pass ? 100 : std::max(100.0, -20 + (100.0 / 250) * (img2world[right_obs_target.x][right_obs_target.y][1] - search_origin_y));
+				midpoint_offset = 100;
 			} else if (track_state == LeftObs) {
-				midpoint_offset = obstacle_state == Ostate::Pass ? 100 : std::max(100.0, -20 + (100.0 / 250) * (img2world[left_obs_target.x][left_obs_target.y][1] - search_origin_y));
+				midpoint_offset = 100;
 			} else {
 				midpoint_offset = 200;
 			}
