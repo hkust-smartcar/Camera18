@@ -710,8 +710,8 @@ void LeftEdge(coor start_point, int& edge_prev_dir, bool append) {
 					for (; i < 3 && ty < height - 4 && ty > 3 && tx > 3 && tx < width - 4 && SobelEdgeDetection(tx, ty) < edge_threshold; i++) {
 						ty--;
 						tx = ty * slope + constant;
-//						lcd->SetRegion(libsc::St7735r::Rect(tx, ty, 1, 1));
-//						lcd->FillColor(lcd->kRed);
+						lcd->SetRegion(libsc::St7735r::Rect(tx, ty, 1, 1));
+						lcd->FillColor(lcd->kRed);
 					}
 					if (i < 3 && ty < height - 4 && ty > 3 && tx > 3 && tx < width - 4) {
 						left_obs = true;
@@ -768,8 +768,8 @@ void RightEdge(coor start_point, int& edge_prev_dir, bool append) {
 					for (; i < 3 && ty < height - 4 && ty > 3 && tx > 3 && tx < width - 4 && SobelEdgeDetection(tx, ty) < edge_threshold; i++) {
 						ty--;
 						tx = ty * slope + constant;
-//						lcd->SetRegion(libsc::St7735r::Rect(tx, ty, 1, 1));
-//						lcd->FillColor(lcd->kBlue);
+						lcd->SetRegion(libsc::St7735r::Rect(tx, ty, 1, 1));
+						lcd->FillColor(lcd->kBlue);
 					}
 					if (i < 3 && ty < height - 4 && ty > 3 && tx > 3 && tx < width - 4) {
 						right_obs = true;
@@ -1009,6 +1009,50 @@ int CheckStartLine(int y, int leftthres, int rightthres, int threshold) {
 //		writerP->WriteString(buffer);
 	return count;
 }
+
+bool FindLeftObsTarget(coor& left_obs_target, int y, int leftthres, int rightthres){
+	int x = leftthres;
+	if (y > 116 || y < 4)
+		return false;
+	while (x < rightthres) {
+		if (y < height - 4 && y > 3 && x > 3 && x < width - 4 && SobelEdgeDetection(x, y) >= edge_threshold) {
+			left_obs_target = {x,y+5};
+			return true;
+		}
+		x++;
+	}
+	return false;
+}
+
+bool FindRightObsTarget(coor& right_obs_target, int y, int leftthres, int rightthres){
+	int x = rightthres;
+	if (y > 116 || y < 4)
+		return false;
+	while (x > leftthres) {
+		if (y < height - 4 && y > 3 && x > 3 && x < width - 4 && SobelEdgeDetection(x, y) >= edge_threshold) {
+			right_obs_target = {x,y+5};
+			return true;
+		}
+		x--;
+	}
+	return false;
+}
+
+void CheckCoor(coor & coor){
+	int x = coor.x;
+	int y = coor.y;
+	if(y < height - 4 && y > 3 && x > 3 && x < width - 4 )
+		return;
+	if(x<=3)
+		coor.x = 4;
+	else if(x>=width - 4)
+		coor.x = width - 5;
+	if(y<=3)
+		coor.y = 4;
+	else if(y>=height-4)
+		coor.y = height - 5;
+
+}
 void print(const std::vector<coor>& v) {
 	for (uint16_t i = 0; i < v.size(); i++) {
 		coor t = v[i];
@@ -1099,7 +1143,7 @@ void algo() {
 			if (debug) {
 				for (uint16_t i = 0; i < height; i++) {
 					lcd->SetRegion(libsc::Lcd::Rect(0, i, 160, 1));
-					lcd->FillGrayscalePixel(26 + buffer + camera->GetW() * i, 160);
+					lcd->FillGrayscalePixel(buffer + camera->GetW() * i, 160);
 				}
 			}
 //			encoder->Update();
@@ -1308,11 +1352,13 @@ void algo() {
 				if (right_start_point(midpoint, right_start, edge_threshold))
 					RightEdge(right_start, right_edge_prev_dir, false);
 				if (left_obs && !right_obs) {
-					if (CheckStartLine(left_obs_coor.y - 5, left_obs_coor.x - 10, (left_start.x + right_start.x) / 2 + 15, edge_threshold) == 3 && obs_width > 90 && obs_width < 140)
+					int tempcount = CheckStartLine(left_obs_coor.y - 5, left_obs_coor.x - 15, (left_start.x + right_start.x) / 2 + 10, edge_threshold);
+					if ((tempcount  == 3 || tempcount ==4)&& obs_width > 90 && obs_width < 140)
 						track_state = LeftObs;
 
 				} else if (!left_obs && right_obs) {
-					if (CheckStartLine(right_obs_coor.y - 5, (left_start.x + right_start.x) / 2 - 15, right_obs_coor.x + 10, edge_threshold) == 3 && obs_width > 90 && obs_width < 140)
+					int tempcount = CheckStartLine(right_obs_coor.y - 5, (left_start.x + right_start.x) / 2 - 10, right_obs_coor.x + 15, edge_threshold);
+					if((tempcount == 3 ||tempcount == 4) && obs_width > 90 && obs_width < 140)
 						track_state = RightObs;
 
 				} else if (left_obs && right_obs) {
@@ -1630,9 +1676,12 @@ void algo() {
 							if (leftmostP.y != 120) {
 								midpoint = {leftmostP.x-10,leftmostP.y};
 							}
+							CheckCoor(midpoint);
+
 							if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 100) {
 								loop_state = In;
 								midpoint = {(left_start.x+right_start.x)/2, 90};
+								CheckCoor(midpoint);
 							}
 							else {
 								right_edge_prev_dir = up;
@@ -1654,6 +1703,8 @@ void algo() {
 								else {
 									midpoint = {midpoint.x,midpoint.y-10};
 								}
+								CheckCoor(midpoint);
+
 								align = right_align;
 								if(right_end_point_found)
 								final_point = right_end_point;							//right_edge.back();
@@ -1676,10 +1727,12 @@ void algo() {
 								LeftLoopEdgeR(right_start, right_edge_prev_dir, leftmostP, false);
 
 								midpoint = {leftmostP.x-10,leftmostP.y};
+								CheckCoor(midpoint);
 
 								if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 100) {
 									loop_state = In;
 									midpoint = {(left_start.x+right_start.x)/2, 90};
+									CheckCoor(midpoint);
 								}
 								else {
 									right_edge_prev_dir = up;
@@ -1696,6 +1749,7 @@ void algo() {
 										RightLoopEdgeR(right_start, right_edge_prev_dir, leftmostP,false);
 									}
 									midpoint = {leftmostP.x-10,leftmostP.y};
+									CheckCoor(midpoint);
 
 								}
 							}
@@ -2054,20 +2108,28 @@ void algo() {
 
 			if (track_state == LeftObs) {
 				if (obstacle_state == Approach) {
-					if (prev_track_state == LeftObs) {
+					//if (prev_track_state == LeftObs) {
 						left_edge_prev_dir = up;
 						right_edge_prev_dir = up;
 						if (left_start_point(midpoint, left_start, edge_threshold))
 							LeftEdge(left_start, left_edge_prev_dir, false);
 						if (right_start_point(midpoint, right_start, edge_threshold))
 							RightEdge(right_start, right_edge_prev_dir, false);
-					}
+				//	}
+					midpoint.x = (left_start.x+right_start.x)/2;
+					CheckCoor(midpoint);
+
 					if (left_obs) {
-						left_obs_target = left_obs_coor;
+						if(FindLeftObsTarget(left_obs_target, left_obs_coor.y-5,left_obs_coor.x+8, midpoint.x+10));
+						else{
+							left_obs_target = {left_obs_coor.x+8, left_obs_coor.y};
+						}
+						CheckCoor(left_obs_target);
 					}
 					if (left_obs_target.y > 90) {
 						obstacle_state = Pass;
 						midpoint = {(left_obs_target.x+right_start.x)/2,90};
+						CheckCoor(midpoint);
 					} else {
 						track_state = LeftObs;
 						obstacle_state = Approach;
@@ -2114,12 +2176,21 @@ void algo() {
 					if (right_start_point(midpoint, right_start, edge_threshold))
 						RightEdge(right_start, right_edge_prev_dir, false);
 
+					midpoint.x = (left_start.x+right_start.x)/2;
+					CheckCoor(midpoint);
 					if (right_obs) {
-						right_obs_target = right_obs_coor;
+						if(FindRightObsTarget(right_obs_target, right_obs_coor.y-5, midpoint.x-10,right_obs_coor.x-8)){
+
+						}
+						else{
+							right_obs_target = {right_obs_coor.x-8, right_obs_coor.y};
+						}
+						CheckCoor(right_obs_target);
 					}
 					if (right_obs_target.y > 90) {
 						obstacle_state = Pass;
 						midpoint = {(right_obs_target.x+left_start.x)/2,90};
+						CheckCoor(midpoint);
 					} else {
 						track_state = RightObs;
 						obstacle_state = Approach;
@@ -2198,6 +2269,7 @@ void algo() {
 						}
 						else {
 							midpoint = {(left_start.x+right_start.x)/2,70};
+							CheckCoor(midpoint);
 						}
 					}
 				}
@@ -2218,24 +2290,24 @@ void algo() {
 			if (debug) {
 				for (int i = 0; i < left_edge.size(); i++) {
 
-					lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[i].x - 29, left_edge[i].y, 1, 1));
+					lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[i].x , left_edge[i].y, 1, 1));
 					lcd->FillColor(lcd->kPurple);
 				}
 				for (int i = 0; i < right_edge.size(); i++) {
-					lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[i].x - 29, right_edge[i].y, 1, 1));
+					lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[i].x, right_edge[i].y, 1, 1));
 					lcd->FillColor(lcd->kRed);
 				}
 
 				for (int i = 0; i < left_edge_corner.size(); i++) {
-					lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[left_edge_corner[i]].x - 29, left_edge[left_edge_corner[i]].y, 5, 5));
+					lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_edge[left_edge_corner[i]].x, left_edge[left_edge_corner[i]].y, 5, 5));
 					lcd->FillColor(lcd->kPurple);
 				}
 				for (int i = 0; i < right_edge_corner.size(); i++) {
 
-					lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[right_edge_corner[i]].x - 29, right_edge[right_edge_corner[i]].y, 5, 5));
+					lcd->SetRegion(libsc::St7735r::Lcd::Rect(right_edge[right_edge_corner[i]].x , right_edge[right_edge_corner[i]].y, 5, 5));
 					lcd->FillColor(lcd->kRed);
 				}
-				lcd->SetRegion(libsc::St7735r::Lcd::Rect(midpoint.x - 29, midpoint.y, 4, 4));
+				lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_obs_target.x,left_obs_target.y, 4, 4));
 				lcd->FillColor(lcd->kBlue);
 				char buffer[50];
 				sprintf(buffer, "t %d l %d b %f \n %d %d", track_state, loop_state, battery_meter->GetVoltage(), right_edge.front().x, left_edge.front().x);
@@ -2403,7 +2475,7 @@ void algo() {
 				midpoint_offset = 200;
 			}
 
-			if ((track_state == RightLoop || track_state == LeftLoop)) {
+			if ((track_state == RightObs || track_state == LeftObs)) {
 				buzzer->SetBeep(true);
 			} else {
 				buzzer->SetBeep(false);
