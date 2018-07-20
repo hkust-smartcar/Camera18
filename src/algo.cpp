@@ -1129,7 +1129,8 @@ void algo() {
 	int current_angle = 975;
 	float cal_servo_angle = 975;
 	int servo_angle = 975;
-//	target_speed = 100;
+	target_speed = 1200;
+	libsc::Timer::TimerInt debug_end_time;
 	while (1) {
 		if (camera->IsAvailable()) {
 			if (!debug) {
@@ -1150,6 +1151,7 @@ void algo() {
 				if (joystick->GetState() == libsc::Joystick::State::kSelect) {
 					debug = false;
 					encoder->Update();
+					debug_end_time = libsc::System::Time();
 				}
 			}
 			if (debug) {
@@ -1283,7 +1285,14 @@ void algo() {
 //				} else {
 //					target_speed = 700;
 //				}
+//
 //				target_speed = 750;
+//				if (libsc::System::Time() - debug_end_time < 2000) {
+//					target_speed = 0.5 * target_speed;
+//				}
+//				if (libsc::System::Time() - debug_end_time < 1000) {
+//					target_speed = 750;
+//				}
 
 				search_distance = std::pow(target_speed * servo_P, 2);
 				error_1 = error_2;
@@ -2294,7 +2303,7 @@ void algo() {
 				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 
 				char buffer[50];
-				sprintf(buffer, "ave %f", sum_enc*0.017/enc_count);
+				sprintf(buffer, "ave %f", sum_enc*0.017/enc_count/5);
 				lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
 				writerP->WriteString(buffer);
 			}
