@@ -42,7 +42,7 @@ float target_speed = 530;
 float Kp = 0.02;
 float Ki = 0.00028;
 float Kd = 0.002;
-float servo_P = 0.55;
+float servo_P = 0.45; //0.55
 float servo_D = 13.0;
 float search_distance = std::pow(target_speed * servo_P, 2);
 float search_m;
@@ -918,8 +918,12 @@ void normal_left_corner_fsm(Tstate& track_state, coor& final_point, coor& midpoi
 		else
 			track_state = LeftLoop;
 	} else {
-		final_point = new_start;
-		midpoint= {(left_start.x+right_start.x)/2,110};
+		if (right_edge.size())
+			track_state = LeftLoop;
+		else {
+			final_point = new_start;
+			midpoint= {(left_start.x+right_start.x)/2,110};
+		}
 	}
 }
 
@@ -936,8 +940,12 @@ void normal_right_corner_fsm(Tstate& track_state, coor& final_point, coor& midpo
 		else
 			track_state = RightLoop;
 	} else {
-		final_point = new_start;
-		midpoint= {(left_start.x+right_start.x)/2,110};
+		if (left_edge.size())
+			track_state = RightLoop;
+		else {
+			final_point = new_start;
+			midpoint= {(left_start.x+right_start.x)/2,110};
+		}
 	}
 }
 
@@ -1069,10 +1077,10 @@ void algo() {
 	bool motor_start = true; //false;
 	int count_encoder = 0;
 	int tuning_param = 0;
-	int set_angle = 865;
-	int current_angle = 865;
-	float cal_servo_angle = 865;
-	int servo_angle = 865;
+	int set_angle = 975;
+	int current_angle = 975;
+	float cal_servo_angle = 975;
+	int servo_angle = 975;
 //	target_speed = 100;
 	while (1) {
 		if (camera->IsAvailable()) {
@@ -1084,8 +1092,8 @@ void algo() {
 //				sprintf(buffer, "%.2f,%.2f\n", target_speed, search_distance);
 //				bt->SendStr(buffer);
 			}
-			if (search_distance < 8650)
-				search_distance = 8650;
+			if (search_distance < 9750)
+				search_distance = 9750;
 //			float search_distance = std::pow(target_speed * search_const, 2);
 			time_now = libsc::System::Time();
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
@@ -1117,7 +1125,7 @@ void algo() {
 //				current_angle += std::max(-20, servo->GetDegree()-current_angle);
 //
 //			set_angle += (int)(current_angle - set_angle)*0.4;
-//			double angle_degree = (servo->GetDegree() - 865)*0.1;
+//			double angle_degree = (servo->GetDegree() - 975)*0.1;
 //			if(angle_degree<10){
 //				tuning_param = 300*std::pow(std::sin(PI*40/180), 0.5);
 //				if(angle_degree == 0)
@@ -1146,7 +1154,7 @@ void algo() {
 					current_angle += std::max(-20, servo->GetDegree() - current_angle);
 
 //				set_angle += (int) (current_angle - set_angle) * 0.4;
-				double angle_degree = (current_angle - 865) * 0.1;
+				double angle_degree = (current_angle - 975) * 0.1;
 				double angle_degree_2 = std::atan((speed_target_point.first - search_origin_x) / (speed_target_point.second - search_origin_y)) * 180 / 3.14;
 				int temp;
 				int temp_2;
@@ -1189,13 +1197,13 @@ void algo() {
 //					target_speed = 1200;
 				if (track_state == Tstate::Stop) {
 					target_speed = 0;
-				} else if (servo_angle < 300) {
+				} else if (servo_angle < 400) {
 					target_speed = 650;
-				} else if (servo_angle > 1400) {
+				} else if (servo_angle > 1500) {
 					target_speed = 650;
-				} else if (servo->GetDegree() <= 450) {
+				} else if (servo->GetDegree() <= 550) {
 					target_speed = 755;
-				} else if (servo->GetDegree() >= 1280) {
+				} else if (servo->GetDegree() >= 1380) {
 					target_speed = 750;
 				}
 //				tuning_param = 700 * std::sqrt(std::sin(3.14159265359 * 40 / 180));
@@ -1227,7 +1235,7 @@ void algo() {
 //				} else {
 //					target_speed = 700;
 //				}
-				target_speed = 650;
+				target_speed = 750;
 
 				search_distance = std::pow(target_speed * servo_P, 2);
 				error_1 = error_2;
@@ -1240,12 +1248,12 @@ void algo() {
 				} else {
 					no_movement_count = 0;
 				}
-				if (std::abs(curr) > 8650) {
+				if (std::abs(curr) > 9750) {
 					curr = target_speed;
 				}
 				curr = 0.5 * curr + 0.5 * prev_count;
 				prev_count = curr;
-				curr = curr > 8650 ? prev_error : curr;
+				curr = curr > 9750 ? prev_error : curr;
 				float error = target_speed + curr;	//curr is negative when forward
 				cum_error += error;
 				error_3 = error - prev_error;
@@ -1352,14 +1360,14 @@ void algo() {
 						}
 					} else if (left_edge_corner.size() == 1 && right_edge_corner.size() == 0) {
 						if (left_edge[left_edge_corner[0]].y > 90) {
-//						normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start,left_edge_prev_dir);
-							coor new_start = {0, 0};
-							if(Ljump(new_start)) {
-								left_edge_prev_dir = right;
-								left_edge.push_back(new_start);
-								LeftEdge(left_edge.back(), left_edge_prev_dir, false);
-							}
-							track_state = LeftLoop;
+							normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start,left_edge_prev_dir);
+//							coor new_start = {0, 0};
+//							if(Ljump(new_start)) {
+//								left_edge_prev_dir = right;
+//								left_edge.push_back(new_start);
+//								LeftEdge(left_edge.back(), left_edge_prev_dir, false);
+//							}
+//							track_state = LeftLoop;
 						}
 						else {
 							final_point =
@@ -1370,14 +1378,14 @@ void algo() {
 						}
 					} else if (left_edge_corner.size() == 0 && right_edge_corner.size() == 1) {
 						if (right_edge[right_edge_corner[0]].y > 90) {
-//						    normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start,right_edge_prev_dir);
-							coor new_start = {0, 0};
-							if(Rjump(new_start)) {
-								right_edge_prev_dir = left;
-								right_edge.push_back(new_start);
-								RightEdge(right_edge.back(), right_edge_prev_dir, false);
-							}
-							track_state = RightLoop;
+							normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start,right_edge_prev_dir);
+//							coor new_start = {0, 0};
+//							if(Rjump(new_start)) {
+//								right_edge_prev_dir = left;
+//								right_edge.push_back(new_start);
+//								RightEdge(right_edge.back(), right_edge_prev_dir, false);
+//							}
+//							track_state = RightLoop;
 						}
 						else {
 							final_point = right_end_point.y > right_edge[right_edge_corner[0]].y
@@ -2258,60 +2266,60 @@ void algo() {
 			if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In) || (track_state == Tstate::Crossroad && crossroad_state == Cstate::Outside)) {
 				if (left_edge_corner.size() && right_edge_corner.size() && !FindLeftEndPoint(left_edge[left_edge_corner.front()].x, left_edge[left_edge_corner.front()].y) && !FindRightEndPoint(right_edge[right_edge_corner.front()].x, right_edge[right_edge_corner.front()].y)) {
 					destination = final_point;
-					servo_angle = 865 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[107][115][0]) / (img2world[destination.x][destination.y][1] - img2world[107][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[107][115][0]) / (img2world[destination.x][destination.y][1] - img2world[107][115][1])) * 1800 / 3.14;
 				} else if (left_edge_corner.size() && !FindLeftEndPoint(left_edge[left_edge_corner.front()].x, left_edge[left_edge_corner.front()].y)) {
 					destination = left_edge[left_edge_corner.front()];
-					servo_angle = 865 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[58][115][0]) / (img2world[destination.x][destination.y][1] - img2world[58][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[58][115][0]) / (img2world[destination.x][destination.y][1] - img2world[58][115][1])) * 1800 / 3.14;
 				} else if (right_edge_corner.size() && !FindRightEndPoint(right_edge[right_edge_corner.front()].x, right_edge[right_edge_corner.front()].y)) {
 					destination = right_edge[right_edge_corner.front()];
-					servo_angle = 865 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[157][115][0]) / (img2world[destination.x][destination.y][1] - img2world[157][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[157][115][0]) / (img2world[destination.x][destination.y][1] - img2world[157][115][1])) * 1800 / 3.14;
 				} else if (left_target_found || right_target_found) {
-					servo_angle = 865 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
 				} else if (left_edge.size()) {
 					destination = left_edge.back();
-					servo_angle = 865 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[58][115][0]) / (img2world[destination.x][destination.y][1] - img2world[58][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[58][115][0]) / (img2world[destination.x][destination.y][1] - img2world[58][115][1])) * 1800 / 3.14;
 				} else if (right_edge.size()) {
 					destination = right_edge.back();
-					servo_angle = 865 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[157][115][0]) / (img2world[destination.x][destination.y][1] - img2world[157][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[157][115][0]) / (img2world[destination.x][destination.y][1] - img2world[157][115][1])) * 1800 / 3.14;
 				}
 //
 			} else if (track_state == Tstate::LeftObs || track_state == Tstate::RightObs) {
-				servo_angle = 865 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
+				servo_angle = 975 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
 			} else if (track_state == Tstate::Crossroad) {
 				switch (align) {
 				case 0:
-					servo_angle = 865 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[58][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[58][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[58][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[58][115][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				case 1:
-					servo_angle = 865 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[107][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[107][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[107][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[107][115][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				case 2:
-					servo_angle = 865 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[157][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[157][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[157][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[157][115][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				}
 			} else if (track_state == Tstate::RightLoop) {
-				servo_angle = 865 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
+				servo_angle = 975 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
 
 			} else if (track_state == Tstate::LeftLoop) {
-				servo_angle = 865 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
+				servo_angle = 975 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
 			} else if (track_state == Tstate::StartLine || track_state == Tstate::Stop) {
 				if (left_target_found || right_target_found) {
-					servo_angle = 865 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (target.first - img2world[107][115][0]) / (target.second - img2world[107][115][1])) * 1800 / 3.14;
 				} else if (left_edge.size()) {
 					destination = left_edge.back();
-					servo_angle = 865 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[58][115][0]) / (img2world[destination.x][destination.y][1] - img2world[58][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[58][115][0]) / (img2world[destination.x][destination.y][1] - img2world[58][115][1])) * 1800 / 3.14;
 				} else if (right_edge.size()) {
 					destination = right_edge.back();
-					servo_angle = 865 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[157][115][0]) / (img2world[destination.x][destination.y][1] - img2world[157][115][1])) * 1800 / 3.14;
+					servo_angle = 975 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[157][115][0]) / (img2world[destination.x][destination.y][1] - img2world[157][115][1])) * 1800 / 3.14;
 				}
 			}
 			degree_3 = servo_angle - prev_angle;
 			prev_angle = servo_angle;
 			servo_angle += servo_D * ((degree_1 + degree_2 + degree_3) / 3.0);
-			servo->SetDegree(libutil::Clamp(450, servo_angle, 1280));
+			servo->SetDegree(libutil::Clamp(550, servo_angle, 1380));
 
 			if (debug) {
 				lcd->SetRegion(libsc::St7735r::Lcd::Rect(destination.x - 2, destination.y - 2, 5, 5));
@@ -2392,7 +2400,7 @@ void algo() {
 //			char buffer[100] = { };
 //			sprintf(buffer, "%.4f,%.4f,%.6f,%.6f\n", 1 / left_curvature, 1 / right_curvature, left_curvature, right_curvature);
 //			bt->SendStr(buffer);
-//			target_speed = 865 * std::exp(-485 * (left_curvature < right_curvature ? left_curvature : right_curvature));
+//			target_speed = 975 * std::exp(-485 * (left_curvature < right_curvature ? left_curvature : right_curvature));
 //			target_speed = libutil::Clamp((float) 500.0, target_speed, (float) 800.0);
 //			search_distance = std::pow(target_speed * servo_P, 2);
 			if (track_state == RightObs) {
@@ -2409,7 +2417,7 @@ void algo() {
 				buzzer->SetBeep(false);
 			}
 			char buffer[100] = { };
-			sprintf(buffer, "%d , %d\n", (int) track_state, (int) servo->GetDegree());
+			sprintf(buffer, "%d , %d, %d\n", (int) track_state, (int) left_edge.size(), (int) right_edge.size());
 //			sprintf(buffer, "%.1f+%.2f+%.2f\n", 1.0, (float) target_speed, (float) servo_angle);
 //			const Byte speedByte = 85;
 //			while (!bt->SendBuffer(&speedByte, 1))
