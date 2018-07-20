@@ -1282,7 +1282,7 @@ void algo() {
 //				} else {
 //					target_speed = 700;
 //				}
-				target_speed = 750;
+//				target_speed = 750;
 				if (libsc::System::Time() - debug_end_time < 2000) {
 					target_speed = 0.5 * target_speed;
 				}
@@ -1328,6 +1328,9 @@ void algo() {
 				prev_error = error;
 				if (-prev_count > target_speed) {
 					search_distance = std::pow(-prev_count * servo_P, 2);
+				}
+				if (search_distance < 400) {
+					search_distance = 400;
 				}
 
 //				char buffer[50];
