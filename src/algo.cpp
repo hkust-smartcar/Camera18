@@ -1112,6 +1112,9 @@ void algo() {
 
 	bool debug = true;
 
+	uint32_t sum_enc = 0;
+	uint32_t enc_count = 0;
+
 //	float search_const = 0.4;
 	InitBluetoothDebug(&debug);
 //	PushTuneFloat("servo_D\n", (Byte*) &servo_D);
@@ -1280,13 +1283,17 @@ void algo() {
 //				} else {
 //					target_speed = 700;
 //				}
-				target_speed = 750;
+//				target_speed = 750;
 
 				search_distance = std::pow(target_speed * servo_P, 2);
 				error_1 = error_2;
 				error_2 = error_3;
 				encoder->Update();
 				float curr = encoder->GetCount();
+				if(track_state != StartLine && track_state!=Stop){
+					sum_enc -= curr;
+					enc_count++;
+				}
 				if (std::abs(curr) < 100) {
 					++no_movement_count;
 					cum_error = 0;
@@ -2231,7 +2238,7 @@ void algo() {
 
 			if (track_state == StartLine) {
 				if (prev_track_state != StartLine) {
-				//	startline_count++;
+					startline_count++;
 				}
 				if (startline_count <= 2) {
 					if (obstacle_state == Approach) {
@@ -2286,6 +2293,10 @@ void algo() {
 					RightEdge(right_start, right_edge_prev_dir, false);
 				midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 
+				char buffer[50];
+				sprintf(buffer, "ave %f", sum_enc*0.017/enc_count);
+				lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
+				writerP->WriteString(buffer);
 			}
 
 			if (debug) {
