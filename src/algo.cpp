@@ -1283,8 +1283,11 @@ void algo() {
 //					target_speed = 700;
 //				}
 				target_speed = 750;
-				if (libsc::System::Time() - debug_end_time < 1000) {
+				if (libsc::System::Time() - debug_end_time < 2000) {
 					target_speed = 0.5 * target_speed;
+				}
+				if (libsc::System::Time() - debug_end_time < 1000) {
+					target_speed = 0;
 				}
 
 				search_distance = std::pow(target_speed * servo_P, 2);
