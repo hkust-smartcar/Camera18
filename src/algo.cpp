@@ -1285,14 +1285,13 @@ void algo() {
 //				} else {
 //					target_speed = 700;
 //				}
-//
 //				target_speed = 750;
-//				if (libsc::System::Time() - debug_end_time < 2000) {
-//					target_speed = 0.5 * target_speed;
-//				}
-//				if (libsc::System::Time() - debug_end_time < 1000) {
-//					target_speed = 750;
-//				}
+				if (libsc::System::Time() - debug_end_time < 2000) {
+					target_speed = 600;
+				}
+				if (libsc::System::Time() - debug_end_time < 1000) {
+					target_speed = 0;
+				}
 
 				search_distance = std::pow(target_speed * servo_P, 2);
 				error_1 = error_2;
@@ -1322,7 +1321,7 @@ void algo() {
 
 				int speed_set = -(volt / battery_meter->GetVoltage() * 1000);
 				speed_set = (speed_set > -800) ? ((speed_set > 800) ? 800 : speed_set) : -800;
-				if ((no_movement_count > 5 && target_speed) || !motor_start) {
+				if ((no_movement_count > 5 && target_speed)&& libsc::System::Time()-debug_end_time>2050 || !motor_start) {
 					motor->SetPower(0);
 				} else {
 					if (speed_set < 0) {
@@ -1336,6 +1335,9 @@ void algo() {
 				prev_error = error;
 				if (-prev_count > target_speed) {
 					search_distance = std::pow(-prev_count * servo_P, 2);
+				}
+				if (search_distance < 400) {
+					search_distance = 400;
 				}
 
 //				char buffer[50];
@@ -2509,6 +2511,12 @@ void algo() {
 //				;
 			if(track_state != prev_track_state)
 				bt->SendStr(buffer);
+			if(!debug){
+//				char buffer[50];
+//				sprintf(buffer, "speed %d", (int)target_speed);
+//				lcd->SetRegion(libsc::Lcd::Rect(0, 100, 160, 40));
+//				writerP->WriteString(buffer);
+			}
 			prev_track_state = track_state;
 		}
 
