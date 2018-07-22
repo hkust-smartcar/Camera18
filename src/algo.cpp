@@ -1206,8 +1206,8 @@ void algo() {
 
 //				set_angle += (int) (current_angle - set_angle) * 0.4;
 				double angle_degree = (current_angle - 835) * 0.1;
-				double angle_degree_2 = std::atan((speed_target_point.first - target.first) / (speed_target_point.second - (target.second + speed_target_point.second) / 2)) * 180 / 3.14;
-				angle_degree_2 = std::atan((speed_target_point.first - search_origin_x) / (speed_target_point.second - search_origin_y)) * 180 / 3.14;
+				double angle_degree_2 = std::atan((speed_target_point.first - search_origin_x) / (speed_target_point.second - search_origin_y)) * 180 / 3.14; // angle_degree_2 = std::atan((speed_target_point.first - target.first) / (speed_target_point.second - (target.second + speed_target_point.second) / 2)) * 180 / 3.14;
+//				angle_degree_2 = std::atan((speed_target_point.first - search_origin_x) / (speed_target_point.second - search_origin_y)) * 180 / 3.14;
 				int temp;
 				int temp_2;
 				float tuning_param = 1.6;
@@ -1233,9 +1233,9 @@ void algo() {
 //					int temp_2=std::min(((int) (1200 * exp(-1 * tuning_param * std::abs(std::sin(angle_degree_2 * 3.14159265359 / 180)) / 0.2) + min_speed)), 1200);
 				if (temp > target_speed) {
 					if ((left_speed_target_found || right_speed_target_found) && (temp_2 < temp)) {
-						target_speed = 0.2 * target_speed + 0.8 * temp_2;
+						target_speed = 0.5 * target_speed + 0.5 * temp_2;
 					} else {
-						target_speed = 0.2 * target_speed + 0.8 * temp;
+						target_speed = 0.5 * target_speed + 0.5 * temp;
 					}
 				} else {
 					if ((left_speed_target_found || right_speed_target_found) && (temp_2 < temp)) {
@@ -1257,6 +1257,8 @@ void algo() {
 					target_speed = 750;
 				} else if (servo->GetDegree() >= 1220) {
 					target_speed = 750;
+				} else if (servo->GetDegree() > 805 && servo->GetDegree() < 865 && angle_degree_2 >= 5 && -prev_count > 1000) {
+					target_speed = 800;
 				}
 //				tuning_param = 700 * std::sqrt(std::sin(3.14159265359 * 40 / 180));
 //				if (angle_degree != 0)
@@ -1295,11 +1297,11 @@ void algo() {
 					target_speed = 0;
 				}
 
-				char speed[10] = { };
-				sprintf(speed, "%d", (int) angle_degree_2);
-				console->Clear(true);
-				console->SetCursorRow(4);
-				console->WriteString(speed);
+//				char speed[10] = { };
+//				sprintf(speed, "%d", (int) angle_degree_2);
+//				console->Clear(true);
+//				console->SetCursorRow(4);
+//				console->WriteString(speed);
 
 				search_distance = std::pow(target_speed * servo_P, 2);
 				error_1 = error_2;
