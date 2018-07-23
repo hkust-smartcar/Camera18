@@ -126,7 +126,7 @@ int main() {
 //	libsc::Mpu6050 mpu_(mpu_config);
 //	mpu = &mpu_;
 
-//    CameraMenu::show();
+ //   CameraMenu::show();
 
 	algo();
 }
