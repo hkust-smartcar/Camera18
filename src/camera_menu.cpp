@@ -44,139 +44,137 @@ void CameraMenu::start() {
         }());
     }
 
+
+    ui::TextBlock tb;
+    tb.setColor(0xFFFF);
+    tb.setFont(&humanist);
+
+    //Constant Vs Dynamic
+    volatile uint8_t choice;
+
+    start:
+    screen_adapter_ptr->clear();
+
     FlashStorage::load();
 
+    choice = 0;
 
-    //
-    // Initialize Menu Group
-    //
-
-    ui::MenuGroup menu_group("Camera 18");
-    menu_group.setHasBackArrow(false);
-
-
-    //
-    // Declare and initialize various Menu Items to be added to menu_group.
-    //
-
-    class RunAction: public ui::MenuAction {
-    public:
-        explicit RunAction(ui::MenuGroup* menu_group_ptr): menu_group_ptr(menu_group_ptr) {
-            this->setName("Run");
-        }
-        int run() override {
-            menu_group_ptr->exitMenu();
-            return SUCCESS;
-        }
-
-    private:
-        ui::MenuGroup* menu_group_ptr;
-    } run_action(&menu_group);
-
-    class CameraPreviewAction: public ui::MenuAction {
-    public:
-        CameraPreviewAction() {
-            this->setName("Camera Preview");
-        }
-        int run() override {
-            auto* screen_ptr = ui::Context::getScreen();
-
-            //Change screen
-            screen_ptr->setRegion(0, 0, screen_ptr->getWidth(), screen_ptr->getHeight());
-            screen_ptr->fill(ui::Context::color_scheme.GRAY_DARKER);
-
-            //Render loop
-            Timer::TimerInt time = System::Time();
-
-            bool is_exit = false;
-            const Byte* buffer = camera->LockBuffer();
-            uint16_t offset_x = 0;
-
-            std::function<void(ui::E&)> joystick_handler = [&](ui::E& e){
-                if (e.JOYSTICK_STATE == ui::JoystickState::SELECT) {
-                    is_exit = true;
-                } else if (e.JOYSTICK_STATE == ui::JoystickState::LEFT) {
-                    offset_x = (uint16_t) std::max(0, offset_x - 10);
-                } else if (e.JOYSTICK_STATE == ui::JoystickState::RIGHT) {
-                    offset_x = (uint16_t) std::min(189 - 160, offset_x + 10);
-                }
+    {
+        std::function<void(ui::E&)> constant_dynamic_handler = [&](ui::E& e){
+            if (e.JOYSTICK_STATE == ui::JoystickState::UP) {
+                //Constant
+                choice = 1;
                 e.consume();
-            };
-
-            ui::Context::addEventListener(ui::Event::JOYSTICK_DOWN, &joystick_handler);
-
-            camera->Start();
-
-            while (!is_exit) {
-                if (time != System::Time()) {
-                    time = System::Time();
-                    if (time % 200 == 0) {
-                        //Updates image
-                        buffer = camera->LockBuffer();
-
-                        //Construct viewport array
-                        uint8_t viewport[160*120];
-
-                        uint16_t i = 0;
-
-                        for (uint16_t y = 0; y < 120; y++) {
-                            for (uint16_t x = 0; x < 160; x++) {
-                                viewport[i] = buffer[(x + offset_x) + (y) * 189];
-                            }
-                        }
-
-                        lcd->SetRegion({0, 0, 160, 120});
-                        lcd->FillGrayscalePixel(viewport, 160*120);
-                    }
-                }
+            } else if (e.JOYSTICK_STATE == ui::JoystickState::DOWN) {
+                //Dynamic
+                choice = 2;
+                e.consume();
+            } else if (e.JOYSTICK_STATE == ui::JoystickState::RIGHT) {
+                //Reset
+                choice = 3;
+                e.consume();
+            } else if (e.JOYSTICK_STATE == ui::JoystickState::SELECT) {
+                //Run
+                choice = 4;
+                e.consume();
             }
+        };
 
-            ui::Context::removeEventListener(ui::Event::JOYSTICK_DOWN, &joystick_handler);
-            camera->Stop();
+        tb.setText("Run (S)");
+        tb.setRegion(0, 0, 128, 14);
+        tb.render();
 
-            return SUCCESS;
-        }
-    } camera_preview_action;
+        tb.setText("Constant speed (U)");
+        tb.setRegion(0, 15, 128, 14);
+        tb.render();
 
-    int servo_integer_test_angle = 0;
+        tb.setText("Dynamic speed (D)");
+        tb.setRegion(0, 30, 128, 14);
+        tb.render();
 
-    class ServoInteger: public ui::MenuNumber<int> {
-    public:
-        explicit ServoInteger(int* i_ptr, libsc::Servo* servo_ptr): i_ptr(i_ptr), servo_ptr(servo_ptr) {
-            this->setName("Turn Servo");
-            this->setValue(0);
-            this->setStep(5);
-        }
+        tb.setText("Reset flash (R)");
+        tb.setRegion(0, 45, 128, 14);
+        tb.render();
 
-        void onEnter() override {
-            setValue(*i_ptr);
-        }
+        ui::Context::addEventListener(ui::EventType::JOYSTICK_DOWN, &constant_dynamic_handler);
 
-        void onChange() override {
-            servo_ptr->SetDegree((uint16_t) (900 + value));
-            *i_ptr = value;
-        }
+        while (choice == 0) {}
 
-    private:
-        int* i_ptr;
-        libsc::Servo* servo_ptr;
-    } servo_integer(&servo_integer_test_angle, servo);
+        ui::Context::removeEventListener(ui::EventType::JOYSTICK_DOWN, &constant_dynamic_handler);
+    };
+
+    if (choice == 1) goto constant;
+    else if (choice == 2) goto dynamic;
+    else if (choice == 3) goto reset;
+    else if (choice == 4) goto exit;
 
 
-    //
-    // Add items to menu_group
-    //
+    // =====
 
-    menu_group.addMenuActions({
-                                      &run_action,
-                                      &servo_integer,
-                                      &camera_preview_action
-    });
+    constant:
 
-    //
-    // Enter menu and its render loop.
-    // The code will continue when the user hits the "Run" option, which exits the menu.
-    //
+    changeValue<uint16_t>("Constant speed", &FlashStorage::data.constant_speed, 10, "%d");
+    is_using_constant_mode = true;
 
-    menu_group.run();
+    FlashStorage::save();
+
+    goto exit;
+    dynamic:
+
+    {
+        changeValue<uint16_t>("Max speed", &FlashStorage::data.max_speed, 10, "%d");
+        changeValue<uint16_t>("Min speed", &FlashStorage::data.min_speed, 10, "%d");
+        changeValue<float>("Slope param", &FlashStorage::data.slope_param, .1, "%.2f");
+        changeValue<float>("X shift", &FlashStorage::data.x_shift, .1, "%.2f");
+
+        FlashStorage::save();
+
+        showPlot();
+
+        volatile bool is_continue = false;
+
+        std::function<void(ui::E&)> dynamic_handler = [&](ui::E& e){
+            is_continue = true;
+            e.consume();
+        };
+
+        ui::Context::addEventListener(ui::EventType::JOYSTICK_DOWN, &dynamic_handler);
+
+        while (!is_continue) {}
+
+        ui::Context::removeEventListener(ui::EventType::JOYSTICK_DOWN, &dynamic_handler);
+    }
+
+    goto exit;
+    reset:
+    screen_adapter_ptr->clear();
+
+    {
+        tb.setText("Select to reset flash!");
+        tb.setTextWrap(ui::text::WRAP);
+        tb.setRegion(0, 0, 128, 50);
+        tb.render();
+
+        volatile bool is_continue = false;
+
+        std::function<void(ui::E&)> reset_handler = [&](ui::E& e){
+            if (e.JOYSTICK_STATE == ui::JoystickState::SELECT) {
+                is_continue = true;
+                e.consume();
+            }
+        };
+
+        ui::Context::addEventListener(ui::EventType::JOYSTICK_DOWN, &reset_handler);
+
+        while (!is_continue) {}
+
+        FlashStorage::data = FlashStorage::Data{};
+        FlashStorage::save();
+
+        ui::Context::removeEventListener(ui::EventType::JOYSTICK_DOWN, &reset_handler);
+
+        goto start;
+    }
+
+    exit: {};
 }
