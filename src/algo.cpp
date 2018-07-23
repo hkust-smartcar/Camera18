@@ -43,7 +43,7 @@ float target_speed = 530;
 float Kp = 0.03;
 float Ki = 0.0004;
 float Kd = 0.0002;
-float servo_P = 0.46; //0.55
+float servo_P = 0.5; //0.55
 float servo_D = 13.0;
 float search_distance = std::pow(target_speed * servo_P, 2);
 float search_m;
@@ -52,14 +52,14 @@ float search_slope;
 std::pair<float, float> target;
 std::pair<float, float> speed_target_point;
 //img2world[91][119] is the bottom mid point of the image, may need to tune later
-const float search_origin_x = img2world[104][115][0];
-const float search_origin_y = img2world[104][115][1];
+const float search_origin_x = img2world[99][110][0];
+const float search_origin_y = img2world[99][110][1];
 
-const float search_left_align_x = img2world[55][115][0];
-const float search_left_align_y = img2world[55][115][1];
+const float search_left_align_x = img2world[48][110][0];
+const float search_left_align_y = img2world[48][110][1];
 
-const float search_right_align_x = img2world[153][115][0];
-const float search_right_align_y = img2world[153][115][1];
+const float search_right_align_x = img2world[150][110][0];
+const float search_right_align_y = img2world[150][110][1];
 
 coor left_end_point;
 coor right_end_point;
@@ -274,7 +274,7 @@ bool FindLeftEdge(int& edge_prev_dir) {
 	coor edge_coor = left_edge.back();
 	int x = edge_coor.x;
 	int y = edge_coor.y;
-	if (x < 4 || x > 184 || y < 4 || y > 116)
+	if (x < 4 || x > 184 || y < 4 || y > 110)
 		return false;
 //	if (!left_end_point_found && size % 5 == 0) {
 //		if (FindLeftEndPoint(x, y)) {
@@ -365,7 +365,7 @@ bool FindRightEdge(int& edge_prev_dir) {
 	coor edge_coor = right_edge.back();
 	int x = edge_coor.x;
 	int y = edge_coor.y;
-	if (x < 4 || x > 184 || y < 4 || y > 116)
+	if (x < 4 || x > 184 || y < 4 || y >= 105)
 		return false;
 //	if (!right_end_point_found && size % 5 == 0) {
 //		if (FindRightEndPoint(x, y)) {
@@ -686,7 +686,7 @@ void LeftEdge(coor start_point, int& edge_prev_dir, bool append) {
 			left_edge_corner.push_back(left_edge.size() - 11);
 			break;
 		}
-		if (!left_jump && (track_state == Normal || (track_state == LeftObs && obstacle_state == Approach)) && left_edge.size() > 7 && left_edge.back().y > 40) {
+		if (!left_jump && (track_state == Normal || (track_state == LeftObs && obstacle_state == Approach)) && left_edge.size() > 7 && left_edge.back().y > 30) {
 			float slope;
 			if ((left_edge[left_edge.size() - 1].x - left_edge[left_edge.size() - 5].x) != 0)
 				slope = ((float) (left_edge[left_edge.size() - 1].y - left_edge[left_edge.size() - 5].y) / (left_edge[left_edge.size() - 1].x - left_edge[left_edge.size() - 5].x));
@@ -707,13 +707,13 @@ void LeftEdge(coor start_point, int& edge_prev_dir, bool append) {
 				if (distance_from_edge * v1y < (ty - left_edge[left_edge.size() - 3].y) * v1x) {
 					int i = 0;
 					constant = tx - ty * slope;
-					for (; i < 3 && ty < height - 4 && ty > 3 && tx > 3 && tx < width - 4 && SobelEdgeDetection(tx, ty) < edge_threshold; i++) {
+					for (; i < 3 && ty < height - 14 && ty > 3 && tx > 3 && tx < width - 4 && SobelEdgeDetection(tx, ty) < edge_threshold; i++) {
 						ty--;
 						tx = ty * slope + constant;
 //						lcd->SetRegion(libsc::St7735r::Rect(tx, ty, 1, 1));
 //						lcd->FillColor(lcd->kRed);
 					}
-					if (i < 3 && ty < height - 4 && ty > 3 && tx > 3 && tx < width - 4) {
+					if (i < 3 && ty < height - 14 && ty > 3 && tx > 3 && tx < width - 4) {
 						left_obs = true;
 						left_obs_coor = {tx,ty};
 						break;
@@ -743,7 +743,7 @@ void RightEdge(coor start_point, int& edge_prev_dir, bool append) {
 			right_edge_corner.push_back(right_edge.size() - 11);
 			break;
 		}
-		if (!right_jump && (track_state == Normal || (track_state == RightObs && obstacle_state == Approach)) && right_edge.size() > 7 && right_edge.back().y > 40) {
+		if (!right_jump && (track_state == Normal || (track_state == RightObs && obstacle_state == Approach)) && right_edge.size() > 7 && right_edge.back().y > 30) {
 			float slope;
 			if ((right_edge[right_edge.size() - 1].x - right_edge[right_edge.size() - 5].x) != 0)
 				slope = (float) (right_edge[right_edge.size() - 1].y - right_edge[right_edge.size() - 5].y) / (right_edge[right_edge.size() - 1].x - right_edge[right_edge.size() - 5].x);
@@ -765,13 +765,13 @@ void RightEdge(coor start_point, int& edge_prev_dir, bool append) {
 				if (-distance_from_edge * v1y > (ty - right_edge[right_edge.size() - 3].y) * v1x) {
 					int i = 0;
 					constant = tx - ty * slope;
-					for (; i < 3 && ty < height - 4 && ty > 3 && tx > 3 && tx < width - 4 && SobelEdgeDetection(tx, ty) < edge_threshold; i++) {
+					for (; i < 3 && ty < height - 14 && ty > 3 && tx > 3 && tx < width - 4 && SobelEdgeDetection(tx, ty) < edge_threshold; i++) {
 						ty--;
 						tx = ty * slope + constant;
 //						lcd->SetRegion(libsc::St7735r::Rect(tx, ty, 1, 1));
 //						lcd->FillColor(lcd->kBlue);
 					}
-					if (i < 3 && ty < height - 4 && ty > 3 && tx > 3 && tx < width - 4) {
+					if (i < 3 && ty < height - 14 && ty > 3 && tx > 3 && tx < width - 4) {
 						right_obs = true;
 						right_obs_coor = {tx,ty};
 						break;
@@ -841,7 +841,7 @@ bool jump(coor corner, coor point1, coor point2, coor& new_start, bool direction
 	new_start.y = point2.y - 15;
 	new_start.x = (int16_t) (new_start.y * slope + constant);
 	coor prev_start = { 0, 0 };
-	while (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3 && SobelEdgeDetection(new_start.x, new_start.y) < edge_threshold) {
+	while (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 14 && new_start.y > 3 && SobelEdgeDetection(new_start.x, new_start.y) < edge_threshold) {
 //        lcd->SetRegion(libsc::St7735r::Lcd::Rect(new_start.x, new_start.y, 1, 1));
 //        lcd->FillColor(lcd->kBlue);
 		prev_start = new_start;
@@ -849,7 +849,7 @@ bool jump(coor corner, coor point1, coor point2, coor& new_start, bool direction
 		new_start.x = (new_start.y * slope + constant);
 	}
 	new_start = prev_start;
-	if (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 4 && new_start.y > 3) {
+	if (new_start.x < width - 4 && new_start.x > 3 && new_start.y < height - 14 && new_start.y > 3) {
 		if (direction)
 			right_jump = true;
 		else
@@ -922,7 +922,7 @@ void normal_left_corner_fsm(Tstate& track_state, coor& final_point, coor& midpoi
 			track_state = LeftLoop;
 		else {
 			final_point = new_start;
-			midpoint= {(left_start.x+right_start.x)/2,110};
+			midpoint= {(left_start.x+right_start.x)/2,105};
 		}
 	}
 }
@@ -944,13 +944,13 @@ void normal_right_corner_fsm(Tstate& track_state, coor& final_point, coor& midpo
 			track_state = RightLoop;
 		else {
 			final_point = new_start;
-			midpoint= {(left_start.x+right_start.x)/2,110};
+			midpoint= {(left_start.x+right_start.x)/2,105};
 		}
 	}
 }
 
 bool isLeftBottomExist(coor midpoint, int threshold) {
-	coor left_start = { midpoint.x, 115 };
+	coor left_start = { midpoint.x, 105 };
 	while (SobelEdgeDetection(left_start.x, left_start.y) < threshold && left_start.x > 0)
 		left_start.x--;
 	if (left_start.x > 0)
@@ -959,7 +959,7 @@ bool isLeftBottomExist(coor midpoint, int threshold) {
 }
 
 bool isRightBottomExist(coor midpoint, int threshold) {
-	coor right_start = { midpoint.x, 115 };
+	coor right_start = { midpoint.x, 105 };
 	while (SobelEdgeDetection(right_start.x, right_start.y) < threshold && right_start.x < width - 1)
 		right_start.x++;
 	if (right_start.x < width - 1)
@@ -993,7 +993,7 @@ int CheckStartLine(int y, int leftthres, int rightthres, int threshold) {
 	int x = leftthres;
 
 	while (x < rightthres) {
-		if (y < height - 4 && y > 3 && x > 3 && x < width - 4 && SobelEdgeDetection(x, y) >= threshold) { //&& SobelEdgeDetection(x,y) >= threshold
+		if (y < height - 14 && y > 3 && x > 3 && x < width - 4 && SobelEdgeDetection(x, y) >= threshold) { //&& SobelEdgeDetection(x,y) >= threshold
 //			lcd->SetRegion(libsc::Lcd::Rect(x, y, 2, 2));
 //			lcd->FillColor(lcd->kRed);
 			count++;
@@ -1024,7 +1024,7 @@ bool FindLeftObsTarget(coor& left_obs_target, int y, int leftthres, int rightthr
 	if (y > 116 || y < 4)
 		return false;
 	while (x < rightthres) {
-		if (y < height - 4 && y > 3 && x > 3 && x < width - 4 && SobelEdgeDetection(x, y) >= edge_threshold) {
+		if (y < height - 14 && y > 3 && x > 3 && x < width - 4 && SobelEdgeDetection(x, y) >= edge_threshold) {
 			left_obs_target = {x,y+5};
 			return true;
 		}
@@ -1038,7 +1038,7 @@ bool FindRightObsTarget(coor& right_obs_target, int y, int leftthres, int rightt
 	if (y > 116 || y < 4)
 		return false;
 	while (x > leftthres) {
-		if (y < height - 4 && y > 3 && x > 3 && x < width - 4 && SobelEdgeDetection(x, y) >= edge_threshold) {
+		if (y < height - 14 && y > 3 && x > 3 && x < width - 4 && SobelEdgeDetection(x, y) >= edge_threshold) {
 			right_obs_target = {x,y+5};
 			return true;
 		}
@@ -1050,7 +1050,7 @@ bool FindRightObsTarget(coor& right_obs_target, int y, int leftthres, int rightt
 void CheckCoor(coor & coor){
 	int x = coor.x;
 	int y = coor.y;
-	if(y < height - 4 && y > 3 && x > 3 && x < width - 4 )
+	if(y < height - 14 && y > 3 && x > 3 && x < width - 4 )
 		return;
 	if(x<=3)
 		coor.x = 4;
@@ -1088,7 +1088,7 @@ void algo() {
 //	Cstate crossroad_state = Detected;
 //	Lstate loop_state = Entering;
 	bool entertype; //true for enter with left/rightmostP; false for follow edge first
-	coor midpoint = { 104, 115 };
+	coor midpoint = { 99, 105 };
 
 	coor left_start = { 0, 0 };
 	coor right_start = { 0, 0 };
@@ -1125,10 +1125,10 @@ void algo() {
 	bool motor_start = true; //false;
 	int count_encoder = 0;
 	int tuning_param = 0;
-	int set_angle = 835;
-	int current_angle = 835;
-	float cal_servo_angle = 835;
-	int servo_angle = 835;
+	int set_angle = 920;
+	int current_angle = 920;
+	float cal_servo_angle = 920;
+	int servo_angle = 920;
 	target_speed = 1200;
 	libsc::Timer::TimerInt debug_end_time;
 	bool start_count = false;
@@ -1142,8 +1142,8 @@ void algo() {
 //				sprintf(buffer, "%.2f,%.2f\n", target_speed, search_distance);
 //				bt->SendStr(buffer);
 			}
-			if (search_distance < 8350)
-				search_distance = 8350;
+			if (search_distance < 9200)
+				search_distance = 9200;
 //			float search_distance = std::pow(target_speed * search_const, 2);
 			time_now = libsc::System::Time();
 			buffer = camera->LockBuffer(); //Use GetPoint(x,y) to get the gradient of the point
@@ -1176,7 +1176,7 @@ void algo() {
 //				current_angle += std::max(-20, servo->GetDegree()-current_angle);
 //
 //			set_angle += (int)(current_angle - set_angle)*0.4;
-//			double angle_degree = (servo->GetDegree() - 835)*0.1;
+//			double angle_degree = (servo->GetDegree() - 920)*0.1;
 //			if(angle_degree<10){
 //				tuning_param = 300*std::pow(std::sin(PI*40/180), 0.5);
 //				if(angle_degree == 0)
@@ -1205,7 +1205,7 @@ void algo() {
 					current_angle += std::max(-20, servo->GetDegree() - current_angle);
 
 //				set_angle += (int) (current_angle - set_angle) * 0.4;
-				double angle_degree = (current_angle - 835) * 0.1;
+				double angle_degree = (current_angle - 920) * 0.1;
 				double angle_degree_2 = std::atan((speed_target_point.first - search_origin_x) / (speed_target_point.second - search_origin_y)) * 180 / 3.14; // angle_degree_2 = std::atan((speed_target_point.first - target.first) / (speed_target_point.second - (target.second + speed_target_point.second) / 2)) * 180 / 3.14;
 //				angle_degree_2 = std::atan((speed_target_point.first - search_origin_x) / (speed_target_point.second - search_origin_y)) * 180 / 3.14;
 				int temp;
@@ -1232,9 +1232,9 @@ void algo() {
 //					int temp_2=std::min(((int) (1200 * exp(-1 * tuning_param * std::abs(std::sin(angle_degree_2 * 3.14159265359 / 180)) / 0.2) + min_speed)), 1200);
 				if (temp > target_speed) {
 					if ((left_speed_target_found || right_speed_target_found) && (temp_2 < temp)) {
-						target_speed = 0.5 * target_speed + 0.5 * temp_2;
+						target_speed = 0.9 * target_speed + 0.1 * temp_2;
 					} else {
-						target_speed = 0.5 * target_speed + 0.5 * temp;
+						target_speed = 0.9 * target_speed + 0.1 * temp;
 					}
 				} else {
 					if ((left_speed_target_found || right_speed_target_found) && (temp_2 < temp)) {
@@ -1252,13 +1252,13 @@ void algo() {
 
 				if (track_state == Tstate::Stop) {
 					target_speed = 0;
-				} else if (servo_angle < 280) {
+				} else if (servo_angle < 350) {
 //					target_speed = 650;
-				} else if (servo_angle > 1370) {
+				} else if (servo_angle > 1490) {
 //					target_speed = 650;
-				} else if (servo->GetDegree() <= 430) {
+				} else if (servo->GetDegree() <= 500) {
 					target_speed = 750;
-				} else if (servo->GetDegree() >= 1220) {
+				} else if (servo->GetDegree() >= 1340) {
 					target_speed = 750;
 				} else if (servo->GetDegree() > 805 && servo->GetDegree() < 865 && angle_degree_2 >= 5 && -prev_count > 1000) {
 					target_speed = 800;
@@ -1292,7 +1292,7 @@ void algo() {
 //				} else {
 //					target_speed = 700;
 //				}
-//				target_speed = 750;
+				target_speed = 750;
 				if ((libsc::System::Time() - debug_end_time < 2000)) {
 					target_speed = 750;
 				}
@@ -1326,11 +1326,11 @@ void algo() {
 				} else {
 					no_movement_count = 0;
 				}
-				if (std::abs(curr) > 8350) {
+				if (std::abs(curr) > 9200) {
 					curr = target_speed;
 				}
 				curr = 0.9 * curr + 0.1 * prev_count;
-				curr = curr > 8350 ? prev_error : curr;
+				curr = curr > 9200 ? prev_error : curr;
 				float error = target_speed + curr;	//curr is negative when forward
 				cum_error += error;
 				error_3 = -prev_count + curr;
@@ -1411,38 +1411,38 @@ void algo() {
 				} else if (left_edge.size() && right_edge.size()) {
 					if (left_edge_corner.size() == 1 && right_edge_corner.size() == 1) {
 						if (dist_corners(left_edge[left_edge_corner[0]], right_edge[right_edge_corner[0]])) {
-							if ((right_edge[right_edge_corner[0]].y > 90) || left_edge[left_edge_corner[0]].y > 90) {
+							if ((right_edge[right_edge_corner[0]].y > 85) || left_edge[left_edge_corner[0]].y > 85) {
 								track_state = Crossroad;
 							} else {
 								final_point = {
 									(left_edge[left_edge_corner[0]].x + right_edge[right_edge_corner[0]].x) / 2,
 									(left_edge[left_edge_corner[0]].y + right_edge[right_edge_corner[0]].y) / 2};
 								align = center_align;
-								midpoint = {(left_start.x + right_start.x) / 2, 110};
+								midpoint = {(left_start.x + right_start.x) / 2, 105};
 							}
 						} else if (left_edge[left_edge_corner[0]].y > right_edge[right_edge_corner[0]].y) {
-							if (left_edge[left_edge_corner[0]].y > 90)
+							if (left_edge[left_edge_corner[0]].y > 85)
 							normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start,
 									left_edge_prev_dir);
 							else {
 								final_point = left_end_point.y > left_edge[left_edge_corner[0]].y
 								? left_edge[left_edge_corner[0]] : left_end_point;
 								align = left_align;
-								midpoint = {(left_start.x + right_start.x) / 2, 110};
+								midpoint = {(left_start.x + right_start.x) / 2, 105};
 							}
 						} else if (left_edge[left_edge_corner[0]].y < right_edge[right_edge_corner[0]].y) {
-							if (right_edge[right_edge_corner[0]].y > 90)
+							if (right_edge[right_edge_corner[0]].y > 85)
 							normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start,
 									right_edge_prev_dir);
 							else {
 								final_point = right_end_point.y > right_edge[right_edge_corner[0]].y
 								? right_edge[right_edge_corner[0]] : right_end_point;
 								align = right_align;
-								midpoint = {(left_start.x + right_start.x) / 2, 110};
+								midpoint = {(left_start.x + right_start.x) / 2, 105};
 							}
 						}
 					} else if (left_edge_corner.size() == 1 && right_edge_corner.size() == 0) {
-						if (left_edge[left_edge_corner[0]].y > 90) {
+						if (left_edge[left_edge_corner[0]].y > 85) {
 							normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start,left_edge_prev_dir);
 //							coor new_start = {0, 0};
 //							if(Ljump(new_start)) {
@@ -1457,10 +1457,10 @@ void algo() {
 							left_end_point.y > left_edge[left_edge_corner[0]].y ? left_edge[left_edge_corner[0]]
 							: left_end_point;
 							align = left_align;
-							midpoint = {(left_start.x + right_start.x) / 2, 110};
+							midpoint = {(left_start.x + right_start.x) / 2, 105};
 						}
 					} else if (left_edge_corner.size() == 0 && right_edge_corner.size() == 1) {
-						if (right_edge[right_edge_corner[0]].y > 90) {
+						if (right_edge[right_edge_corner[0]].y > 85) {
 							normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start,right_edge_prev_dir);
 //							coor new_start = {0, 0};
 //							if(Rjump(new_start)) {
@@ -1474,31 +1474,31 @@ void algo() {
 							final_point = right_end_point.y > right_edge[right_edge_corner[0]].y
 							? right_edge[right_edge_corner[0]] : right_end_point;
 							align = right_align;
-							midpoint = {(left_start.x + right_start.x) / 2, 110};
+							midpoint = {(left_start.x + right_start.x) / 2, 105};
 						}
 					} else {
 						align = center_align;
 						final_point = {(left_end_point.x + right_end_point.x) / 2,
 							(left_end_point.y + right_end_point.y) / 2};
-						midpoint = {(left_start.x + right_start.x) / 2, 110};
+						midpoint = {(left_start.x + right_start.x) / 2, 105};
 					}
 				} else if (right_edge.size()) {
-					if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 90) {
+					if (right_edge_corner.size() == 1 && right_edge[right_edge_corner[0]].y > 85) {
 						normal_right_corner_fsm(track_state, final_point, midpoint, left_start, right_start,
 								right_edge_prev_dir);
 					} else {
 						align = right_align;
 						final_point = right_end_point;
-						midpoint = {(left_start.x + right_start.x) / 2, 110};
+						midpoint = {(left_start.x + right_start.x) / 2, 105};
 					}
 				} else if (left_edge.size()) {
-					if (left_edge_corner.size() == 1 && left_edge[left_edge_corner[0]].y > 90) {
+					if (left_edge_corner.size() == 1 && left_edge[left_edge_corner[0]].y > 85) {
 						normal_left_corner_fsm(track_state, final_point, midpoint, left_start, right_start,
 								right_edge_prev_dir);
 					} else {
 						align = left_align;
 						final_point = left_end_point;
-						midpoint = {(left_start.x + right_start.x) / 2, 110};
+						midpoint = {(left_start.x + right_start.x) / 2, 105};
 					}
 				}
 			}
@@ -1633,9 +1633,9 @@ void algo() {
 
 					align = right_align;
 					if(right_edge[right_edge_corner[0]].x + 15<185)
-					right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 20};
+					right_start = {right_edge[right_edge_corner[0]].x + 15, right_edge[right_edge_corner[0]].y + 15};
 					else
-					right_start = {184, right_edge[right_edge_corner[0]].y + 20};
+					right_start = {184, right_edge[right_edge_corner[0]].y + 15};
 					final_point = right_edge[right_edge_corner[0]];
 
 					if (!FindRightEndPoint(right_edge.back().x,right_edge.back().y)) {
@@ -1660,7 +1660,7 @@ void algo() {
 					left_speed_target_found = false;
 					right_speed_target_found = false;
 
-					if (midpoint.y < 100) {
+					if (midpoint.y < 95) {
 						if (right_edge_corner.size() && left_edge_corner.size()) {
 							midpoint = {(right_edge[right_edge_corner[0]].x + left_edge[left_edge_corner[0]].x) / 2,(right_edge[right_edge_corner[0]].y + left_edge[left_edge_corner[0]].y) / 2 - 10};
 						} else if (left_edge_corner.size()) {
@@ -1683,7 +1683,7 @@ void algo() {
 						LeftEdge(left_start, left_edge_prev_dir, false);
 						track_state = Normal;
 						crossroad_state = Detected;
-						midpoint.y = 110;
+						midpoint.y = 105;
 					}
 				}
 			}
@@ -1737,7 +1737,7 @@ void algo() {
 								left_target_found=false;
 								right_target_found=false;
 								coor tempmidpoint = {midpoint.x,midpoint.y};
-								if(leftmostP.y > 115 && leftmostP.y !=120 ) {
+								if (leftmostP.y > 110 && leftmostP.y != 120) {
 									tempmidpoint.y = 110;
 								}
 
@@ -1816,16 +1816,16 @@ void algo() {
 					right_edge_prev_dir = up;
 					if(left_start_point(midpoint,left_start,edge_threshold))
 					LeftEdge(left_start,left_edge_prev_dir,false);
-					if(right_start_point( {midpoint.x,115},right_start,edge_threshold))
+					if(right_start_point( {midpoint.x,110},right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,false);
 					if(left_edge_corner.size()==1 && left_edge[left_edge_corner[0]].y<90 ) {
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					}
-					else if(midpoint.y!=115) {
+					else if(midpoint.y!=110) {
 						midpoint = {(left_start.x+right_start.x)/2,90};
 					}
 					else {
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					}
 
 					//&& left_edge[left_edge_corner[0]].y>100
@@ -1871,7 +1871,7 @@ void algo() {
 					std::pair<float,float> temp_target=target;
 					left_target_found=false;
 					right_target_found=false;
-					if(right_start_point( {midpoint.x,115},right_start,edge_threshold))
+					if(right_start_point( {midpoint.x,110},right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,false);
 					midpoint = {(left_start.x+right_start.x)/2,90};
 					if(left_edge.size()>80 && left_edge_corner.size()==0&&std::abs(temp_target.first-target.first)<100&&std::abs(temp_target.second-target.second)<100)
@@ -1917,7 +1917,7 @@ void algo() {
 					if(right_edge_corner.size()==1 && right_edge[right_edge_corner[0]].y>100) {
 						track_state = Normal;
 						loop_state = Entering;
-						midpoint = {midpoint.x,115};
+						midpoint = {midpoint.x,110};
 					}
 					else {
 						//set control
@@ -1973,7 +1973,7 @@ void algo() {
 								left_target_found=false;
 								right_target_found=false;
 								coor tempmidpoint = {midpoint.x,midpoint.y};
-								if(rightmostP.y>115 && rightmostP.y !=120) {
+								if(rightmostP.y>110 && rightmostP.y !=120) {
 									tempmidpoint.y = 110;
 								}
 								if (left_start_point(tempmidpoint, left_start, edge_threshold)) {
@@ -2040,19 +2040,19 @@ void algo() {
 				if(loop_state == In) {
 					left_edge_prev_dir = up;
 					right_edge_prev_dir = up;
-					if(left_start_point( {midpoint.x,115},left_start,edge_threshold))
+					if(left_start_point( {midpoint.x,110},left_start,edge_threshold))
 					LeftEdge(left_start,left_edge_prev_dir,false);
 					if(right_start_point(midpoint,right_start,edge_threshold))
 					RightEdge(right_start,right_edge_prev_dir,false);
 
 					if(right_edge_corner.size()==1 && right_edge[right_edge_corner[0]].y<90 ) {
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					}
-					else if(midpoint.y !=115) {
+					else if(midpoint.y !=110) {
 						midpoint = {(left_start.x+right_start.x)/2,90};
 					}
 					else {
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					}
 
 					if(right_edge_corner.size() == 1 && left_edge_corner.size() == 0 && !FindRightEndPoint(right_edge[right_edge_corner[0]].x,right_edge[right_edge_corner[0]].y)) {
@@ -2091,7 +2091,7 @@ void algo() {
 				if(loop_state == Leaving) {
 					left_edge_prev_dir = up;
 					right_edge_prev_dir = up;
-					if(left_start_point( {midpoint.x,115},left_start,edge_threshold))
+					if(left_start_point( {midpoint.x,110},left_start,edge_threshold))
 					LeftEdge(left_start,left_edge_prev_dir,false);
 					std::pair<float, float> temp_target=target;
 					left_target_found=false;
@@ -2142,7 +2142,7 @@ void algo() {
 					if(left_edge_corner.size()==1 && left_edge[left_edge_corner[0]].y>100) {
 						track_state = Normal;
 						loop_state = Entering;
-						midpoint = {midpoint.x,115};
+						midpoint = {midpoint.x,110};
 					}
 					else {
 						//set control
@@ -2191,19 +2191,19 @@ void algo() {
 					RightEdge(right_start, right_edge_prev_dir, false);
 
 					if(left_edge.size() < 20) {
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					}
-					else if(midpoint.y !=115) {
+					else if(midpoint.y !=110) {
 						midpoint = {(left_start.x+right_start.x)/2,90};
 					}
 					else {
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					}
 
-					if ( CheckLeftEdgeSmallerThan(65) && midpoint.y ==115) {
+					if (CheckLeftEdgeSmallerThan(65) && midpoint.y == 110) {
 						track_state = Normal;
 						obstacle_state = Approach;
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					} else if(left_edge_corner.size()==1) {
 						left_obs_target = left_edge[left_edge_corner[0]];
 					}
@@ -2247,19 +2247,19 @@ void algo() {
 					RightEdge(right_start, right_edge_prev_dir, false);
 
 					if(right_edge.size() < 20) {
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					}
-					else if(midpoint.y !=115) {
+					else if(midpoint.y !=110) {
 						midpoint = {(left_start.x+right_start.x)/2,90};
 					}
 					else {
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					}
 
-					if (CheckRightEdgeSmallerThan(65) && midpoint.y ==115) {
+					if (CheckRightEdgeSmallerThan(65) && midpoint.y == 110) {
 						track_state = Normal;
 						obstacle_state = Approach;
-						midpoint = {(left_start.x+right_start.x)/2,115};
+						midpoint = {(left_start.x+right_start.x)/2,110};
 					} else if(right_edge_corner.size()==1) {
 						right_obs_target = right_edge[right_edge_corner[0]];
 					}
@@ -2373,60 +2373,60 @@ void algo() {
 			if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In) || (track_state == Tstate::Crossroad && crossroad_state == Cstate::Outside)) {
 				if (left_edge_corner.size() && right_edge_corner.size() && !FindLeftEndPoint(left_edge[left_edge_corner.front()].x, left_edge[left_edge_corner.front()].y) && !FindRightEndPoint(right_edge[right_edge_corner.front()].x, right_edge[right_edge_corner.front()].y)) {
 					destination = final_point;
-					servo_angle = 835 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[104][115][0]) / (img2world[destination.x][destination.y][1] - img2world[104][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[99][110][0]) / (img2world[destination.x][destination.y][1] - img2world[99][110][1])) * 1800 / 3.14;
 				} else if (left_edge_corner.size() && !FindLeftEndPoint(left_edge[left_edge_corner.front()].x, left_edge[left_edge_corner.front()].y)) {
 					destination = left_edge[left_edge_corner.front()];
-					servo_angle = 835 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[55][115][0]) / (img2world[destination.x][destination.y][1] - img2world[55][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][110][0]) / (img2world[destination.x][destination.y][1] - img2world[48][110][1])) * 1800 / 3.14;
 				} else if (right_edge_corner.size() && !FindRightEndPoint(right_edge[right_edge_corner.front()].x, right_edge[right_edge_corner.front()].y)) {
 					destination = right_edge[right_edge_corner.front()];
-					servo_angle = 835 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[153][115][0]) / (img2world[destination.x][destination.y][1] - img2world[153][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[150][110][0]) / (img2world[destination.x][destination.y][1] - img2world[150][110][1])) * 1800 / 3.14;
 				} else if (left_target_found || right_target_found) {
-					servo_angle = 835 + std::atan(1.0 * (target.first - img2world[104][115][0]) / (target.second - img2world[104][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (target.first - img2world[99][110][0]) / (target.second - img2world[99][110][1])) * 1800 / 3.14;
 				} else if (left_edge.size()) {
 					destination = left_edge.back();
-					servo_angle = 835 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[55][115][0]) / (img2world[destination.x][destination.y][1] - img2world[55][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][110][0]) / (img2world[destination.x][destination.y][1] - img2world[48][110][1])) * 1800 / 3.14;
 				} else if (right_edge.size()) {
 					destination = right_edge.back();
-					servo_angle = 835 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[153][115][0]) / (img2world[destination.x][destination.y][1] - img2world[153][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[150][110][0]) / (img2world[destination.x][destination.y][1] - img2world[150][110][1])) * 1800 / 3.14;
 				}
 //
 			} else if (track_state == Tstate::LeftObs || track_state == Tstate::RightObs) {
-				servo_angle = 835 + std::atan(1.0 * (target.first - img2world[104][115][0]) / (target.second - img2world[104][115][1])) * 1800 / 3.14;
+				servo_angle = 920 + std::atan(1.0 * (target.first - img2world[99][110][0]) / (target.second - img2world[99][110][1])) * 1800 / 3.14;
 			} else if (track_state == Tstate::Crossroad) {
 				switch (align) {
 				case 0:
-					servo_angle = 835 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[55][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[55][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[48][110][0]) / (img2world[final_point.x][final_point.y][1] - img2world[48][110][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				case 1:
-					servo_angle = 835 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[104][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[104][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[99][110][0]) / (img2world[final_point.x][final_point.y][1] - img2world[99][110][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				case 2:
-					servo_angle = 835 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[153][115][0]) / (img2world[final_point.x][final_point.y][1] - img2world[153][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[final_point.x][final_point.y][0] - img2world[150][110][0]) / (img2world[final_point.x][final_point.y][1] - img2world[150][110][1])) * 1800 / 3.14;
 //					servo_angle += servo_D * (servo_angle - prev_servo_angle);
 					break;
 				}
 			} else if (track_state == Tstate::RightLoop) {
-				servo_angle = 835 + std::atan(1.0 * (target.first - img2world[104][115][0]) / (target.second - img2world[104][115][1])) * 1800 / 3.14;
+				servo_angle = 920 + std::atan(1.0 * (target.first - img2world[99][110][0]) / (target.second - img2world[99][110][1])) * 1800 / 3.14;
 
 			} else if (track_state == Tstate::LeftLoop) {
-				servo_angle = 835 + std::atan(1.0 * (target.first - img2world[104][115][0]) / (target.second - img2world[104][115][1])) * 1800 / 3.14;
+				servo_angle = 920 + std::atan(1.0 * (target.first - img2world[99][110][0]) / (target.second - img2world[99][110][1])) * 1800 / 3.14;
 			} else if (track_state == Tstate::StartLine || track_state == Tstate::Stop) {
 				if (left_target_found || right_target_found) {
-					servo_angle = 835 + std::atan(1.0 * (target.first - img2world[104][115][0]) / (target.second - img2world[104][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (target.first - img2world[99][110][0]) / (target.second - img2world[99][110][1])) * 1800 / 3.14;
 				} else if (left_edge.size()) {
 					destination = left_edge.back();
-					servo_angle = 835 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[55][115][0]) / (img2world[destination.x][destination.y][1] - img2world[55][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[48][110][0]) / (img2world[destination.x][destination.y][1] - img2world[48][110][1])) * 1800 / 3.14;
 				} else if (right_edge.size()) {
 					destination = right_edge.back();
-					servo_angle = 835 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[153][115][0]) / (img2world[destination.x][destination.y][1] - img2world[153][115][1])) * 1800 / 3.14;
+					servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[150][110][0]) / (img2world[destination.x][destination.y][1] - img2world[150][110][1])) * 1800 / 3.14;
 				}
 			}
 			degree_3 = servo_angle - prev_angle;
 			prev_angle = servo_angle;
 			servo_angle += servo_D * ((degree_1 + degree_2 + degree_3) / 3.0);
-			servo->SetDegree(libutil::Clamp(430, servo_angle, 1220));
+			servo->SetDegree(libutil::Clamp(500, servo_angle, 1340));
 
 			if (debug) {
 				lcd->SetRegion(libsc::St7735r::Lcd::Rect(destination.x - 2, destination.y - 2, 5, 5));
@@ -2507,7 +2507,7 @@ void algo() {
 //			char buffer[100] = { };
 //			sprintf(buffer, "%.4f,%.4f,%.6f,%.6f\n", 1 / left_curvature, 1 / right_curvature, left_curvature, right_curvature);
 //			bt->SendStr(buffer);
-//			target_speed = 835 * std::exp(-485 * (left_curvature < right_curvature ? left_curvature : right_curvature));
+//			target_speed = 920 * std::exp(-485 * (left_curvature < right_curvature ? left_curvature : right_curvature));
 //			target_speed = libutil::Clamp((float) 500.0, target_speed, (float) 800.0);
 //			search_distance = std::pow(target_speed * servo_P, 2);
 			if (track_state == RightObs) {

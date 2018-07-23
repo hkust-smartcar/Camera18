@@ -14,7 +14,7 @@ namespace ui {
      *
      * @see ui::Context::addEventListener
      */
-    enum struct Event {
+    enum struct EventType {
         JOYSTICK_DOWN,
         JOYSTICK_UP,
         BTN_DOWN,

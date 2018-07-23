@@ -91,4 +91,6 @@ extern libsc::Mpu6050* mpu;
 extern int edge_threshold;
 extern const int img2world[189][120][2];
 
+extern bool is_using_constant_mode;
+
 #endif /* INC_GLOBAL_H_ */

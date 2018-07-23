@@ -8,12 +8,12 @@ namespace ui {
 
     MenuGroup::MenuGroup(std::string menu_name) {
         this->setName(std::move(menu_name));
-        this->setRegion(0, 0, Context::getScreen()->getWidth(), Context::getScreen()->getHeight());
+        this->setRegion(0, 0, Context::getScreen()->getWidth(), Context::getScreen()->getHeight()); // @suppress("Invalid arguments")
 
         toolbar.setRegion(ui_region.x, ui_region.y, ui_region.w, TITLE_BAR_HEIGHT);
         toolbar.reserveHSpace(16);
 
-        assert(Context::font_repo["Blocky"] != nullptr);
+        //assert(Context::font_repo["Blocky"] != nullptr);
         textBlockBatteryVoltage.setFont(Context::font_repo["Blocky"]);
         textBlockBatteryVoltage.setTextWrap(text::NO_WRAP);
         textBlockBatteryVoltage.setRegion(Context::getScreen()->getWidth() - 17u, 6, 20, 5);
@@ -21,6 +21,9 @@ namespace ui {
     }
 
     int MenuGroup::run() {
+        is_exit = false;
+        onEnter();
+
         /**
          * Remember to set font pointer in Context.
          *
@@ -50,7 +53,7 @@ namespace ui {
             }
         };
 
-        Context::addEventListener(Event::JOYSTICK_DOWN, &joystick_handler);
+        Context::addEventListener(EventType::JOYSTICK_DOWN, &joystick_handler);
 
         while (!is_exit) {
             if (time != Context::getSystemTime()) {
@@ -74,9 +77,9 @@ namespace ui {
             }
         }
 
-        Context::removeEventListener(Event::JOYSTICK_DOWN, &joystick_handler);
-
         //Exit preparation
+        Context::removeEventListener(EventType::JOYSTICK_DOWN, &joystick_handler);
+        onExit();
 
         return 0;
     }
@@ -127,7 +130,7 @@ namespace ui {
         //Draw arrow
         Icons::drawCaret(
                 screen_ptr->getWidth() - PADDING,
-                CARET_OFFSET,
+                ui_region.y + CARET_OFFSET,
                 is_selected ? Context::color_scheme.PRIMARY : Context::color_scheme.GRAY,
                 graphics::RIGHT, 5
         );
@@ -166,13 +169,15 @@ namespace ui {
         //show one more item
         auto menu_actions_stop = std::min(menu_actions_it + getItemsPerPage(), menu_actions.end());
 
+        auto screen_width = screen_ptr->getWidth();
+
         while (menu_actions_it < menu_actions_stop) {
             MenuAction* menu_action = *menu_actions_it;
 
             menu_action->setRegion(
-                    this->ui_region.x,
-                    this->ui_region.y + TITLE_BAR_HEIGHT + ITEM_HEIGHT * i,
-                    this->ui_region.w - SCROLLBAR_WIDTH,
+                    0,
+                    TITLE_BAR_HEIGHT + ITEM_HEIGHT * i,
+					screen_width - SCROLLBAR_WIDTH,
                     ITEM_HEIGHT
             );
 

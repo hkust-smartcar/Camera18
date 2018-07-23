@@ -17,111 +17,30 @@ bool ui::text::TextEngine::render(const std::string &string) {
     const uint8_t& tracking = font_ptr->getFontInfo().tracking;
     const auto& string_end = string.end();
 
-    if (text_wrap == WRAP) {
+    uint16_t reserved_space = 0;
+    const FONT_CHAR_INFO& period_char_info = font_ptr->getCharInfo('.');
+    if (text_wrap == ELLIPSIS) {
+        uint16_t period_width = period_char_info.width;
+        reserved_space = (uint16_t)3 * period_width + (uint16_t) (tracking * 2);
+    }
 
-        std::queue<char> word;
-        uint32_t accumulated_length = 0;
-        uint32_t word_length = 0;
-        uint32_t x = 0;
-        uint32_t y = 0;
+    uint16_t current_character_width = 0;
+    const FONT_CHAR_INFO* current_char_info = nullptr;
+    uint32_t remaining_space = px_per_line - reserved_space;
+    uint32_t accumulated_length = 0;
+    while (*it == ' ' || (accumulated_length + (current_character_width = (*(current_char_info = &font_ptr->getCharInfo(*it))).width)
+           < remaining_space && it < string_end)) {
 
-        while (it <= string_end) {
-            const char& c = *it;
-            uint32_t carry_over_start = 0;
-
-            if (c != ' ' && c != '\0' && c != '\n') {
-                word.push(c);
-                word_length += font_ptr->getCharInfo(c).width + tracking;
-            } else {
-                accumulated_length += word_length;
-                if (c == '\n' || (accumulated_length > px_per_line && word_length <= px_per_line)) {
-                    //Go to next line
-                    y += font_ptr->getFontInfo().height;
-                    x = 0;
-                    accumulated_length = word_length;
-                }
-
-                if (word_length > px_per_line) {
-                    carry_over_start = x;
-                }
-
-                //Print the word
-                while (!word.empty()) {
-                    const FONT_CHAR_INFO& char_info = font_ptr->getCharInfo(word.front());
-                    if (x + char_info.width > px_per_line) {
-                        y += font_ptr->getFontInfo().height;
-                        x = 0;
-
-                        if (word_length > px_per_line) {
-                            accumulated_length = carry_over_start - x;
-                            carry_over_start = 0;
-                        }
-                    }
-                    drawCharacter(char_info, ui_region.x + x, ui_region.y + y);
-                    x += tracking + char_info.width;
-                    word.pop();
-                }
-                accumulated_length += space_width;
-                x += space_width;
-                word_length = 0;
-
-                if (overflow == HIDDEN && y > ui_region.y + ui_region.h)
-                    break;
-            }
-            it++;
+        if (*it == ' ') {
+            accumulated_length += space_width;
+        } else if (*it == '\n') {
+            return true;
+        } else {
+            drawCharacter(*current_char_info, ui_region.x + accumulated_length, ui_region.y);
+            accumulated_length += current_character_width + tracking;
         }
 
-    } else {
-        uint16_t reserved_space = 0;
-        const FONT_CHAR_INFO& period_char_info = font_ptr->getCharInfo('.');
-        if (text_wrap == ELLIPSIS) {
-            uint16_t period_width = period_char_info.width;
-            reserved_space = (uint16_t)3 * period_width + (uint16_t) (tracking * 2);
-        }
-
-        uint16_t current_character_width = 0;
-        const FONT_CHAR_INFO* current_char_info = nullptr;
-        uint32_t remaining_space = px_per_line - reserved_space;
-        uint32_t accumulated_length = 0;
-        while (*it == ' ' || (accumulated_length + (current_character_width = (*(current_char_info = &font_ptr->getCharInfo(*it))).width)
-               < remaining_space && it < string_end)) {
-
-            if (*it == ' ') {
-                accumulated_length += space_width;
-            } else if (*it == '\n') {
-                return true;
-            } else {
-                drawCharacter(*current_char_info, ui_region.x + accumulated_length, ui_region.y);
-                accumulated_length += current_character_width + tracking;
-            }
-
-            it++;
-        }
-
-        if (text_wrap == ELLIPSIS) {
-            uint16_t ellipsis_chars_space = 0;
-            std::string::const_iterator it0(it);
-            while (it0 < string_end && ellipsis_chars_space <= remaining_space) {
-                ellipsis_chars_space += font_ptr->getCharInfo(*it0).width + tracking;
-                it0++;
-            }
-            ellipsis_chars_space = (uint16_t) std::max(int(ellipsis_chars_space - tracking), 0);
-            if (ellipsis_chars_space <= reserved_space) {
-                //draw rest characters
-                while (it < string_end) {
-                    const FONT_CHAR_INFO& char_info = font_ptr->getCharInfo(*it);
-                    drawCharacter(char_info, ui_region.x + accumulated_length, ui_region.y);
-                    accumulated_length += char_info.width + tracking;
-                    it++;
-                }
-            } else {
-                //draw 3 dots
-                for (uint8_t i = 0; i < 3; i++) {
-                    drawCharacter(period_char_info, ui_region.x + accumulated_length, ui_region.y);
-                    accumulated_length += period_char_info.width + tracking;
-                }
-            }
-        }
+        it++;
     }
 
     return true;

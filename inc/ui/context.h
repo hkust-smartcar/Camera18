@@ -13,6 +13,7 @@
 #include <functional>
 #include <ui/adapters/context_adapters/context_adapter_interface.h>
 #include "font.h"
+#include "event_dispatch_chain.h"
 
 namespace ui {
     class Context {
@@ -30,8 +31,7 @@ namespace ui {
         /**
          * Relays all UI listeners to lower level libraries, so that removing listeners is possible
          */
-        static std::map<std::pair<Event, std::function<void(E& event_obj)>*>, std::function<void(E& event_obj)>*>
-                listener_map;
+        static std::map<EventType, EventDispatchChain*> listener_map;
 
         /**
          * Prepares listener relays.
@@ -45,9 +45,9 @@ namespace ui {
          * @param event
          * @param cb_ptr
          */
-        static void addEventListener(Event event, std::function<void(E& event_obj)>* cb_ptr);
-        static void removeEventListener(Event event, std::function<void(E& event_obj)>* cb_ptr);
-        static void triggerListeners(Event event, E e);
+        static void addEventListener(EventType event, std::function<void(E& event_obj)>* cb_ptr);
+        static void removeEventListener(EventType event, std::function<void(E& event_obj)>* cb_ptr);
+        static void triggerListeners(EventType event, E e);
         static std::map<std::string, Font*> font_repo;
         static void addFontToRepo(const std::string &name, Font* font_ptr);
         static void removeFontFromRepo(const std::string &name);
