@@ -7,6 +7,7 @@
  */
 
 #include <algo.h>
+#include <flash_storage.h>
 
 enum Tstate {
 	Normal, Crossroad, RightLoop, LeftLoop, RightObs, LeftObs, StartLine, Stop
@@ -135,7 +136,6 @@ std::vector<int> right_edge_corner;
 #define width 189
 #define height 120
 #define dist_threshold 202500
-#define fast_threshold 8
 #define slope_threshold 1
 int left_edge_prev_dir;
 int right_edge_prev_dir;
@@ -1210,18 +1210,17 @@ void algo() {
 //				angle_degree_2 = std::atan((speed_target_point.first - search_origin_x) / (speed_target_point.second - search_origin_y)) * 180 / 3.14;
 				int temp;
 				int temp_2;
-				float tuning_param = 1.6;
-				int min_speed = angle_degree < 0 ? 750 : 750;
-
-				tuning_param = 8.5;
-				int max_speed = 1200;
+				float tuning_param = FlashStorage::data.slope_param;
+				int min_speed = FlashStorage::data.min_speed;
+				int max_speed = FlashStorage::data.max_speed;
+				float x_shift = FlashStorage::data.x_shift;
 
 				if (angle_degree < 0)
 					angle_degree = -angle_degree;
 				angle_degree_2 = std::abs(angle_degree_2);
 
-				temp = ((max_speed - min_speed) / (1 + exp(tuning_param * ((angle_degree * 1.85 / 40) - 0.85)))) + min_speed;
-				temp_2 = ((max_speed - min_speed) / (1 + exp(tuning_param * ((angle_degree_2 * 1.85 / 40) - 0.85)))) + min_speed;
+				temp = ((max_speed - min_speed) / (1 + exp(tuning_param * ((angle_degree * x_shift / 40) - (x_shift - 1))))) + min_speed;
+				temp_2 = ((max_speed - min_speed) / (1 + exp(tuning_param * ((angle_degree_2 * x_shift / 40) - (x_shift - 1))))) + min_speed;
 
 //				if (angle_degree < 0) {
 //					servo_P = 0.35;
@@ -1247,6 +1246,10 @@ void algo() {
 				}
 //				} else
 //					target_speed = 1200;
+
+				if (is_using_constant_mode)
+					target_speed = FlashStorage::data.constant_speed;
+
 				if (track_state == Tstate::Stop) {
 					target_speed = 0;
 				} else if (servo_angle < 280) {
