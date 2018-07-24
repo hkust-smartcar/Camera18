@@ -43,7 +43,7 @@ float target_speed = 530;
 float Kp = 0.03;
 float Ki = 0.0004;
 float Kd = 0.0002;
-float servo_P = 0.5; //0.55
+float servo_P = 0.55; //0.55
 float servo_D = 13.0;
 float search_distance = std::pow(target_speed * servo_P, 2);
 float search_m;
@@ -1248,7 +1248,6 @@ void algo() {
 //                } else {
 //                    target_speed = 700;
 //                }
-                target_speed = 750;
                 if ((libsc::System::Time() - debug_end_time < 2000)) {
                     target_speed = 750;
                 }
