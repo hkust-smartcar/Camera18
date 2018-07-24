@@ -17,6 +17,7 @@ public:
         float slope_param = 8.5f;
         float x_shift = 1.85f;
         uint16_t constant_speed = 740;
+        bool is_using_constant_mode = false;
     };
 
     static void save();

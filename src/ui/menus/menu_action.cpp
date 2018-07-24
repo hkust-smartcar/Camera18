@@ -6,7 +6,7 @@
 
 ui::MenuAction::MenuAction() {
     //Style setup
-    assert(Context::font_repo["Humanist"] != nullptr);
+    //assert(Context::font_repo["Humanist"] != nullptr);
     textBlockName.setFont(Context::font_repo["Humanist"]);
     textBlockName.setTextWrap(text::ELLIPSIS);
     textBlockName.setColor(Context::color_scheme.BODY);

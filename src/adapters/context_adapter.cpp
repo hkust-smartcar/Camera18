@@ -121,11 +121,11 @@ namespace adapters {
         if (joystick_adapter_ptr->joystick_ptr->GetState() == libsc::Joystick::State::kIdle) {
             //Up
             e.IS_JOYSTICK_DOWN = false;
-            ui::Context::triggerListeners(ui::Event::JOYSTICK_UP, ui::E(e));
+            ui::Context::triggerListeners(ui::EventType::JOYSTICK_UP, ui::E(e));
         } else {
             //Down
             e.IS_JOYSTICK_DOWN = true;
-            ui::Context::triggerListeners(ui::Event::JOYSTICK_DOWN, ui::E(e));
+            ui::Context::triggerListeners(ui::EventType::JOYSTICK_DOWN, ui::E(e));
         }
     };
 

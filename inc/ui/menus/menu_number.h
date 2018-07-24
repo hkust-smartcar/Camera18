@@ -118,13 +118,13 @@ namespace ui {
             e.consume();
         };
 
-        Context::addEventListener(Event::JOYSTICK_DOWN, &joystick_handler);
+        Context::addEventListener(EventType::JOYSTICK_DOWN, &joystick_handler);
 
         printValue();
 
         while (!is_exit) {}
 
-        Context::removeEventListener(Event::JOYSTICK_DOWN, &joystick_handler);
+        Context::removeEventListener(EventType::JOYSTICK_DOWN, &joystick_handler);
 
         onExit();
 
