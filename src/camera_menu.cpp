@@ -56,10 +56,12 @@ void CameraMenu::start() {
 
         FlashStorage::load();
 
+        is_using_constant_mode = FlashStorage::data.is_using_constant_mode;
+
         choice = 0;
 
         {
-            tb.setText("Run (S)");
+            tb.setText(std::string("Run (S) - ") + (is_using_constant_mode ? "C" : "D"));
             tb.setRegion(0, 0, 128, 14);
             tb.render();
 

@@ -124,7 +124,7 @@ public:
         float x_shift = FlashStorage::data.x_shift;
 
         double k = min_speed*pow(sin(40/(180*3.141592654)), 0.5);
-        uint16_t y_range = max_speed - min_speed;
+        uint16_t y_range = uint16_t(1300) /*max_speed*/ - min_speed;
         uint16_t speed1[41];
         uint16_t speed3[41];
 

@@ -2313,7 +2313,7 @@ void algo() {
                 lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_obs_target.x,left_obs_target.y, 4, 4));
                 lcd->FillColor(lcd->kBlue);
                 char buffer[50];
-                sprintf(buffer, "t %d l %d b %f \n %d %d", track_state, loop_state, battery_meter->GetVoltage(), right_edge.front().x, left_edge.front().x);
+                sprintf(buffer, "t %d o %d b %f \n %d %d", track_state, obstacle_state, battery_meter->GetVoltage(), right_edge.front().x, left_edge.front().x);
                 lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
                 writerP->WriteString(buffer);
             }
