@@ -35,6 +35,7 @@ public:
     template<class T>
     void changeValue(const std::string& name, T* target, T step, const std::string& format) {
         screen_adapter_ptr->clear();
+        libsc::System::DelayMs(300);
 
         const char* f = format.c_str();
         volatile bool requireRendering = true;
