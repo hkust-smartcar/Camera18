@@ -1217,7 +1217,7 @@ void algo() {
                     target_speed = 750;
                 } else if (servo->GetDegree() >= 1340) {
                     target_speed = 750;
-                } else if (servo->GetDegree() > 805 && servo->GetDegree() < 865 && angle_degree_2 >= 5 && -prev_count > 1000) {
+                } else if (servo->GetDegree() > 805 && servo->GetDegree() < 865 && angle_degree_2 >= 5 && -prev_count > 1000 && track_state != StartLine) {
                     target_speed = 800;
                 }
 //                tuning_param = 700 * std::sqrt(std::sin(3.14159265359 * 40 / 180));
@@ -1250,7 +1250,7 @@ void algo() {
 //                    target_speed = 700;
 //                }
                 if ((libsc::System::Time() - debug_end_time < 2000)) {
-                    target_speed = 750;
+                    target_speed = 600;
                 }
                 if (libsc::System::Time() - debug_end_time < 1000) {
                     target_speed = 0;
@@ -1313,8 +1313,8 @@ void algo() {
                 if (-prev_count > target_speed) {
                     search_distance = std::pow(-prev_count * servo_P, 2);
                 }
-                if (search_distance < min_speed*servo_P) {
-                    search_distance = min_speed*servo_P;
+                if (search_distance < std::pow(min_speed*servo_P,2)) {
+                    search_distance = std::pow(min_speed*servo_P,2);
                 }
 
 //                char buffer[50];
@@ -2058,7 +2058,7 @@ void algo() {
                     if(right_start_point(midpoint,right_start,edge_threshold))
                         RightEdge(right_start,right_edge_prev_dir,false);
                     midpoint = {(left_start.x+right_start.x)/2,85};
-                    if(right_edge.size()>75 && right_edge_corner.size()==0&&std::abs(temp_target.first-target.first)<100&&std::abs(temp_target.second-target.second)<100)
+                    if(right_edge.size()>70 && right_edge_corner.size()==0&&std::abs(temp_target.first-target.first)<100&&std::abs(temp_target.second-target.second)<100)
                         loop_state=Finished;
 //                    if(right_edge.size()>80 && right_edge_corner.size()==0) {                            // && ((img2world[right_edge[10].x][right_edge[10].y][0] - img2world[right_edge[0].x][right_edge[0].y][0]) > -50)) {
 //                        loop_state = Finished;
@@ -2256,7 +2256,7 @@ void algo() {
                             LeftEdge(left_start, left_edge_prev_dir, false);
                         if (right_start_point(midpoint, right_start, edge_threshold))
                             RightEdge(right_start, right_edge_prev_dir, false);
-                        if(CheckStartLine(95,4,185,edge_threshold)<10 && CheckStartLine(107,4,185,edge_threshold)<7) {
+                        if(CheckStartLine(95,4,185,edge_threshold)<10 && CheckStartLine(107,4,185,edge_threshold)<4) {
                             if(startline_count <= 1) {
                                 track_state = Normal;
                                 obstacle_state = Approach;
@@ -2264,7 +2264,7 @@ void algo() {
                             } else if(startline_count ==2) {
                                 track_state = Stop;
                                 motor_stop_time = libsc::System::Time();
-                                midpoint.y = 105;
+                                midpoint.y = 100;
                             }
                         }
                         else {
@@ -2315,7 +2315,7 @@ void algo() {
                 lcd->SetRegion(libsc::St7735r::Lcd::Rect(1 , 105, 188,1));
                 lcd->FillColor(lcd->kRed);
 
-                lcd->SetRegion(libsc::St7735r::Lcd::Rect(left_obs_target.x,left_obs_target.y, 4, 4));
+                lcd->SetRegion(libsc::St7735r::Lcd::Rect(midpoint.x,midpoint.y, 4, 4));
                 lcd->FillColor(lcd->kBlue);
                 char buffer[50];
                 sprintf(buffer, "t %d o %d b %f \n %d %d", track_state, obstacle_state, battery_meter->GetVoltage(), right_edge.front().x, left_edge.front().x);
@@ -2354,6 +2354,11 @@ void algo() {
                     destination = right_edge.back();
                     servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[150][110][0]) / (img2world[destination.x][destination.y][1] - img2world[150][110][1])) * 1800 / 3.14;
                 }
+
+
+//                if(startline_count == 0){
+//                	servo_angle = 920;
+//                }
 //
             } else if (track_state == Tstate::LeftObs || track_state == Tstate::RightObs) {
                 servo_angle = 920 + std::atan(1.0 * (target.first - img2world[99][110][0]) / (target.second - img2world[99][110][1])) * 1800 / 3.14;
@@ -2389,6 +2394,9 @@ void algo() {
                 } else{
                 	 servo_angle = 920;
                 }
+//                if(startline_count==1){
+//                	 servo_angle = 920;
+//                }
             }
             degree_3 = servo_angle - prev_angle;
             prev_angle = servo_angle;
