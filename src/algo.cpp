@@ -1087,6 +1087,7 @@ void algo() {
     int servo_angle = 920;
     target_speed = 1200;
     libsc::Timer::TimerInt debug_end_time;
+    libsc::Timer::TimerInt motor_stop_time;
     bool start_count = false;
     while (1) {
         if (camera->IsAvailable()) {
@@ -1305,12 +1306,15 @@ void algo() {
                         motor->SetPower(speed_set);
                     }
                 }
+                if(libsc::System::Time()-motor_stop_time>3000&&track_state==Stop){
+                motor->SetPower(0);
+                }
                 prev_error = error;
                 if (-prev_count > target_speed) {
                     search_distance = std::pow(-prev_count * servo_P, 2);
                 }
-                if (search_distance < 400 && !target_speed) {
-                    search_distance = 400;
+                if (search_distance < min_speed*servo_P) {
+                    search_distance = min_speed*servo_P;
                 }
 
 //                char buffer[50];
@@ -2224,7 +2228,7 @@ void algo() {
 
             if (track_state == StartLine) {
                 if (prev_track_state != StartLine) {
-                    //    startline_count++;
+                     startline_count++;
                 }
                 if (startline_count <= 2) {
                     if (obstacle_state == Approach) {
@@ -2259,6 +2263,7 @@ void algo() {
                                 midpoint.y = 105;
                             } else if(startline_count ==2) {
                                 track_state = Stop;
+                                motor_stop_time = libsc::System::Time();
                                 midpoint.y = 105;
                             }
                         }
@@ -2280,10 +2285,10 @@ void algo() {
                     RightEdge(right_start, right_edge_prev_dir, false);
                 midpoint = {(left_start.x+right_start.x)/2,(left_start.y+right_start.y)/2};
 
-                char buffer[50];
-                sprintf(buffer, "ave %f \n time %f", sum_enc * 0.017 / enc_count / 5, enc_count / 200.0);
-                lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
-                writerP->WriteString(buffer);
+//                char buffer[50];
+//                sprintf(buffer, "ave %f \n time %f", sum_enc * 0.017 / enc_count / 5, enc_count / 200.0);
+//                lcd->SetRegion(libsc::Lcd::Rect(0, 0, 160, 40));
+//                writerP->WriteString(buffer);
             }
 
             if (debug) {

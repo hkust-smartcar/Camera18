@@ -139,8 +139,9 @@ void CameraMenu::start() {
             FlashStorage::data = FlashStorage::Data{};
             FlashStorage::save();
         } else if (choice == 4) {
-            is_using_constant_mode = FlashStorage::data.is_using_constant_mode;
             is_exit = true;
         }
+
+        is_using_constant_mode = FlashStorage::data.is_using_constant_mode;
     }
 }
