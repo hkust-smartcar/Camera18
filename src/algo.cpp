@@ -2335,7 +2335,7 @@ void algo() {
             degree_2 = degree_3;
             // = prev_angle;
             coor destination;
-            if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In) || (track_state == Tstate::Crossroad && crossroad_state == Cstate::Outside) || track_state == Tstate::Stop) {
+            if (track_state == Tstate::Normal || (track_state == Tstate::LeftLoop && loop_state == Lstate::In) || (track_state == Tstate::RightLoop && loop_state == Lstate::In) || (track_state == Tstate::Crossroad && crossroad_state == Cstate::Outside) ) {
                 if (left_edge_corner.size() && right_edge_corner.size() && !FindLeftEndPoint(left_edge[left_edge_corner.front()].x, left_edge[left_edge_corner.front()].y) && !FindRightEndPoint(right_edge[right_edge_corner.front()].x, right_edge[right_edge_corner.front()].y)) {
                     destination = final_point;
                     servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[99][110][0]) / (img2world[destination.x][destination.y][1] - img2world[99][110][1])) * 1800 / 3.14;
@@ -2377,7 +2377,7 @@ void algo() {
 
             } else if (track_state == Tstate::LeftLoop) {
                 servo_angle = 920 + std::atan(1.0 * (target.first - img2world[99][110][0]) / (target.second - img2world[99][110][1])) * 1800 / 3.14;
-            } else if (track_state == Tstate::StartLine ) {//|| track_state == Tstate::Stop
+            } else if (track_state == Tstate::StartLine || track_state == Tstate::Stop) {//|| track_state == Tstate::Stop
                 if (left_target_found || right_target_found) {
                     servo_angle = 920 + std::atan(1.0 * (target.first - img2world[99][110][0]) / (target.second - img2world[99][110][1])) * 1800 / 3.14;
                 } else if (left_edge.size()) {
@@ -2386,6 +2386,8 @@ void algo() {
                 } else if (right_edge.size()) {
                     destination = right_edge.back();
                     servo_angle = 920 + std::atan(1.0 * (img2world[destination.x][destination.y][0] - img2world[150][110][0]) / (img2world[destination.x][destination.y][1] - img2world[150][110][1])) * 1800 / 3.14;
+                } else{
+                	 servo_angle = 920;
                 }
             }
             degree_3 = servo_angle - prev_angle;
