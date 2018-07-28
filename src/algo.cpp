@@ -1217,7 +1217,7 @@ void algo() {
                     target_speed = 750;
                 } else if (servo->GetDegree() >= 1340) {
                     target_speed = 750;
-                } else if (servo->GetDegree() > 805 && servo->GetDegree() < 865 && angle_degree_2 >= 5 && -prev_count > 1000 && track_state != StartLine) {
+                } else if (servo->GetDegree() > 805 && servo->GetDegree() < 865 && angle_degree_2 >= 5 && -prev_count > 1000 && track_state != StartLine && !is_using_constant_mode) {
                     target_speed = 800;
                 }
 //                tuning_param = 700 * std::sqrt(std::sin(3.14159265359 * 40 / 180));
@@ -1250,7 +1250,7 @@ void algo() {
 //                    target_speed = 700;
 //                }
                 if ((libsc::System::Time() - debug_end_time < 2000)) {
-                    target_speed = 600;
+                    target_speed = 750;
                 }
                 if (libsc::System::Time() - debug_end_time < 1000) {
                     target_speed = 0;
