@@ -2,6 +2,7 @@
 // Created by Daniel on 10/6/2018.
 //
 
+#include <global.h>
 #include "adapters/application.h"
 
 void Application::init() {
@@ -17,13 +18,7 @@ void Application::init() {
         battery_meter_adapter_ptr = adapters::ContextAdapter::battery_meter_adapter_ptr = new adapters::BatteryMeterAdapter;
         joystick_adapter_ptr = adapters::ContextAdapter::joystick_adapter_ptr = new adapters::JoystickAdapter;
 
-        screen_adapter_ptr->lcd_ptr = new libsc::St7735r([](){
-            libsc::St7735r::Config config;
-            config.fps = 60;
-            config.is_bgr = false;
-            config.orientation = 2;
-            return config;
-        }());
+        screen_adapter_ptr->lcd_ptr = lcd;
 
         libsc::BatteryMeter::Config battery_meter_config{0.4};
         battery_meter_adapter_ptr->battery_meter_ptr = new libsc::BatteryMeter(battery_meter_config);

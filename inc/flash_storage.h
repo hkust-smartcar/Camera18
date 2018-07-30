@@ -12,9 +12,12 @@
 class FlashStorage {
 public:
     struct Data {
-        float P = 0;
-        float I = 0;
-        float D = 0;
+        uint16_t max_speed = 1200;
+        uint16_t min_speed = 750;
+        float slope_param = 8.5f;
+        float x_shift = 1.85f;
+        uint16_t constant_speed = 750;
+        bool is_using_constant_mode = false;
     };
 
     static void save();

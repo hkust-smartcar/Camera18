@@ -9,32 +9,29 @@ namespace ui {
 
     ColorScheme Context::color_scheme;
 
-    std::map<std::pair<Event, std::function<void(E&)>*>, std::function<void(E&)>*> Context::listener_map;
+    std::map<EventType, EventDispatchChain*> Context::listener_map;
 
     void Context::setColorScheme(ColorScheme colorScheme) {
         Context::color_scheme = colorScheme;
     }
 
-    void Context::addEventListener(Event event, std::function<void(E&)>* cb_ptr) {
-        listener_map[{event, cb_ptr}] = cb_ptr;
+    void Context::addEventListener(EventType event, std::function<void(E&)>* cb_ptr) {
+        if (listener_map.find(event) == listener_map.end()) {
+            listener_map[event] = new EventDispatchChain;
+        }
+        listener_map[event]->prepend(cb_ptr);
     }
 
-    void Context::removeEventListener(Event event, std::function<void(E&)>* cb_ptr) {
-        std::pair<Event, std::function<void(E&)>*> key = {event, cb_ptr};
+    void Context::removeEventListener(EventType event, std::function<void(E&)>* cb_ptr) {
         //Check if the function is already in map
-        if ( listener_map.find(key) != listener_map.end() ) {
-            listener_map.erase(key);
+        if ( listener_map.find(event) != listener_map.end() ) {
+            listener_map[event]->removeHandler(cb_ptr);
         }
     }
 
-    void Context::triggerListeners(Event event, E e) {
-        for (auto it = listener_map.begin(); it != listener_map.end(); ++it) {
-            auto& pair = *it;
-            if (pair.first.first == event)
-                (*pair.second)(e);
-
-            if (e.isConsumed())
-                break;
+    void Context::triggerListeners(EventType event, E e) {
+        if ( listener_map.find(event) != listener_map.end() ) {
+            listener_map[event]->dispatchEvent(&e);
         }
     }
 

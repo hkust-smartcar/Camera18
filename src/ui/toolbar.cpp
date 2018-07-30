@@ -8,7 +8,7 @@ namespace ui {
 
     Toolbar::Toolbar() {
         //Style setup
-        assert(Context::font_repo["Humanist"] != nullptr);
+        //assert(Context::font_repo["Humanist"] != nullptr);
         textBlockTitle.setFont(Context::font_repo["Humanist"]);
         textBlockTitle.setTextWrap(text::ELLIPSIS);
         textBlockTitle.setColor(Context::color_scheme.BODY);

@@ -23,13 +23,6 @@ Mcg::Config Mcg::GetMcgConfig() {
 int main() {
 	libsc::System::Init();
 
-	//Camera Init
-	libsc::k60::MT9V034::Config camera_config;
-	camera_config.h_binning = camera_config.k4;
-	camera_config.w_binning = camera_config.k4;
-	libsc::k60::MT9V034 camera_(camera_config);
-	camera = &camera_;
-
 	//Flash Init
 	libbase::k60::Flash::Config flash_config;
 	libbase::k60::Flash flash_(flash_config);
@@ -80,7 +73,7 @@ int main() {
 	//Servo Init
 	libsc::Servo::Config servo_config;
 	servo_config.id = 0;
-	servo_config.period = 3333;
+	servo_config.period = 5000;
 	servo_config.max_pos_width = 2000;
 	servo_config.min_pos_width = 1000;
 	libsc::Servo servo_(servo_config);
@@ -126,7 +119,16 @@ int main() {
 //	libsc::Mpu6050 mpu_(mpu_config);
 //	mpu = &mpu_;
 
-//    CameraMenu::show();
+
+    CameraMenu::show();
+
+	//Camera Init
+	libsc::k60::MT9V034::Config camera_config;
+	camera_config.h_binning = camera_config.k4;
+	camera_config.w_binning = camera_config.k4;
+	libsc::k60::MT9V034 camera_(camera_config);
+	camera = &camera_;
+
 
 	algo();
 }

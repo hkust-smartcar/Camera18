@@ -10,14 +10,10 @@
  */
 #include <ui/adapters/module_adapters/screen_interface.h>
 #include <libsc/lcd.h>
-#include <ui/reactive/reactive.h>
 
 namespace adapters {
     class ScreenAdapter: public virtual ui::adapters::ScreenAdapterInterface {
     public:
-        ui::reactive::Reactive<uint16_t> width = ui::reactive::Reactive<uint16_t>(128);
-        ui::reactive::Reactive<uint16_t> height = ui::reactive::Reactive<uint16_t>(160);
-
         void setRegion(ui::graphics::Rectangle) override;
         ui::graphics::Rectangle getRegion() override;
         void clear() override;
