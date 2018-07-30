@@ -20,13 +20,6 @@ void CameraMenu::init() {
         screen_adapter_ptr->lcd_ptr = lcd;
         battery_meter_adapter_ptr->battery_meter_ptr = battery_meter;
         joystick_adapter_ptr->joystick_ptr = joystick;
-
-        //Do not re-init joystick outside
-//        adapters::ContextAdapter::joystick_config_base.id = 0;
-//        adapters::ContextAdapter::joystick_config_base.is_active_low = true;
-//
-//        ui::Context::prepareListenerEvents();
-//        ui::Context::remapJoystickDirections(ui::JoystickState::LEFT, ui::JoystickState::UP, ui::JoystickState::RIGHT, ui::JoystickState::DOWN);
     }
 
     ui::Context::addFontToRepo("Humanist", &(Application::humanist));
@@ -42,7 +35,7 @@ void CameraMenu::start() {
         FlashStorage::flash_ptr = flash;
     }
 
-    volatile bool is_exit = false;
+    volatile bool is_exit = false; //declared as volatile to solve C++ concurrency issue, i.e. changing value outside of a scope in an interrupt.
 
     ui::TextBlock tb;
     tb.setColor(0xFFFF);

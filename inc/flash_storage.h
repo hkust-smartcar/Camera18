@@ -8,7 +8,26 @@
 #include <string>
 #include <libbase/misc_utils.h>
 #include <libbase/k60/flash.h>
-
+/**
+ * Flash Storage class to facilitate easier saving and loading to and from flash memory.
+ *
+ * To use this, first assign a Flash object pointer to flash_ptr. A reset is required to use for the first time, like:
+ *
+ * @code
+ * FlashStorage::data = FlashStorage::Data{}
+ * FlashStorage::save();
+ * @endcode
+ *
+ * To save new changes to the flash memory, it is required to change the FlashStorage::Data struct in the header to
+ * a struct that can store your necessary information, and use the code below to save the changes:
+ *
+ * @code
+ * FlashStorage::data.name = new_value;
+ * FlashStorage::save();
+ * @endcode
+ *
+ * Loading is like saving, but the data from flash memory will overwrite the data as the static member.
+ */
 class FlashStorage {
 public:
     struct Data {
